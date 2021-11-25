@@ -1,0 +1,931 @@
+<template>
+
+      <!--<h2 style="font-size:20px; font-weight:600; margin:15px 0; background:orange; padding:5px;">ASSESSMENT OF COMPETITION	
+        </h2>	-->
+        <div class="">
+          <!--<h1 style="font-size:24px; font-weight:700;">ARGENTINA </h1>-->
+
+          <div style="float:right">
+            <div class="header5"></div>
+            <input type="checkbox" class="openSidebarMenu5" id="openSidebarMenu5">
+            <label for="openSidebarMenu5" class="sidebarIconToggle5">
+              <lightning-icon icon-name="action:info" size="small" alternative-text="Instructions"
+                title="Instructions"></lightning-icon>
+            </label>
+            <div class="sidebarMenu5">
+              <p>
+                INSTRUCTIONS<br /><br />
+                All white cells can be edited. For each customer, inform the data in the following order of the
+                labeled columns:<br /><br />
+                1) Fill in the names of the top 8 companies (companies that the customer most purchase) for each
+                customer, considering #1 as the leader in that customer<br /><br />
+                2) Indicate how much of shelf share (in percentage) that manufacture holds in the customers. In
+                other words: Considering the total purchase of that customer, how much that Company represents (in
+                percentage):<br /><br />
+                > If UPL is NOT in the TOP 8 Suppliers of that customer, fill in the last column with its position
+                and shelf share<br /><br />
+                > If UPL IS in the TOP 8 Suppliers of that customer, ignore the last column (automatically blocked)
+              </p>
+            </div>
+          </div>
+        </div>
+     <c-gtm-filter-panel></c-gtm-filter-panel>
+
+      <div class="slds-scrollable_x slds-scrollable_y" style="height:300px; overflow-y:scroll; margin-top:15px;">
+
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered"
+          aria-labelledby="element-with-table-label other-element-with-table-label">
+          <thead>
+            <tr>
+              <th width="235">Customer (Lead Customer)
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th width="193" style="text-align:center;">Write the name of the #1<br />Company
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">Indicate the Share<br />of Wallet of the #1 Company
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">Write the name of the <br />#2 Company
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">Indicate the Share<br />of Wallet of the #2 Company
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">Write the name of the<br />#3 Company
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">Indicate the Share<br />of Wallet of the #3 Company
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">Write the name of the<br />#4 Company
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">Indicate the Share of<br />Wallet of the #4 Company
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">Write the name of<br />the #5 Company
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">Indicate the Share of<br />Wallet of the #5 Company
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">Write the name of<br /> the #6 Company
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">Indicate the Share of <br />Wallet of the #6 Company
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">Write the name of <br />the #7 Company
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">Indicate the Share of <br />Wallet of the #7 Company
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">Write the name of<br /> the #8 Company
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">Indicate the Share of <br />Wallet of the #8 Company
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">Write UPL POSITION
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">UPL's Share of Wallet
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+
+            </tr>
+          </thead>
+            
+          <tbody>
+
+            <tr>
+              <td>ACEITERA GENERAL DEHEZA S.A.</td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td>508%</td>
+
+            </tr>
+            <tr>
+              <td>ENRIQUE M. BAYA CASAL S.A.</td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td>467%</td>
+
+            </tr>
+            <tr>
+              <td>LOS GROBO AGROPECUARIA S.A.</td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td>200%</td>
+
+            </tr>
+            <tr>
+              <td>CAMBIAGNO GABRIEL ANDRES</td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td role="gridcell">
+                <div class="slds-truncate" title="">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-select_container">
+                        <select class="slds-select">
+                          <option value="">Select…</option>
+                          <option>Bayer</option>
+                          <option>Nova</option>
+                          <option>Syngenta</option>
+                          <option>Corteva</option>
+                          <option>ACA</option>
+                          <option>Atanor</option>
+                          <option>Other</option>
+                          <option>UPL</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td></td>
+            </tr>
+            
+          </tbody>
+        </table>
+      </div>
+
+      <c-pagination-cmp 
+  tabledata={accounts} 
+  onaction={handlePaginationAction}>
+      <div class="slds-float_right" style="margin-right: 20rem;" slot="pageNumber"><b class="pagenumber">Page:1 of 10</b></div>
+</c-pagination-cmp>
+</template>

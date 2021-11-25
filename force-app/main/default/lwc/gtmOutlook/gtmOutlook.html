@@ -1,0 +1,211 @@
+<template>
+  <div class="">
+    <!--<h1 style="font-size:24px; font-weight:700;">ARGENTINA </h1>-->
+
+    <div style="float:right">
+      <div class="header6"></div>
+      <input type="checkbox" class="openSidebarMenu6" id="openSidebarMenu6">
+      <label for="openSidebarMenu6" class="sidebarIconToggle6">
+        <lightning-icon icon-name="action:info" size="small" alternative-text="Instructions"
+          title="Instructions"></lightning-icon>
+      </label>
+      <div class="sidebarMenu6">
+        <p>
+          INSTRUCTIONS<br /><br />
+          All white cells can be edited. For each customer, inform the data in the following order of the
+          labeled columns: <br />
+          (1) Estimate how much the sales of the customer is expected to change (percentage increase or
+          decrease) from 2020/21 to 2021/22 <br /><br />
+          (2) Check if, in absolute values, the expectation for 2021/22 makes sense <br /><br />
+          (3) Estimate how much the sales of the customer is expected to change (percentage increase or
+          decrease) from 2021/22 to 2022/23 <br /><br />
+          (4) Check if, in absolute values, the expectation for 2022/23 makes sense <br /><br />
+          (3) Estimate how much the sales of the customer is expected to change (percentage increase or
+          decrease) from 2022/23 to 2023/24 <br /><br />
+          (4) Check if, in absolute values, the expectation for 2023/24 makes sense
+        </p>
+      </div>
+    </div>
+  </div>
+  <c-gtm-filter-panel></c-gtm-filter-panel>
+
+      <div class="slds-scrollable_x slds-scrollable_y" style="height:300px; overflow-y:scroll; margin-top:15px;">
+
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered"
+          aria-labelledby="element-with-table-label other-element-with-table-label">
+          <thead>
+            <tr>
+              <th>Customer (Lead Customer)
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">All Companies Purchase <br />to Customer 2020/21
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">(1) Estimated Growth (%) <br />in Percentage 2020/21 To 2021/22
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">(2) Confirm The Estimated Total Sales <br />to The Channel In 2021/22
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">(3) Estimated Growth (%) <br />in Percentage 2021/22 To 2022/23
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">(4) Confirm The Estimated Total Sales <br />to The Channel In 2022/23
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">(5) Estimated Growth (%) <br />in Percentage 2022/23 To 2023/24
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+              <th style="text-align:center;">(6) Confirm The Estimated Total Sales <br />to The Channel In 2023/24
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                  class="slds-m-right" title="Warning"></lightning-icon>
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            <tr>
+              <td>ACEITERA GENERAL DEHEZA S.A.</td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+            </tr>
+            <tr>
+              <td>ENRIQUE M. BAYA CASAL S.A.</td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+            </tr>
+            <tr>
+              <td>LOS GROBO AGROPECUARIA S.A.</td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+            </tr>
+            <tr>
+              <td>CAMBIAGNO GABRIEL ANDRES</td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+            </tr>
+            <tr>
+              <td>NOVOZYMES BIOAG S.A.</td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+            </tr>
+            <tr>
+              <td>LARTIRIGOYEN Y CIA. S.A.</td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+            </tr>
+            <tr>
+              <td>AGRICULTORES FEDERADOS ARGENTI</td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td></td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+              <td>
+                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+              </td>
+            </tr>
+         </tbody>
+        </table>
+
+      </div>
+
+      <c-pagination-cmp 
+  tabledata={accounts} 
+  onaction={handlePaginationAction}>
+      <div class="slds-float_right" style="margin-right: 20rem;" slot="pageNumber"><b class="pagenumber">Page:1 of 10</b></div>
+</c-pagination-cmp>
+</template>
