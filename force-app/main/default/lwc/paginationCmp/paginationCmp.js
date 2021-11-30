@@ -10,32 +10,35 @@ export default class PaginationCmp extends LightningElement {
     items = [];
     @track disableBtn = {first:false,previous:false,next:false,last:false};
     
-    
     tabledata;
     data = [];
     @api get tabledata(){
       return this.items;  
     }
 
+
     set tabledata(value){
         if(value){
         this.data = JSON.parse(JSON.stringify(value));
+        console.log('Pagination data ',this.data);
         this.totalRecordCount = this.data.length;
         this.totalPage = Math.ceil(this.totalRecordCount/this.pageSize);
         this.items = this.data.slice(0,this.pageSize);
         this.endingRecord = this.pageSize;
         console.log('Items ',this.items);
         let objlist = {values:this.items}
-        if(this.querySelector('.pagenumber')){
-            this.querySelector('.pagenumber').innerHTML = `Page: ${this.page} of ${this.totalPage}`;
-        }
+        setTimeout(() => {
+            if(this.querySelector('.pagenumber')){
+                this.querySelector('.pagenumber').innerHTML = `Page: ${this.page} of ${this.totalPage}`;
+            }
+        }, 500);
         this.checkNextPreviousbtn(this.page,this.totalPage);
         this.dispatchEvent(new CustomEvent('action',{detail:objlist}))
         }
     }
     
     get pageSizeOptions(){
-        return [5,10,50,100];
+        return [10,20,50,100];
     }
 
     handleRecordsPerPage(event){

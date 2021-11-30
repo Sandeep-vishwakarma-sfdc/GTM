@@ -30,7 +30,7 @@
       </div>
     </div>
   </div>
-      <c-gtm-filter-panel></c-gtm-filter-panel>
+      <c-gtm-filter-panel panel-status={options} onaction={handleFilterPanelAction} ></c-gtm-filter-panel>
       <div class="slds-scrollable_x slds-scrollable_y" style="height:300px; overflow-y:scroll; margin-top:15px;">
 
         <table class="slds-table slds-table_cell-buffer slds-table_bordered"
@@ -38,228 +38,52 @@
           <thead>
             <tr>
               <th>Customer (Lead Customer)
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
-                  class="slds-m-right" title="Warning"></lightning-icon>
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text=""
+                  class="slds-m-right" title=""></lightning-icon>
               </th>
-              <th style="text-align:center;">All Companies Purchase <br />To Customer 2020/21
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
-                  class="slds-m-right" title="Warning"></lightning-icon>
+              <th>{columnfiscalYear}
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text=""
+                  class="slds-m-right" title=""></lightning-icon>
               </th>
-              <th style="text-align:center;">Fungicide
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
-                  class="slds-m-right" title="Warning"></lightning-icon>
+              <template for:each={columns} for:item="col">
+              <th key={col.pid}>{col.pName}
+                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text={col.pName}
+                  class="slds-m-right" title={col.pName}></lightning-icon>
               </th>
-              <th style="text-align:center;">Insecticides
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
-                  class="slds-m-right" title="Warning"></lightning-icon>
-              </th>
-              <th style="text-align:center;">Herbicides
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
-                  class="slds-m-right" title="Warning"></lightning-icon>
-              </th>
-              <th style="text-align:center;">Biosolutions
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
-                  class="slds-m-right" title="Warning"></lightning-icon>
-              </th>
-              <th style="text-align:center;">Soil And Seed Health
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
-                  class="slds-m-right" title="Warning"></lightning-icon>
-              </th>
-              <th style="text-align:center;">Other <br />
-                Categories
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
-                  class="slds-m-right" title="Warning"></lightning-icon>
-              </th>
-              <th style="text-align:center;">Remaining
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
-                  class="slds-m-right" title="Warning"></lightning-icon>
-              </th>
-              <th style="text-align:center;">Check If Distribution Is Correct
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
-                  class="slds-m-right" title="Warning"></lightning-icon>
-              </th>
+            </template>
+            <th>Remaining
+              <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text=""
+                class="slds-m-right" title=""></lightning-icon>
+            </th>
+            <th>Check If Distribution Is Correct
+              <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text=""
+                class="slds-m-right" title=""></lightning-icon>
+            </th>
             </tr>
           </thead>
 
           <tbody>
-
-            <tr>
-              <td>ACEITERA GENERAL DEHEZA S.A.</td>
-              <td></td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+            <template for:each={paginatedProductCategoryAllocation} for:item="productallocate">
+            <tr key={productallocate.customerId}>
+              <td data-accountid={productallocate.customerId}>{productallocate.customerName}</td>
+              <td data-accountid={productallocate.customerId}>{productallocate.customerName}</td>
+              <template for:each={productallocate.productCategory} for:item="pc">
+              <td key={pc.pid}>
+                <lightning-input type="number" style="margin-top:-16px;" class="inputDetails" data-id={pc.pId} data-detail={pc.GTMDetail} data-accountid={productallocate.customerId} value="" onchange={handleProductDetailChange}></lightning-input>
               </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>0%</td>
-              <td style="background:#368628; color:#fff;">Distribution completed</td>
+              </template>
+              <td data-accountid={productallocate.customerId} class="percentage dontremove">100%</td>
+              <td data-accountid={productallocate.customerId} class="distribution dontremove" style="background:#368628; color:#fff;" >Distribution completed</td>
             </tr>
-            <tr>
-              <td>ENRIQUE M. BAYA CASAL S.A.</td>
-              <td></td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>100%</td>
-              <td style="background:red; color:#fff;">Please check the values. Not matching 100%</td>
-            </tr>
-            <tr>
-              <td>LOS GROBO AGROPECUARIA S.A.</td>
-              <td></td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>100%</td>
-              <td style="background:red; color:#fff;">Please check the values. Not matching 100%</td>
-            </tr>
-            <tr>
-              <td>CAMBIAGNO GABRIEL ANDRES</td>
-              <td></td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>100%</td>
-              <td style="background:red; color:#fff;">Please check the values. Not matching 100%</td>
-            </tr>
-            <tr>
-              <td>NOVOZYMES BIOAG S.A.</td>
-              <td></td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>100%</td>
-              <td style="background:red; color:#fff;">Please check the values. Not matching 100%</td>
-            </tr>
-            <tr>
-              <td>LARTIRIGOYEN Y CIA. S.A.</td>
-              <td></td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>100%</td>
-              <td style="background:red; color:#fff;">Please check the values. Not matching 100%</td>
-            </tr>
-            <tr>
-              <td>AGRICULTORES FEDERADOS ARGENTI</td>
-              <td></td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>100%</td>
-              <td style="background:red; color:#fff;">Please check the values. Not matching 100%</td>
-            </tr>
-            
+          </template>           
           </tbody>
         </table>
 
       </div>
 
       <c-pagination-cmp 
-  tabledata={accounts} 
-  onaction={handlePaginationAction}>
+        tabledata={productAllocations} 
+        onaction={handlePaginationAction}>
       <div class="slds-float_right" style="margin-right: 20rem;" slot="pageNumber"><b class="pagenumber">Page:1 of 10</b></div>
 </c-pagination-cmp>
 </template>

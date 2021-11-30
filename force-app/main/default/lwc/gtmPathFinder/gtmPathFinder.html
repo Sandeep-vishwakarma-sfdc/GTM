@@ -54,7 +54,7 @@
   
        <!-- modal start -->      
      <template if:true={isShowModal}>
-       <c-generic-model-popup onclose={hideModalBox}></c-generic-model-popup>
+       <c-generic-model-popup onclose={hideModalBox} onmodelsubmit={handleModelSubmit}></c-generic-model-popup>
       </template>
       <!-- modal end -->
   

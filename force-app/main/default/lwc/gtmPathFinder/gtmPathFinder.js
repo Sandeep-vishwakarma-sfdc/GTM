@@ -1,21 +1,11 @@
 import { LightningElement, track } from 'lwc';
-import { loadStyle, loadScript } from 'lightning/platformResourceLoader';
-import jquerymin from '@salesforce/resourceUrl/jquerymin';
-import sidebarjs from '@salesforce/resourceUrl/sidebarjs';
+
 
 export default class GtmPathFinder extends LightningElement {
     @track isShowModal = false;
     value = 'No. of Lead Customer';
 
     accounts = [];
-
-    renderedCallback() {
-        Promise.all([
-            loadScript(this, jquerymin),
-            loadScript(this, sidebarjs),
-        ])
-    }
-
 
     handlePaginationAction() { }
 
@@ -26,7 +16,6 @@ export default class GtmPathFinder extends LightningElement {
             { label: 'Lead Customer', value: 'Lead Customer' },
             { label: 'Non Lead Customer', value: 'Non Lead Customer' },
             { label: 'Both', value: 'Both' },
-
         ];
     }
 
@@ -69,15 +58,17 @@ export default class GtmPathFinder extends LightningElement {
         let ml = this.template.querySelector(".sidebar");
         ml.toggleClass("active");
     }
-
-    @track isShowModal = false;
-
     showModalBox() {
         this.isShowModal = true;
     }
 
     hideModalBox(event) {
         console.log('Event detail ',event.detail)
+        this.isShowModal = false;
+    }
+
+    handleModelSubmit(){
+        console.log('Submit model');
         this.isShowModal = false;
     }
 

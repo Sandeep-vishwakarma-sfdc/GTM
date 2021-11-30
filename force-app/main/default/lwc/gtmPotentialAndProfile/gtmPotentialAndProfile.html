@@ -4,8 +4,8 @@
       <div class="header2"></div>
       <input type="checkbox" class="openSidebarMenu2" id="openSidebarMenu2">
       <label for="openSidebarMenu2" class="sidebarIconToggle2">
-        <lightning-icon icon-name="action:info" size="small" alternative-text="Instructions"
-          title="Instructions"></lightning-icon>
+        <lightning-icon icon-name="action:info" size="small" alternative-text="Instructions" title="Instructions">
+        </lightning-icon>
       </label>
       <div class="sidebarMenu2">
         <p>
@@ -37,379 +37,96 @@
       </div>
     </div>
   </div>
-      <c-gtm-filter-panel></c-gtm-filter-panel>
+  <c-gtm-filter-panel onaction={handleFiltersAction} panel-status={panelStatus}></c-gtm-filter-panel>
 
-      <div class="slds-scrollable_x slds-scrollable_y" style="height:300px; overflow-y:scroll; margin-top:15px;">
+  <div class="slds-scrollable_x slds-scrollable_y" style="height:300px; overflow-y:scroll; margin-top:15px;">
 
-        <table class="slds-table slds-table_cell-buffer slds-table_bordered"
-          aria-labelledby="element-with-table-label other-element-with-table-label">
+    <table class="slds-table slds-table_cell-buffer slds-table_bordered"
+      aria-labelledby="element-with-table-label other-element-with-table-label">
 
-          <thead>
-            <tr>
-              <th>Client (Lead Client)
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
-                  class="slds-m-right" title="Warning"></lightning-icon>
-              </th>
-              <th>Customer Type
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
-                  class="slds-m-right" title="Warning"></lightning-icon>
-              </th>
-              <th style="text-align:center;">(1) Confirm Customer Type <br>
-                Indicated on the Left Adjacent Cell
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
-                  class="slds-m-right" title="Warning"></lightning-icon>
-              </th>
-              <th style="text-align:center;">(2) Total Purcahse of Crop Protection<br>
-                (Industry Price) 2020/21 (USD Million)
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
-                  class="slds-m-right" title="Warning"></lightning-icon>
-              </th>
-              <th style="text-align:center;">(3) Estimated Markup of Channel <br> (In % of Sales)
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
-                  class="slds-m-right" title="Warning"></lightning-icon>
-              </th>
-              <th style="text-align:center;">(4) Confirm the Estimated <br>
-                Revenues of the Customer in 2020/21
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
-                  class="slds-m-right" title="Warning"></lightning-icon>
-              </th>
-              <th style="text-align:center;">(5) Estimated Number<br>
-                Of Sales REP on Role
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
-                  class="slds-m-right" title="Warning"></lightning-icon>
-              </th>
-              <th style="text-align:center;">(6) Number of Stories<br>
-                That the Channel has
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
-                  class="slds-m-right" title="Warning"></lightning-icon>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>ACEITERA GENERAL DEHEZA S.A.</td>
-              <td>Distributor</td>
-              <td role="gridcell">
-                <div class="slds-truncate" title="">
-                  <div class="slds-form-element">
-                    <div class="slds-form-element__control">
-                      <div class="slds-select_container">
-                        <select class="slds-select" id="select-01">
-                          <option>Customer Type is Already Correct</option>
-                          <option>Distributor</option>
-                          <option>Retailer</option>
-                          <option>B2B</option>
-                          <option>Dealer</option>
-                         
-                        </select>
-                      </div>
+      <thead>
+        <tr>
+          <th>Client (Lead Client)
+            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!" class="slds-m-right"
+              title="Warning"></lightning-icon>
+          </th>
+          <th>Customer Type
+            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!" class="slds-m-right"
+              title="Warning"></lightning-icon>
+          </th>
+          <th style="text-align:center;">(1) Confirm Customer Type <br>
+            Indicated on the Left Adjacent Cell
+            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!" class="slds-m-right"
+              title="Warning"></lightning-icon>
+          </th>
+          <th style="text-align:center;">(2) Total Purcahse of Crop Protection<br>
+            (Industry Price) 2020/21 (USD Million)
+            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!" class="slds-m-right"
+              title="Warning"></lightning-icon>
+          </th>
+          <th style="text-align:center;">(3) Estimated Markup of Channel <br> (In % of Sales)
+            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!" class="slds-m-right"
+              title="Warning"></lightning-icon>
+          </th>
+          <th style="text-align:center;">(4) Confirm the Estimated <br>
+            Revenues of the Customer in 2020/21
+            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!" class="slds-m-right"
+              title="Warning"></lightning-icon>
+          </th>
+          <th style="text-align:center;">(5) Estimated Number<br>
+            Of Sales REP on Role
+            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!" class="slds-m-right"
+              title="Warning"></lightning-icon>
+          </th>
+          <th style="text-align:center;">(6) Number of Stories<br>
+            That the Channel has
+            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!" class="slds-m-right"
+              title="Warning"></lightning-icon>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <template for:each={paginatedGtmPotentialProfile} for:item="gtm">
+          <tr key={gtm.id}>
+            <td>{gtm.account.name}</td>
+            <td>{gtm.customerType}</td>
+            <td role="gridcell">
+              <div class="slds-truncate" title="">
+                <div class="slds-form-element">
+                  <div class="slds-form-element__control">
+                    <div class="slds-select_container">
+                      <select class="slds-select" onchange={handleCustomerTypeChange}>
+                        <template for:each={customerTypeOption} for:item="option">
+                          <option key={option.value}>{option.label}</option>
+                      </template>
+                      </select>
                     </div>
                   </div>
                 </div>
-              </td>
-              <td style="text-align:center;">
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td style="text-align:center;">
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td style="text-align:center;">The total farm gate revenues are USD $1 million</td>
-              <td style="text-align:center;">
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td style="text-align:center;">
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-            </tr>
-            <tr>
-              <td>ENRIQUE M. BAYA CASAL S.A.</td>
-              <td>Distributor</td>
-              <td role="gridcell">
-                <div class="slds-truncate" title="">
-                  <div class="slds-form-element">
-                    <div class="slds-form-element__control">
-                      <div class="slds-select_container">
-                        <select class="slds-select" id="select-21">
-                          <option>Customer Type is Already Correct</option>
-                          <option>Distributor</option>
-                          <option>Retailer</option>
-                          <option>B2B</option>
-                          <option>Dealer</option>
-                         
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td style="text-align:center;">
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td style="text-align:center;">The total farm gate revenues are USD $1 million</td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-            </tr>
-            <tr>
-              <td>LOS GROBO AGROPECUARIA S.A.</td>
-              <td>Dealer &amp; Retail</td>
-              <td role="gridcell">
-                <div class="slds-truncate" title="">
-                  <div class="slds-form-element">
-                    <div class="slds-form-element__control">
-                      <div class="slds-select_container">
-                        <select class="slds-select" id="select-22">
-                          <option>Customer Type is Already Correct</option>
-                          <option>Distributor</option>
-                          <option>Retailer</option>
-                          <option>B2B</option>
-                          <option>Dealer</option>
-                         
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td style="text-align:center;">
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td style="text-align:center;">
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td style="text-align:center;">The total farm gate revenues are USD $2 million</td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-            </tr>
-            <tr>
-              <td>CAMBIAGNO GABRIEL ANDRES</td>
-              <td>Distributor</td>
-              <td role="gridcell">
-                <div class="slds-truncate" title="">
-                  <div class="slds-form-element">
-                    <div class="slds-form-element__control">
-                      <div class="slds-select_container">
-                        <select class="slds-select" id="select-23">
-                          <option>Customer Type is Already Correct</option>
-                          <option>Distributor</option>
-                          <option>Retailer</option>
-                          <option>B2B</option>
-                          <option>Dealer</option>
-                         
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td style="text-align:center;">The total farm gate revenues are USD $1 million</td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-            </tr>
-            <tr>
-              <td>NOVOZYMES BIOAG S.A.</td>
-              <td>B2B</td>
-              <td role="gridcell">
-                <div class="slds-truncate" title="">
-                  <div class="slds-form-element">
-                    <div class="slds-form-element__control">
-                      <div class="slds-select_container">
-                        <select class="slds-select" id="select-24">
-                          <option>Customer Type is Already Correct</option>
-                          <option>Distributor</option>
-                          <option>Retailer</option>
-                          <option>B2B</option>
-                          <option>Dealer</option>
-                         
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td style="text-align:center;">
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td style="text-align:center;">The total farm gate revenues are USD $1 million</td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-            </tr>
-            <tr>
-              <td>LARTIRIGOYEN Y CIA. S.A.</td>
-              <td>Distributor</td>
-              <td role="gridcell">
-                <div class="slds-truncate" title="">
-                  <div class="slds-form-element">
-                    <div class="slds-form-element__control">
-                      <div class="slds-select_container">
-                        <select class="slds-select" id="select-25">
-                          <option>Customer Type is Already Correct</option>
-                          <option>Distributor</option>
-                          <option>Retailer</option>
-                          <option>B2B</option>
-                          <option>Dealer</option>
-                          
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td style="text-align:center;">The total farm gate revenues are USD $1 million</td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-            </tr>
-            <tr>
-              <td>AGRICULTORES FEDERADOS ARGENTI</td>
-              <td>B2B</td>
-              <td role="gridcell">
-                <div class="slds-truncate" title="">
-                  <div class="slds-form-element">
-                    <div class="slds-form-element__control">
-                      <div class="slds-select_container">
-                        <select class="slds-select" id="select-26">
-                          <option>Customer Type is Already Correct</option>
-                          <option>Distributor</option>
-                          <option>Retailer</option>
-                          <option>B2B</option>
-                          <option>Dealer</option>
-                          
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td style="text-align:center;">
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td style="text-align:center;">The total farm gate revenues are USD $2 million</td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-            </tr>
-            <tr>
-              <td>SUMITOMO CHEMICAL ARGENTINA S.A.</td>
-              <td>B2B</td>
-              <td role="gridcell">
-                <div class="slds-truncate" title="">
-                  <div class="slds-form-element">
-                    <div class="slds-form-element__control">
-                      <div class="slds-select_container">
-                        <select class="slds-select" id="select-27">
-                          <option>Customer Type is Already Correct</option>
-                          <option>Distributor</option>
-                          <option>Retailer</option>
-                          <option>B2B</option>
-                          <option>Dealer</option>
-                          
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              
-              <td style="text-align:center;">The total farm gate revenues are USD $1 million</td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-            </tr>
-            <tr>
-              <td>AGROEMPRESA COLON S.A.</td>
-              <td>Distributor</td>
-              <td role="gridcell">
-                <div class="slds-truncate" title="">
-                  <div class="slds-form-element">
-                    <div class="slds-form-element__control">
-                      <div class="slds-select_container">
-                        <select class="slds-select" id="select-28">
-                          <option>Customer Type is Already Correct</option>
-                          <option>Distributor</option>
-                          <option>Retailer</option>
-                          <option>B2B</option>
-                          <option>Dealer</option>
-                          
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td style="text-align:center;">The total farm gate revenues are USD $1 million</td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-              <td>
-                <lightning-input style="margin-top:-16px;"></lightning-input>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <lightning-input style="margin-top:-16px;" value={gtm.total_Purcahse_of_Crop_Protection}>
+              </lightning-input>
+            </td>
+            <td style="text-align:center;">
+              <lightning-input style="margin-top:-16px;" value={gtm.estimated_Markup_of_Channel}></lightning-input>
+            </td>
+            <td style="text-align:center;">The total farm gate revenues are USD $1 million</td>
+            <td style="text-align:center;">
+              <lightning-input style="margin-top:-16px;" value={gtm.estimated_Number_Of_Sales_REP}></lightning-input>
+            </td>
+            <td style="text-align:center;">
+              <lightning-input style="margin-top:-16px;" value={gtm.number_of_Stories}></lightning-input>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
 
-      </div>
+  </div>
 
-      <c-pagination-cmp 
-  tabledata={accounts} 
-  onaction={handlePaginationAction}>
-      <div class="slds-float_right" style="margin-right: 20rem;" slot="pageNumber"><b class="pagenumber">Page:1 of 10</b></div>
-</c-pagination-cmp>
+  <c-pagination-cmp tabledata={gtmPotentialProfile} onaction={handlePaginationAction}>
+    <div class="slds-float_right" style="margin-right: 20rem;" slot="pageNumber"><b class="pagenumber">Page:</b></div>
+  </c-pagination-cmp>
 </template>

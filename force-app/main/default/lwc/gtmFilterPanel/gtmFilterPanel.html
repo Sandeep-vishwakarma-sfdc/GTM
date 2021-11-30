@@ -1,17 +1,17 @@
 <template>
     <div class="slds-grid slds-wrap slds-gutters" style="margin:0 !important;">
         <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
-          <lightning-input type="search" label="Search By Customer Name" style="font-weight:600;"></lightning-input>
+          <lightning-input name="search" type="search" value={filters.search} label="Search By Customer Name" style="font-weight:600;" onchange={handleValueChange}></lightning-input>
         </div>
 
         <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
-          <lightning-combobox name="No. of Lead Customer" label="Filter By" value={value2} placeholder="Select"
-            options={options} onchange={handleChange}></lightning-combobox>
+          <lightning-combobox name="filter1" value={filters.filter1} label="Filter By" placeholder="Select"
+            options={options1} onchange={handleValueChange}></lightning-combobox>
         </div>
 
         <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
-          <lightning-combobox name="No. of Lead Customer" label="Filter By" value={value} placeholder="Select"
-            options={options2} onchange={handleChange}></lightning-combobox>
+          <lightning-combobox name="filter2" label="Filter By" value={filters.filter2} placeholder="Select"
+            options={options2} onchange={handleValueChange}></lightning-combobox>
         </div>
 
 
@@ -21,7 +21,7 @@
           <div style="color:#fff;
           border:1px solid #000;
           display:inline-block;
-        background-color:#9f2723; padding:3px 5px; text-align:center; width:200px;">05 <label
+        background-color:#9f2723; padding:3px 5px; text-align:center; width:200px;">{panelStatusObj.notFilled}<label
               style="display:inline; margin-left:5px; font-weight:600;">Nos Not Filled</label></div>
         </div>
 
@@ -30,7 +30,7 @@
           <div style="
           border:1px solid #000;
           display:inline-block;
-        background-color:#fbbc1a; padding:3px 5px; text-align:center; width:200px;">20<label
+        background-color:#fbbc1a; padding:3px 5px; text-align:center; width:200px;">{panelStatusObj.inProgress}<label
               style="display:inline; margin-left:5px; font-weight:600;">Nos in Progress</label></div>
         </div>
 
@@ -39,9 +39,8 @@
           <div style="color:#fff;
           border:1px solid #000;
           display:inline-block;
-          background-color:#368628; padding:3px 5px; text-align:center; width:200px;">30<label
+          background-color:#368628; padding:3px 5px; text-align:center; width:200px;">{panelStatusObj.completed}<label
               style="display:inline; margin-left:5px; font-weight:600;">Nos are Completed</label></div>
         </div>
-
       </div>
 </template>

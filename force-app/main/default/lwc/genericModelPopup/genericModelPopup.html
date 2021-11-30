@@ -3,7 +3,7 @@
         <div class="slds-modal__container">
         <!-- modal header start -->
           <header class="slds-modal__header">
-             <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={hideModalBox}>
+             <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeModalBox}>
                 <lightning-icon icon-name="utility:close"
                    alternative-text="close"
                    variant="inverse"
@@ -21,8 +21,8 @@
         
           <!-- modal footer start-->
           <footer class="slds-modal__footer" style="text-align:center;">
-             <button class="slds-button slds-button_neutral" onclick={hideModalBox}>No</button>
-             <button class="slds-button slds-button_brand"  onclick={hideModalBox}>Yes</button>
+             <button class="slds-button slds-button_neutral" onclick={closeModalBox}>No</button>
+             <button class="slds-button slds-button_brand"  onclick={handleModelsubmit}>Yes</button>
           </footer>
         
         </div>
