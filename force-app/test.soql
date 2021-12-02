@@ -18,3 +18,20 @@ SELECT FiscalYearSettings.Name , StartDate,EndDate, type FROM Period WHERE Type 
 select Id,Name from Account where Sales_Org_Code__c='5631' and Account_Type__c='Sold To Party' and Lead_Customer__c=null and Lead_Customer_Ownership__c='005280000017DV0'
 
 GTMPathFinder.getGTMCustomers();
+
+GTMPathFinder.updateGTMDetail('a4k0k0000002RFtAAM','50');
+
+List<Account> ac = GTMPathFinder.getGTMCustomers();
+System.debug(ac.size());
+
+List<GTM_Details__c> details = [SELECT ID,Name,GTM__c from GTM_Details__c where GTM__c='a4j0k000000iQp1'];
+delete details;
+
+------------------------------------------------------------------------------------------------
+
+select Id,Name from Crop__c where GTM_Status__c='Active' and Sales_Org_Code__c='5631'
+Map<string,List<GTM_Details__c>> cropmap = GTMPathFinder.getCropAllocation();
+System.debug(cropmap);
+
+List<Crop__c> crops = GTMPathFinder.getActiveCrop();
+System.debug('Crops '+crops.size());
