@@ -1,7 +1,7 @@
 <template>
     <div class="slds-grid slds-wrap slds-gutters" style="margin:0 !important;">
         <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
-          <lightning-input name="search" type="search" value={filters.search} label="Search By Customer Name" style="font-weight:600;" onchange={handleValueChange}></lightning-input>
+          <lightning-input name="search" type="search" value={filters.search} label="Search By Customer Name" style="font-weight:600;" onchange={handleValueChange} onkeydown={handleValueChange} autocomplete="off"></lightning-input>
         </div>
 
         <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">

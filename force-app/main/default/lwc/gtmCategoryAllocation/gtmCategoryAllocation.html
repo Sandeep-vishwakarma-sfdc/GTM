@@ -1,5 +1,5 @@
 <template>
-   
+
   <div class="">
     <!--<h1 style="font-size:24px; font-weight:700;">ARGENTINA </h1>-->
 
@@ -7,8 +7,8 @@
       <div class="header3"></div>
       <input type="checkbox" class="openSidebarMenu3" id="openSidebarMenu3">
       <label for="openSidebarMenu3" class="sidebarIconToggle3">
-        <lightning-icon icon-name="action:info" size="small" alternative-text="Instructions"
-          title="Instructions"></lightning-icon>
+        <lightning-icon icon-name="action:info" size="small" alternative-text="Instructions" title="Instructions">
+        </lightning-icon>
       </label>
       <div class="sidebarMenu3">
         <p>
@@ -30,60 +30,71 @@
       </div>
     </div>
   </div>
-      <c-gtm-filter-panel panel-status={options} onaction={handleFilterPanelAction} ></c-gtm-filter-panel>
-      <div class="slds-scrollable_x slds-scrollable_y" style="height:300px; overflow-y:scroll; margin-top:15px;">
+  <c-gtm-filter-panel panel-status={options} onaction={handleFilterPanelAction} onback={handleFilterPanelAction}>
+  </c-gtm-filter-panel>
+  <div class="slds-scrollable_x slds-scrollable_y" style="height:300px; overflow-y:scroll; margin-top:15px;">
 
-        <table class="slds-table slds-table_cell-buffer slds-table_bordered"
-          aria-labelledby="element-with-table-label other-element-with-table-label">
-          <thead>
-            <tr>
-              <th>Customer (Lead Customer)
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text=""
-                  class="slds-m-right" title=""></lightning-icon>
-              </th>
-              <th>{columnfiscalYear}
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text=""
-                  class="slds-m-right" title=""></lightning-icon>
-              </th>
-              <template for:each={columns} for:item="col">
-              <th key={col.pid}>{col.pName}
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text={col.pName}
-                  class="slds-m-right" title={col.pName}></lightning-icon>
-              </th>
-            </template>
-            <th>Remaining
-              <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text=""
-                class="slds-m-right" title=""></lightning-icon>
+    <table class="slds-table slds-table_cell-buffer slds-table_bordered"
+      aria-labelledby="element-with-table-label other-element-with-table-label">
+      <thead>
+        <tr>
+          <th>Customer (Lead Customer)
+            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="" class="slds-m-right" title="" name="customerName" onclick={handleSort}>
+            </lightning-icon>
+          </th>
+          <th>{columnfiscalYear}
+            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="" class="slds-m-right" title="">
+            </lightning-icon>
+          </th>
+          <template for:each={columns} for:item="col">
+            <th key={col.pid}>{col.pName}
             </th>
-            <th>Check If Distribution Is Correct
-              <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text=""
-                class="slds-m-right" title=""></lightning-icon>
-            </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            <template for:each={paginatedProductCategoryAllocation} for:item="productallocate">
-            <tr key={productallocate.customerId}>
-              <td data-accountid={productallocate.customerId}>{productallocate.customerName}</td>
-              <td data-accountid={productallocate.customerId}>{productallocate.customerName}</td>
-              <template for:each={productallocate.productCategory} for:item="pc">
+          </template>
+          <th>Remaining
+            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="" class="slds-m-right" title="" name="percentageValue" onclick={handleSort}>
+            </lightning-icon>
+          </th>
+          <th>Check If Distribution Is Correct
+            
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <template if:true={paginatedProductCategoryAllocation} for:each={paginatedProductCategoryAllocation}
+          for:item="productallocate">
+          <tr key={productallocate.customerId}>
+            <td data-accountid={productallocate.customerId}>{productallocate.customerName}</td>
+            <td data-accountid={productallocate.customerId}>{productallocate.customerName}</td>
+            <template for:each={productallocate.productCategory} for:item="pc">
               <td key={pc.pid}>
-                <lightning-input type="number" style="margin-top:-16px;" class="inputDetails" data-id={pc.pId} data-detail={pc.GTMDetail} data-accountid={productallocate.customerId} value="" onchange={handleProductDetailChange}></lightning-input>
+                <lightning-input type="number" step="any" min="0" style="margin-top:-16px;" class="inputDetails"
+                  data-id={pc.pId} data-detail={pc.GTMDetail} data-accountid={productallocate.customerId}
+                  value={pc.allocation} message-when-range-underflow="Please enter a correct value"
+                  onfocusout={handleProductDetailChange}></lightning-input>
               </td>
-              </template>
-              <td data-accountid={productallocate.customerId} class="percentage dontremove">100%</td>
-              <td data-accountid={productallocate.customerId} class="distribution dontremove" style="background:#368628; color:#fff;" >Distribution completed</td>
-            </tr>
-          </template>           
-          </tbody>
-        </table>
+            </template>
+            <td data-accountid={productallocate.customerId} class="percentage dontremove">100%</td>
+            <td data-accountid={productallocate.customerId} class="distribution dontremove"
+              style="background:#368628; color:#fff;">Distribution completed</td>
+          </tr>
+        </template>
+        <template if:false={paginatedProductCategoryAllocation}>
+          <lightning-card>
+            <div style="text-align:center">
+              <p>Product Category Allocation Not Found</p>
+            </div>
+          </lightning-card>
+        </template>
+      </tbody>
+    </table>
+    <div if:true={showLoading} class="slds-spinner_inline spinner-padding">
+      <lightning-spinner alternative-text="Loading" size="medium" class="spinnerClass"></lightning-spinner>
+    </div>
 
-      </div>
+  </div>
 
-      <c-pagination-cmp 
-        tabledata={productAllocations} 
-        onaction={handlePaginationAction}>
-      <div class="slds-float_right" style="margin-right: 20rem;" slot="pageNumber"><b class="pagenumber">Page:1 of 10</b></div>
-</c-pagination-cmp>
+  <c-pagination-cmp tabledata={productAllocations} onaction={handlePaginationAction}>
+    <div class="slds-float_right" style="margin-right: 20rem;" slot="pageNumber"><b class="pagenumber">Page:1 of 10</b>
+    </div>
+  </c-pagination-cmp>
 </template>
