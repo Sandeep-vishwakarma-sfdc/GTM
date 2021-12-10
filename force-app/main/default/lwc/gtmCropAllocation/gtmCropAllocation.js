@@ -295,12 +295,12 @@ export default class GtmCropAllocation extends LightningElement {
     }
     handleSort(event){
         let fieldName = event.target.name;
-        this.sortDirection==!this.sortDirection;
+        this.sortDirection = !this.sortDirection;
         this.sortData(fieldName,this.sortDirection);
     }
 
     sortData(fieldname, direction) {
-        direction==true?'asc':'des';
+        direction = direction==true?'asc':'des';
         console.log('Field Name ',fieldname,' direction ',direction);
         let parseData = JSON.parse(JSON.stringify(this.paginatedCropAllocation));
         let keyValue = (a) => {

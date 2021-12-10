@@ -47,11 +47,10 @@
               </template>
               <th style="text-align:center;">Remaining
                 <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
-                  class="slds-m-right" title="Warning"></lightning-icon>
+                  class="slds-m-right" title="Warning" name="percentageValue" onclick={handleSort}></lightning-icon>
               </th>
               <th style="text-align:center;">Check If Distribution Is Correct
-                <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
-                  class="slds-m-right" title="Warning"></lightning-icon>
+               
               </th>
             </tr>
           </thead>
@@ -66,7 +65,7 @@
                   <lightning-input type="number" step="any" min="0" style="margin-top:-16px;width: 50px;" class="inputDetails"
                     data-id={crop.cId} data-detail={crop.GTMDetail} data-accountid={cropallocate.customerId}
                     value={crop.allocation} message-when-range-underflow="Please enter a correct value"
-                    onfocusout={handleCropDetailChange}></lightning-input>
+                    onfocusout={handleCropDetailChange} formatter="percent-fixed"></lightning-input>
                 </td>
               </template>
               <td data-accountid={cropallocate.customerId} class="percentage dontremove">100%</td>

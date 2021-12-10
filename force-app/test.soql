@@ -15,6 +15,9 @@ GTMPathFinder.getCatergoryAllocation();
 
 SELECT FiscalYearSettings.Name , StartDate,EndDate, type FROM Period WHERE Type = 'Year' AND StartDate <= TODAY AND EndDate >= TODAY limit 1
 
+leadcustomerRecordType 0120k000000P0eQAAS
+
+select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c='5631'  and recordType.Id='0120k000000P0eQAAS' and Lead_Customer_Ownership__c='005280000017DV0'
 
 String leadRecordType = '0120k000000P0eQAAS';
 
@@ -27,7 +30,8 @@ GTMPathFinder.updateGTMDetail('a4k0k0000002RFtAAM','50');
 List<Account> ac = GTMPathFinder.getGTMCustomers();
 System.debug(ac.size());
 
-List<GTM_Details__c> details = [SELECT ID,Name,GTM__c from GTM_Details__c where GTM__c='a4j0k000000iQoc'];
+List<GTM_Details__c> details = [SELECT ID,Name,GTM__c from GTM_Details__c where GTM__c='a4j0k000000iQpG'];
+delete details;
 System.debug(details[0].get('Name'));
 delete details;
 
@@ -40,3 +44,21 @@ System.debug(cropmap);
 List<Crop__c> crops = GTMPathFinder.getActiveCrop();
 System.debug('Crops '+crops.size());
 
+GTM__c gtm = [select Id,Name from GTM__c limit 1];
+GTMPathFinder.createGTMPotentialAndProfile(gtm);
+
+
+--------------------------------------- OUTLOOK ----------------------------------------------------
+
+Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Outlook').getRecordTypeId();
+
+List<GTM_Details__c> gtmDetailsList = [Select Id, GTM_Customer__r.Name, GTM_Customer__c, Estimated_Growth_NY_to_2NY__c, Estimated_Growth_PY_to_CY__c, Estimated_Growth_PY_to_NY__c, Sales_Org__c from GTM_Details__c];
+
+delete gtmDetailsList;
+
+List<GTM_Details__c> outlooks = GTMOutlook.getGTMOutlook();
+System.debug('size'+outlooks.size());
+
+------------------------------------- Product Category --------------------------------------------------
+
+GTMPathFinder.getCatergoryAllocation();

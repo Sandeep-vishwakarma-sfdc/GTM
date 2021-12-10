@@ -47,7 +47,7 @@
             </lightning-icon>
           </th>
           <template for:each={columns} for:item="col">
-            <th key={col.pid}>{col.pName}
+            <th style="width: 70px;" key={col.pid}>{col.pName}
             </th>
           </template>
           <th>Remaining
@@ -67,10 +67,10 @@
             <td data-accountid={productallocate.customerId}>{productallocate.customerName}</td>
             <template for:each={productallocate.productCategory} for:item="pc">
               <td key={pc.pid}>
-                <lightning-input type="number" step="any" min="0" style="margin-top:-16px;" class="inputDetails"
+                <lightning-input type="number" step="any" min="0" style="margin-top:-16px;width: 70px;" class="inputDetails"
                   data-id={pc.pId} data-detail={pc.GTMDetail} data-accountid={productallocate.customerId}
                   value={pc.allocation} message-when-range-underflow="Please enter a correct value"
-                  onfocusout={handleProductDetailChange}></lightning-input>
+                  onfocusout={handleProductDetailChange} formatter="percent-fixed"></lightning-input>
               </td>
             </template>
             <td data-accountid={productallocate.customerId} class="percentage dontremove">100%</td>

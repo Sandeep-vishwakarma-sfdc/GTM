@@ -131,7 +131,9 @@ export default class GtmCategoryAllocation extends LightningElement {
     getTableData(data){
         let year = this.fiscalYear.replace('-20','/');
         this.columnfiscalYear = `All Companies Purchase To Customer ${year}`;
+        if(data[0]){
         this.columns = data[0].productCategory;
+        }
         console.log('columns ',this.columns);
     }
 
@@ -309,14 +311,15 @@ export default class GtmCategoryAllocation extends LightningElement {
 
     handleSort(event){
         let fieldName = event.target.name;
-        this.sortDirection==!this.sortDirection;
+        this.sortDirection = !this.sortDirection;
         this.sortData(fieldName,this.sortDirection);
     }
 
     sortData(fieldname, direction) {
-        direction==true?'asc':'des';
+        direction = direction==true?'asc':'des';
         console.log('Field Name ',fieldname,' direction ',direction);
-        let parseData = JSON.parse(JSON.stringify(this.paginatedCropAllocation));
+        let parseData = JSON.parse(JSON.stringify(this.paginatedProductCategoryAllocation));
+        if(parseData.length>1){
         let keyValue = (a) => {
             return a[fieldname];
         };
@@ -326,6 +329,8 @@ export default class GtmCategoryAllocation extends LightningElement {
             y = keyValue(y) ? keyValue(y) : '';
             return isReverse * ((x > y) - (y > x));
         });
-        this.paginatedCropAllocation = parseData;
+        this.paginatedProductCategoryAllocation = parseData;
+        }
+
     }
 }
