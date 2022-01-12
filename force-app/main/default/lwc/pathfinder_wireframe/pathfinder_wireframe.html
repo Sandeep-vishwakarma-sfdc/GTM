@@ -1,0 +1,2472 @@
+<template>
+  <div class="slds-theme_default">
+    <div class="header"></div>
+    <!--<input type="checkbox" class="openSidebarMenu" id="openSidebarMenu">
+  <label for="openSidebarMenu" class="sidebarIconToggle">
+    <div class="spinner diagonal part-1"></div>
+    <div class="spinner horizontal"></div>
+    <div class="spinner diagonal part-2"></div>
+  </label>
+  <div class="sidebarMenu">b
+    <ul class="sidebarMenuInner">
+      <li><a href="" target="_blank">Lead Customer (100)</a></li>
+      <li><a href="" target="_blank">Non Lead Customer (10)</a></li>
+      <li><a href="" target="_blank">Both</a></li>
+    </ul>
+  </div>-->
+    <div id='center' class="main center">
+      <div class="mainInner" style="margin:0px;">
+
+        <div class="slds-theme_default slds-grid slds-wrap" style="padding: 10px 15px;">
+
+          <div class="slds-col slds-size_1-of-1 slds-large-size_5-of-12">
+            <h3 style="text-align:center; font-size:22px; font-weight:500; color:orange;">Client Pathfinder - FY 2021-2022</h3>
+          </div>
+
+          <div class="slds-col slds-size_1-of-1 slds-large-size_3-of-12">
+            <lightning-button variant="brand" label="Submit" onclick={showModalBox} title="Primary action"
+              style="margin:0 10px 0 0;"></lightning-button>
+            <lightning-button label="Cancel" title="Primary action" onclick={handleClick}></lightning-button>
+          </div>
+
+          <div class="slds-col slds-size_1-of-1 slds-large-size_4-of-12">
+            <h3 style="float:left; font-weight:500; color:#333;">*Currency in USD *Amount in Million</h3><br/>
+            <h3 style="float:left; font-weight:500; color:#333;">*Entered data will get auto saved into the system.</h3>
+          </div>
+        </div>
+
+
+        <lightning-tabset>
+          <lightning-tab label="IDENTIFICATION">
+            <h1 style="font-size:36px; font-weight:600;">Global Client Pathfinder Program</h1>
+
+            <div class="slds-grid slds-wrap">
+              <div class="slds-col slds-size_1-of-1 slds-large-size_6-of-12"
+                style="border:2px solid #000; padding:10px; margin-top:15px; float:left;">
+                <h3 style="font-size:24px; font-weight:600; font-style:italic;">About the Program and Tool</h3>
+                <p style="font-size:14px; line-height:22px; color:#000;"> "The objective of the program is to identify
+                  opportunities within key customers that will support the short-term growth of the business in the
+                  country, supporting OpenSkies ambition.
+                  <br /><br />
+
+                  This tool is a template for the countries to update/collect data in order to support the
+                  identification of opportunities and create the plans."
+                </p>
+                <br />
+                <p style="text-align:center; font-size:13px;">
+                  <a href="#">If you have any question, please access the FAQ
+                    Any problems or questions not in the FAQ, send an email to: rodrigo.farinha@upl-ltd.com </a>
+                </p>
+
+              </div>
+
+
+              <div class="slds-col slds-size_1-of-1 slds-large-size_6-of-12" style="float:right; padding:10px;">
+                <h1 style="font-size:36px; font-weight:700; color:orange;">ARGENTINA</h1>
+
+                <p style="font-style:italic; margin:10px 0;">Please, fill in the information below and click Next to
+                  start.
+                </p>
+
+                <lightning-input type="text" label="Name" style="font-weight:700;"></lightning-input>
+
+                <lightning-input type="text" label="Role" style="font-weight:700;"></lightning-input>
+
+                <lightning-input type="email" label="Email" style="font-weight:700;"></lightning-input>
+
+              </div>
+
+            </div>
+
+            <div class="slds-grid slds-wrap " style="margin-top:15px;">
+              <div class="slds-col slds-size_1-of-1 slds-large-size_6-of-12" style="margin:0 auto; text-align:center;">
+                <lightning-button variant="brand" label="Frequently Asked Question" title="Frequently Asked Question"
+                  ></lightning-button>
+              </div>
+              <div class="slds-col slds-size_1-of-1 slds-large-size_6-of-12"></div>
+            </div>
+
+          </lightning-tab>
+
+          <lightning-tab label="POTENTIAL AND PROFILE" title="POTENTIAL AND PROFILE">
+            <div class="">
+              <div style="float:right">
+                <div class="header2"></div>
+                <input type="checkbox" class="openSidebarMenu2" id="openSidebarMenu2">
+                <label for="openSidebarMenu2" class="sidebarIconToggle2">
+                  <lightning-icon icon-name="action:info" size="small" alternative-text="Instructions"
+                    title="Instructions"></lightning-icon>
+                </label>
+                <div class="sidebarMenu2">
+                  <p>
+                    INSTRUCTIONS<br /> <br />
+                    All white cells can be edited. For each customer, inform the data in the following order of the
+                    labeled columns:<br />
+                    (1) Confirm if the type of customer in UPL system is correct. In the dropdown list, select the
+                    correct type.<br />
+                    (2) Indicate the total purchase of ALL CROP PROTECTION COMPANIES to the channel. This data should be
+                    indicated as INDUSTRY PRICE. Only consider sales of PRODUCTS from the following categories:<br />
+                    > Fungicides = total fungicides <br />
+                    > Insecticides = total insecticides <br />
+                    > Herbicides = total herbicides <br />
+                    > Biosolutions = biocontrol and biostimulants products <br />
+                    > Soil and Seed Health = Seed treatment and special fertilizers <br />
+                    > Other relevant crop protection products to UPL business <br /><br />
+                    (3) Estimate the markup (profit margin) in percentage of sales charged by the channel to sell to end
+                    customers. [ONLY DEALER AND RETAIL / DISTRIBUTOR / COOPERATIVES] <br />
+                    (4) Check if the total sales to channel (2) and the markup (3) makes up the estimated revenues of
+                    the channel in farm gate price. If the numbers do not seem rigth, please review columns (1) and
+                    (2).<br />
+                    (5) Estimate the number of sales rep that are employees (it can be full-time employees or third
+                    party) in the channel. Consider only sales rep of the forementioned product categories. [ONLY DEALER
+                    AND RETAIL / DISTRIBUTOR / COOPERATIVES]<br />
+                    (6) Estimate the number of outlets the customer has on your country. [ONLY DEALER AND RETAIL /
+                    DISTRIBUTOR / COOPERATIVES]
+
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!--<h2 style="font-size:20px; font-weight:600; margin:15px 0; background:orange; padding:5px;">CUSTOMER POTENTIAL AND PROFILE INFORMATION</h2>	-->
+
+            <div class="slds-grid slds-wrap slds-gutters" style="margin:0 !important;">
+              <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                <lightning-input type="search" label="Search By Customer Name" style="font-weight:600;"></lightning-input>
+              </div>
+
+              <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                <lightning-combobox name="No. of Lead Customer" label="Filter By Customer Type" value={value2} 
+                  options={options} onchange={handleChange}></lightning-combobox>
+              </div>
+
+              <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                <lightning-combobox name="No. of Lead Customer" label="Filter By Status" value={value} 
+                  options={options2} onchange={handleChange}></lightning-combobox>
+              </div>
+              <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                <lightning-combobox name="" label="Filter by Path Finder" value={value3} 
+                  options={options3} onchange={handleChange}></lightning-combobox>
+              </div>
+
+
+
+              <div class="slds-col slds-size_1-of-1 slds-large-size_4-of-12"
+                style="margin-top:22px; background:#f1f1f1; padding:5px; text-align:center;">
+                <div style="color:#fff;
+                border:1px solid #000;
+                display:inline-block;
+              background-color:#9f2723; padding:3px 5px; text-align:center; margin-right:10px;">05 Nos Not Filled</div>
+              
+             
+                <div style="
+                border:1px solid #000;
+                display:inline-block;
+              background-color:#fbbc1a; padding:3px 5px; text-align:center; margin-right:10px;">20 Nos in Progress</div>
+             
+                <div style="color:#fff;
+                border:1px solid #000;
+                display:inline-block;
+                background-color:#368628; padding:3px 5px; text-align:center; margin-right:10px;">30 Nos are Completed</div>
+              </div>
+
+
+
+            </div>
+
+            <div class="slds-scrollable_x slds-scrollable_y" style="height:300px; overflow-y:scroll; margin-top:15px;">
+
+              <table class="slds-table slds-table_cell-buffer slds-table_bordered"
+                aria-labelledby="element-with-table-label other-element-with-table-label">
+
+                <thead>
+                  <tr>
+                    <th class="fix">GTM Customer
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th>Classification
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Confirm Classification
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Total Purchase in PY
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Margin of Channel (%)
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Estimated revenue in PY
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Sales Reps on Role
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Stores per Channel
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="fix">ACEITERA GENERAL DEHEZA S.A.</td>
+                    <td>Distributor</td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select" id="select-01">
+                                <option>Customer Type is Already Correct</option>
+                                <option>Distributor</option>
+                                <option>Retailer</option>
+                                <option>B2B</option>
+                                <option>Dealer</option>
+                               
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style="text-align:center;">
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td style="text-align:center;">
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td style="text-align:center;">The total farm gate revenues are USD $1 million</td>
+                    <td style="text-align:center;">
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td style="text-align:center;">
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fix">ENRIQUE M. BAYA CASAL S.A.</td>
+                    <td>Distributor</td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select" id="select-21">
+                                <option>Customer Type is Already Correct</option>
+                                <option>Distributor</option>
+                                <option>Retailer</option>
+                                <option>B2B</option>
+                                <option>Dealer</option>
+                               
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style="text-align:center;">
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td style="text-align:center;">The total farm gate revenues are USD $1 million</td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fix">LOS GROBO AGROPECUARIA S.A.</td>
+                    <td>Dealer &amp; Retail</td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select" id="select-22">
+                                <option>Customer Type is Already Correct</option>
+                                <option>Distributor</option>
+                                <option>Retailer</option>
+                                <option>B2B</option>
+                                <option>Dealer</option>
+                               
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style="text-align:center;">
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td style="text-align:center;">
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td style="text-align:center;">The total farm gate revenues are USD $2 million</td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fix">CAMBIAGNO GABRIEL ANDRES</td>
+                    <td>Distributor</td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select" id="select-23">
+                                <option>Customer Type is Already Correct</option>
+                                <option>Distributor</option>
+                                <option>Retailer</option>
+                                <option>B2B</option>
+                                <option>Dealer</option>
+                               
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td style="text-align:center;">The total farm gate revenues are USD $1 million</td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fix">NOVOZYMES BIOAG S.A.</td>
+                    <td>B2B</td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select" id="select-24">
+                                <option>Customer Type is Already Correct</option>
+                                <option>Distributor</option>
+                                <option>Retailer</option>
+                                <option>B2B</option>
+                                <option>Dealer</option>
+                               
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style="text-align:center;">
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td style="text-align:center;">The total farm gate revenues are USD $1 million</td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fix">LARTIRIGOYEN Y CIA. S.A.</td>
+                    <td>Distributor</td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select" id="select-25">
+                                <option>Customer Type is Already Correct</option>
+                                <option>Distributor</option>
+                                <option>Retailer</option>
+                                <option>B2B</option>
+                                <option>Dealer</option>
+                                
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td style="text-align:center;">The total farm gate revenues are USD $1 million</td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fix">AGRICULTORES FEDERADOS ARGENTI</td>
+                    <td>B2B</td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select" id="select-26">
+                                <option>Customer Type is Already Correct</option>
+                                <option>Distributor</option>
+                                <option>Retailer</option>
+                                <option>B2B</option>
+                                <option>Dealer</option>
+                                
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style="text-align:center;">
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td style="text-align:center;">The total farm gate revenues are USD $2 million</td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fix">SUMITOMO CHEMICAL ARGENTINA S.A.</td>
+                    <td>B2B</td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select" id="select-27">
+                                <option>Customer Type is Already Correct</option>
+                                <option>Distributor</option>
+                                <option>Retailer</option>
+                                <option>B2B</option>
+                                <option>Dealer</option>
+                                
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    
+                    <td style="text-align:center;">The total farm gate revenues are USD $1 million</td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fix">AGROEMPRESA COLON S.A.</td>
+                    <td>Distributor</td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select" id="select-28">
+                                <option>Customer Type is Already Correct</option>
+                                <option>Distributor</option>
+                                <option>Retailer</option>
+                                <option>B2B</option>
+                                <option>Dealer</option>
+                                
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td style="text-align:center;">The total farm gate revenues are USD $1 million</td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input style="margin-top:-16px;"></lightning-input>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+            </div>
+
+            <c-pagination-cmp 
+        tabledata={accounts} 
+        onaction={handlePaginationAction}>
+            <div class="slds-float_right" style="margin-right: 20rem;" slot="pageNumber"><b class="pagenumber">Page:1 of 10</b></div>
+    </c-pagination-cmp>
+
+         </lightning-tab>
+
+          <lightning-tab label="CATEGORY ALLOCATION">
+
+            <div class="">
+              <!--<h1 style="font-size:24px; font-weight:700;">ARGENTINA </h1>-->
+
+              <div style="float:right">
+                <div class="header3"></div>
+                <input type="checkbox" class="openSidebarMenu3" id="openSidebarMenu3">
+                <label for="openSidebarMenu3" class="sidebarIconToggle3">
+                  <lightning-icon icon-name="action:info" size="small" alternative-text="Instructions"
+                    title="Instructions"></lightning-icon>
+                </label>
+                <div class="sidebarMenu3">
+                  <p>
+                    INSTRUCTIONS<br /><br />
+                    All white cells can be edited. For each customer, inform the data in the following order of the
+                    labeled columns:<br /><br />
+                    1) According to sales of customer, informed in the previous tab, distribute the total sales
+                    indicating in percentage how much each product category represents. <br /><br />
+                    The sum of all categories must be 100%. You don't need to inform precise figures, give your best
+                    estimate accordingly to your knowledge.<br />
+                    > Fungicides = total fungicides only<br />
+                    > Insecticides = total insecticides only<br />
+                    > Herbicides = total herbicides only<br />
+                    > Biosolutions = biocontrol and biostimulants products<br />
+                    > Soil and Seed Health = Seed treatment and special fertilizers<br />
+                    > Other relevant crop protection products to UPL business<br /><br />
+                    2) Check the last column to confirm if all customers have the correct distribution.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!--<h2 style="font-size:20px; font-weight:600; margin:15px 0; background:orange; padding:5px;">POTENTIAL ALLOCATION BY PRODUCT CATEGORY</h2>	-->
+
+            <div class="slds-grid slds-wrap slds-gutters" style="margin:0 !important;">
+              <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                <lightning-input type="search" label="Search By Customer Name" style="font-weight:600;"></lightning-input>
+              </div>
+
+              <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                <lightning-combobox name="No. of Lead Customer" label="Filter By Customer Type" value={value2} 
+                  options={options} onchange={handleChange}></lightning-combobox>
+              </div>
+
+              <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                <lightning-combobox name="No. of Lead Customer" label="Filter By Status" value={value} 
+                  options={options2} onchange={handleChange}></lightning-combobox>
+              </div>
+              <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                <lightning-combobox name="" label="Filter by Path Finder" value={value3} 
+                  options={options3} onchange={handleChange}></lightning-combobox>
+              </div>
+
+
+
+              <div class="slds-col slds-size_1-of-1 slds-large-size_4-of-12"
+                style="margin-top:22px; background:#f1f1f1; padding:5px; text-align:center;">
+                <div style="color:#fff;
+                border:1px solid #000;
+                display:inline-block;
+              background-color:#9f2723; padding:3px 5px; text-align:center; margin-right:10px;">05 Nos Not Filled</div>
+              
+             
+                <div style="
+                border:1px solid #000;
+                display:inline-block;
+              background-color:#fbbc1a; padding:3px 5px; text-align:center; margin-right:10px;">20 Nos in Progress</div>
+             
+                <div style="color:#fff;
+                border:1px solid #000;
+                display:inline-block;
+                background-color:#368628; padding:3px 5px; text-align:center; margin-right:10px;">30 Nos are Completed</div>
+              </div>
+
+
+
+            </div>
+
+            <div class="slds-scrollable_x slds-scrollable_y" style="height:300px; overflow-y:scroll; margin-top:15px;">
+
+              <table class="slds-table slds-table_cell-buffer slds-table_bordered"
+                aria-labelledby="element-with-table-label other-element-with-table-label">
+                <thead>
+                  <tr>
+                    <th class="fix">GTM Customer
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Total Purchase in PY
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Fungicide
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Insecticides
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Herbicides
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Biosolutions
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Soil And Seed Health
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Other Categories
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Remaining
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Distribution Status
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+
+                  <tr>
+                    <td class="fix">ACEITERA GENERAL DEHEZA S.A.</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>0%</td>
+                    <td style="background:#368628; color:#fff;">Distribution completed</td>
+                  </tr>
+                  <tr>
+                    <td class="fix">ENRIQUE M. BAYA CASAL S.A.</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>100%</td>
+                    <td style="background:red; color:#fff;">Please check the values. Not matching 100%</td>
+                  </tr>
+                  <tr>
+                    <td class="fix">LOS GROBO AGROPECUARIA S.A.</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>100%</td>
+                    <td style="background:red; color:#fff;">Please check the values. Not matching 100%</td>
+                  </tr>
+                  <tr>
+                    <td class="fix">CAMBIAGNO GABRIEL ANDRES</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>100%</td>
+                    <td style="background:red; color:#fff;">Please check the values. Not matching 100%</td>
+                  </tr>
+                  <tr>
+                    <td class="fix">NOVOZYMES BIOAG S.A.</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>100%</td>
+                    <td style="background:red; color:#fff;">Please check the values. Not matching 100%</td>
+                  </tr>
+                  <tr>
+                    <td class="fix">LARTIRIGOYEN Y CIA. S.A.</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>100%</td>
+                    <td style="background:red; color:#fff;">Please check the values. Not matching 100%</td>
+                  </tr>
+                  <tr>
+                    <td class="fix">AGRICULTORES FEDERADOS ARGENTI</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>100%</td>
+                    <td style="background:red; color:#fff;">Please check the values. Not matching 100%</td>
+                  </tr>
+                  
+                </tbody>
+              </table>
+
+            </div>
+
+            <c-pagination-cmp 
+        tabledata={accounts} 
+        onaction={handlePaginationAction}>
+            <div class="slds-float_right" style="margin-right: 20rem;" slot="pageNumber"><b class="pagenumber">Page:1 of 10</b></div>
+    </c-pagination-cmp>
+
+          </lightning-tab>
+
+          <lightning-tab label="CROP ALLOCATION">
+
+            <div class="">
+              <!--<h1 style="font-size:24px; font-weight:700;">ARGENTINA </h1>-->
+
+              <div style="float:right">
+                <div class="header4"></div>
+                <input type="checkbox" class="openSidebarMenu4" id="openSidebarMenu4">
+                <label for="openSidebarMenu4" class="sidebarIconToggle4">
+                  <lightning-icon icon-name="action:info" size="small" alternative-text="Instructions"
+                    title="Instructions"></lightning-icon>
+                </label>
+                <div class="sidebarMenu4">
+                  <p>
+                    INSTRUCTIONS<br /><br />
+                    All white cells can be edited. For each customer, inform the data in the following order of the
+                    labeled columns:<br /><br />
+                    1) According to sales of customer, informed in the previous tab, distribute the total sales
+                    indicating in percentage how much each crop represents.<br /><br />
+                    The sum of all categories must be 100%. You don't need to inform precise figures, give your best
+                    estimate accordingly to your knowledge.<br /><br />
+                    The crops presented in this sheet were selected based on OpenSkies Country Plan.<br /><br />
+                    2) Check the last column to confirm if all customers have the correct distribution.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!--<h2 style="font-size:20px; font-weight:600; margin:15px 0; background:orange; padding:5px;">POTENTIAL ALLOCATION BY MAIN CROPS	
+             </h2>	-->
+
+             <div class="slds-grid slds-wrap slds-gutters" style="margin:0 !important;">
+              <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                <lightning-input type="search" label="Search By Customer Name" style="font-weight:600;"></lightning-input>
+              </div>
+
+              <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                <lightning-combobox name="No. of Lead Customer" label="Filter By Customer Type" value={value2} 
+                  options={options} onchange={handleChange}></lightning-combobox>
+              </div>
+
+              <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                <lightning-combobox name="No. of Lead Customer" label="Filter By Status" value={value} 
+                  options={options2} onchange={handleChange}></lightning-combobox>
+              </div>
+              <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                <lightning-combobox name="" label="Filter by Path Finder" value={value3} 
+                  options={options3} onchange={handleChange}></lightning-combobox>
+              </div>
+
+
+
+              <div class="slds-col slds-size_1-of-1 slds-large-size_4-of-12"
+                style="margin-top:22px; background:#f1f1f1; padding:5px; text-align:center;">
+                <div style="color:#fff;
+                border:1px solid #000;
+                display:inline-block;
+              background-color:#9f2723; padding:3px 5px; text-align:center; margin-right:10px;">05 Nos Not Filled</div>
+              
+             
+                <div style="
+                border:1px solid #000;
+                display:inline-block;
+              background-color:#fbbc1a; padding:3px 5px; text-align:center; margin-right:10px;">20 Nos in Progress</div>
+             
+                <div style="color:#fff;
+                border:1px solid #000;
+                display:inline-block;
+                background-color:#368628; padding:3px 5px; text-align:center; margin-right:10px;">30 Nos are Completed</div>
+              </div>
+
+
+
+            </div>
+
+            <div class="slds-scrollable_x slds-scrollable_y" style="height:300px; overflow-y:scroll; margin-top:15px;">
+
+              <table class="slds-table slds-table_cell-buffer slds-table_bordered"
+                aria-labelledby="element-with-table-label other-element-with-table-label">
+                <thead>
+                  <tr>
+                    <th class="fix">GTM Customer
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Total Purchase in PY
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Soybean
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Maize
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Cereal
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Peanuts
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Potato
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">F and V
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Others
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Remaining
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Distribution Status
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+
+                  <tr>
+                    <td class="fix">ACEITERA GENERAL DEHEZA S.A.</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>100%</td>
+                    <td style="background:red; color:#fff;">Please check the values. Not matching 100%</td>
+                  </tr>
+                  <tr>
+                    <td class="fix">ENRIQUE M. BAYA CASAL S.A.</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>100%</td>
+                    <td style="background:red; color:#fff;">Please check the values. Not matching 100%</td>
+                  </tr>
+                  <tr>
+                    <td class="fix">LOS GROBO AGROPECUARIA S.A.</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>100%</td>
+                    <td style="background:red; color:#fff;">Please check the values. Not matching 100%</td>
+                  </tr>
+                  <tr>
+                    <td class="fix">CAMBIAGNO GABRIEL ANDRES</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>100%</td>
+                    <td style="background:red; color:#fff;">Please check the values. Not matching 100%</td>
+                  </tr>
+                  <tr>
+                    <td class="fix">NOVOZYMES BIOAG S.A.</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>100%</td>
+                    <td style="background:red; color:#fff;">Please check the values. Not matching 100%</td>
+                  </tr>
+                  <tr>
+                    <td class="fix">LARTIRIGOYEN Y CIA. S.A.</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>100%</td>
+                    <td style="background:red; color:#fff;">Please check the values. Not matching 100%</td>
+                  </tr>
+                  <tr>
+                    <td class="fix">AGRICULTORES FEDERADOS ARGENTI</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>100%</td>
+                    <td style="background:red; color:#fff;">Please check the values. Not matching 100%</td>
+                  </tr>
+                </tbody>
+              </table>
+
+            </div>
+
+            <c-pagination-cmp 
+            tabledata={accounts} 
+            onaction={handlePaginationAction}>
+                <div class="slds-float_right" style="margin-right: 20rem;" slot="pageNumber"><b class="pagenumber">Page:1 of 10</b></div>
+        </c-pagination-cmp>
+
+          </lightning-tab>
+
+          <lightning-tab label="COMPETITION">
+
+            <div class="">
+              <!--<h1 style="font-size:24px; font-weight:700;">ARGENTINA </h1>-->
+
+              <div style="float:right">
+                <div class="header5"></div>
+                <input type="checkbox" class="openSidebarMenu5" id="openSidebarMenu5">
+                <label for="openSidebarMenu5" class="sidebarIconToggle5">
+                  <lightning-icon icon-name="action:info" size="small" alternative-text="Instructions"
+                    title="Instructions"></lightning-icon>
+                </label>
+                <div class="sidebarMenu5">
+                  <p>
+                    INSTRUCTIONS<br /><br />
+                    All white cells can be edited. For each customer, inform the data in the following order of the
+                    labeled columns:<br /><br />
+                    1) Fill in the names of the top 8 companies (companies that the customer most purchase) for each
+                    customer, considering #1 as the leader in that customer<br /><br />
+                    2) Indicate how much of shelf share (in percentage) that manufacture holds in the customers. In
+                    other words: Considering the total purchase of that customer, how much that Company represents (in
+                    percentage):<br /><br />
+                    > If UPL is NOT in the TOP 8 Suppliers of that customer, fill in the last column with its position
+                    and shelf share<br /><br />
+                    > If UPL IS in the TOP 8 Suppliers of that customer, ignore the last column (automatically blocked)
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!--<h2 style="font-size:20px; font-weight:600; margin:15px 0; background:orange; padding:5px;">ASSESSMENT OF COMPETITION	
+              </h2>	-->
+
+              <div class="slds-grid slds-wrap slds-gutters" style="margin:0 !important;">
+                <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                  <lightning-input type="search" label="Search By Customer Name" style="font-weight:600;"></lightning-input>
+                </div>
+  
+                <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                  <lightning-combobox name="No. of Lead Customer" label="Filter By Customer Type" value={value2} 
+                    options={options} onchange={handleChange}></lightning-combobox>
+                </div>
+  
+                <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                  <lightning-combobox name="No. of Lead Customer" label="Filter By Status" value={value} 
+                    options={options2} onchange={handleChange}></lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                  <lightning-combobox name="" label="Filter by Path Finder" value={value3} 
+                    options={options3} onchange={handleChange}></lightning-combobox>
+                </div>
+  
+  
+  
+                <div class="slds-col slds-size_1-of-1 slds-large-size_4-of-12"
+                style="margin-top:22px; background:#f1f1f1; padding:5px; text-align:center;">
+                <div style="color:#fff;
+                border:1px solid #000;
+                display:inline-block;
+              background-color:#9f2723; padding:3px 5px; text-align:center; margin-right:10px;">05 Nos Not Filled</div>
+              
+             
+                <div style="
+                border:1px solid #000;
+                display:inline-block;
+              background-color:#fbbc1a; padding:3px 5px; text-align:center; margin-right:10px;">20 Nos in Progress</div>
+             
+                <div style="color:#fff;
+                border:1px solid #000;
+                display:inline-block;
+                background-color:#368628; padding:3px 5px; text-align:center; margin-right:10px;">30 Nos are Completed</div>
+              </div>
+  
+  
+  
+              </div>
+
+            <div class="slds-scrollable_x slds-scrollable_y" style="height:300px; overflow-y:scroll; margin-top:15px;">
+
+              <table class="slds-table slds-table_cell-buffer slds-table_bordered"
+                aria-labelledby="element-with-table-label other-element-with-table-label">
+                <thead>
+                  <tr>
+                    <th width="235" class="fix">GTM Customer
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">UPL POSITION
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">UPL's Share of Wallet
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th width="193" style="text-align:center;">Competitor #1
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Wallet Share of Competitor #1
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Competitor #2
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Wallet Share of Competitor #2
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Competitor #3
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Wallet Share of Competitor #3
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Competitor #4
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Wallet Share of Competitor #4
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Competitor #5
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Wallet Share of Competitor #5
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Competitor #6
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Wallet Share of Competitor #6
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Competitor #7
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Wallet Share of Competitor #7
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Competitor #8
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Wallet Share of Competitor #8
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>                    
+                  </tr>
+                </thead>
+                  
+                <tbody>
+
+                  <tr>
+                    <td class="fix">ACEITERA GENERAL DEHEZA S.A.</td>
+                    <td><lightning-input type="text" style="margin-top:-16px;"></lightning-input></td>
+                    <td>50%</td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>                    
+
+                  </tr>
+                  <tr>
+                    <td class="fix">ENRIQUE M. BAYA CASAL S.A.</td>
+                    <td><lightning-input type="text" style="margin-top:-16px;"></lightning-input></td>
+                    <td>46%</td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fix">LOS GROBO AGROPECUARIA S.A.</td>
+                    <td><lightning-input type="text" style="margin-top:-16px;"></lightning-input></td>
+                    <td>20%</td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fix">CAMBIAGNO GABRIEL ANDRES</td>
+                    <td><lightning-input type="text" style="margin-top:-16px;"></lightning-input></td>
+                    <td>&nbsp;</td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td role="gridcell">
+                      <div class="slds-truncate" title="">
+                        <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                            <div class="slds-select_container">
+                              <select class="slds-select">
+                                <option value="">Select…</option>
+                                <option>Bayer</option>
+                                <option>Nova</option>
+                                <option>Syngenta</option>
+                                <option>Corteva</option>
+                                <option>ACA</option>
+                                <option>Atanor</option>
+                                <option>Other</option>
+                                <option>UPL</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                  </tr>
+                  
+                </tbody>
+              </table>
+            </div>
+
+            <c-pagination-cmp 
+        tabledata={accounts} 
+        onaction={handlePaginationAction}>
+            <div class="slds-float_right" style="margin-right: 20rem;" slot="pageNumber"><b class="pagenumber">Page:1 of 10</b></div>
+    </c-pagination-cmp>
+
+          </lightning-tab>
+
+          <lightning-tab label="OUTLOOK">
+
+            <div class="">
+              <!--<h1 style="font-size:24px; font-weight:700;">ARGENTINA </h1>-->
+
+              <div style="float:right">
+                <div class="header6"></div>
+                <input type="checkbox" class="openSidebarMenu6" id="openSidebarMenu6">
+                <label for="openSidebarMenu6" class="sidebarIconToggle6">
+                  <lightning-icon icon-name="action:info" size="small" alternative-text="Instructions"
+                    title="Instructions"></lightning-icon>
+                </label>
+                <div class="sidebarMenu6">
+                  <p>
+                    INSTRUCTIONS<br /><br />
+                    All white cells can be edited. For each customer, inform the data in the following order of the
+                    labeled columns: <br />
+                    (1) Estimate how much the sales of the customer is expected to change (percentage increase or
+                    decrease) from 2020/21 to 2021/22 <br /><br />
+                    (2) Check if, in absolute values, the expectation for 2021/22 makes sense <br /><br />
+                    (3) Estimate how much the sales of the customer is expected to change (percentage increase or
+                    decrease) from 2021/22 to 2022/23 <br /><br />
+                    (4) Check if, in absolute values, the expectation for 2022/23 makes sense <br /><br />
+                    (3) Estimate how much the sales of the customer is expected to change (percentage increase or
+                    decrease) from 2022/23 to 2023/24 <br /><br />
+                    (4) Check if, in absolute values, the expectation for 2023/24 makes sense
+                  </p>
+                </div>
+              </div>
+            </div>
+
+
+
+
+
+
+            <!--<h2 style="font-size:20px; font-weight:600; margin:15px 0; background:orange; padding:5px;">OUTLOOK OF CUSTOMERS</h2>	-->
+
+            <div class="slds-grid slds-wrap slds-gutters" style="margin:0 !important;">
+              <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                <lightning-input type="search" label="Search By Customer Name" style="font-weight:600;"></lightning-input>
+              </div>
+
+              <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                <lightning-combobox name="No. of Lead Customer" label="Filter By Customer Type" value={value2} 
+                  options={options} onchange={handleChange}></lightning-combobox>
+              </div>
+
+              <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                <lightning-combobox name="No. of Lead Customer" label="Filter By Status" value={value} 
+                  options={options2} onchange={handleChange}></lightning-combobox>
+              </div>
+              <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
+                <lightning-combobox name="" label="Filter by Path Finder" value={value3} 
+                  options={options3} onchange={handleChange}></lightning-combobox>
+              </div>
+
+
+
+              <div class="slds-col slds-size_1-of-1 slds-large-size_4-of-12"
+                style="margin-top:22px; background:#f1f1f1; padding:5px; text-align:center;">
+                <div style="color:#fff;
+                border:1px solid #000;
+                display:inline-block;
+              background-color:#9f2723; padding:3px 5px; text-align:center; margin-right:10px;">05 Nos Not Filled</div>
+              
+             
+                <div style="
+                border:1px solid #000;
+                display:inline-block;
+              background-color:#fbbc1a; padding:3px 5px; text-align:center; margin-right:10px;">20 Nos in Progress</div>
+             
+                <div style="color:#fff;
+                border:1px solid #000;
+                display:inline-block;
+                background-color:#368628; padding:3px 5px; text-align:center; margin-right:10px;">30 Nos are Completed</div>
+              </div>
+
+
+
+            </div>
+
+            <div class="slds-scrollable_x slds-scrollable_y" style="height:300px; overflow-y:scroll; margin-top:15px;">
+
+              <table class="slds-table slds-table_cell-buffer slds-table_bordered"
+                aria-labelledby="element-with-table-label other-element-with-table-label">
+                <thead>
+                  <tr>
+                    <th class="fix">GTM Customer
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Total Purchase in PY
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Estimated Growth(%) in CY
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Estimated Sales in CY
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Estimated Growth(%) in NY
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Estimated Sales in NY
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Estimated Growth(%) in NNY
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                    <th style="text-align:center;">Estimated Sales in NNY
+                      <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
+                        class="slds-m-right" title="Warning"></lightning-icon>
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+
+                  <tr>
+                    <td class="fix">ACEITERA GENERAL DEHEZA S.A.</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fix">ENRIQUE M. BAYA CASAL S.A.</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fix">LOS GROBO AGROPECUARIA S.A.</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fix">CAMBIAGNO GABRIEL ANDRES</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fix">NOVOZYMES BIOAG S.A.</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fix">LARTIRIGOYEN Y CIA. S.A.</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fix">AGRICULTORES FEDERADOS ARGENTI</td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td></td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input type="text" style="margin-top:-16px;"></lightning-input>
+                    </td>
+                  </tr>
+               </tbody>
+              </table>
+
+            </div>
+
+            <c-pagination-cmp 
+        tabledata={accounts} 
+        onaction={handlePaginationAction}>
+            <div class="slds-float_right" style="margin-right: 20rem;" slot="pageNumber"><b class="pagenumber">Page:1 of 10</b></div>
+    </c-pagination-cmp>
+
+          </lightning-tab>
+
+          <lightning-tab label="FAQ">
+
+
+
+          </lightning-tab>
+
+
+        </lightning-tabset>
+
+      </div>
+
+    </div>
+
+
+     <!-- modal start -->      
+   <template if:true={isShowModal}>
+
+    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_xx-small" style="width:300px; margin:0 auto;">
+    <div class="slds-modal__container">
+    <!-- modal header start -->
+      <header class="slds-modal__header">
+         <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={hideModalBox}>
+            <lightning-icon icon-name="utility:close"
+               alternative-text="close"
+               variant="inverse"
+               size="small" ></lightning-icon>
+            <span class="slds-assistive-text">Close</span>
+         </button>
+         <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">		
+        </h2>
+      </header>
+    
+      <!-- modal body start -->
+      <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+            <h2 style="padding:5px; text-align:center;">Are you sure want to submit?</h2>
+      </div>
+    
+      <!-- modal footer start-->
+      <footer class="slds-modal__footer" style="text-align:center;">
+         <button class="slds-button slds-button_neutral" onclick={hideModalBox}>No</button>
+         <button class="slds-button slds-button_brand"  onclick={hideModalBox}>Yes</button>
+      </footer>
+    
+    </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+    <!-- modal end -->
+
+  </div>
+</template>

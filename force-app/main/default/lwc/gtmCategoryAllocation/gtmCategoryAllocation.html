@@ -11,38 +11,24 @@
         </lightning-icon>
       </label>
       <div class="sidebarMenu3">
-        <p>
-          INSTRUCTIONS<br /><br />
-          All white cells can be edited. For each customer, inform the data in the following order of the
-          labeled columns:<br /><br />
-          1) According to sales of customer, informed in the previous tab, distribute the total sales
-          indicating in percentage how much each product category represents. <br /><br />
-          The sum of all categories must be 100%. You don't need to inform precise figures, give your best
-          estimate accordingly to your knowledge.<br />
-          > Fungicides = total fungicides only<br />
-          > Insecticides = total insecticides only<br />
-          > Herbicides = total herbicides only<br />
-          > Biosolutions = biocontrol and biostimulants products<br />
-          > Soil and Seed Health = Seed treatment and special fertilizers<br />
-          > Other relevant crop protection products to UPL business<br /><br />
-          2) Check the last column to confirm if all customers have the correct distribution.
-        </p>
+        <lightning-formatted-rich-text value={instrustions}>
+        </lightning-formatted-rich-text>
       </div>
     </div>
   </div>
   <c-gtm-filter-panel panel-status={options} onaction={handleFilterPanelAction} onback={handleFilterPanelAction}>
   </c-gtm-filter-panel>
-  <div class="slds-scrollable_x slds-scrollable_y" style="height:300px; overflow-y:scroll; margin-top:15px;">
+  <div class="table-scroll" style="height:300px; margin-top:15px;">
 
     <table class="slds-table slds-table_cell-buffer slds-table_bordered"
       aria-labelledby="element-with-table-label other-element-with-table-label">
       <thead>
         <tr>
-          <th>Customer (Lead Customer)
+          <th class="fix">{labels.Customer_Lead_Customer}
             <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="" class="slds-m-right" title="" name="customerName" onclick={handleSort}>
             </lightning-icon>
           </th>
-          <th>{columnfiscalYear}
+          <th>{labels.All_Companies_Purchase_to_Customer1}<br>{labels.All_Companies_Purchase_to_Customer2}
             <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="" class="slds-m-right" title="">
             </lightning-icon>
           </th>
@@ -50,11 +36,11 @@
             <th style="width: 70px;" key={col.pid}>{col.pName}
             </th>
           </template>
-          <th>Remaining
+          <th>{labels.Remaining}
             <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="" class="slds-m-right" title="" name="percentageValue" onclick={handleSort}>
             </lightning-icon>
           </th>
-          <th>Check If Distribution Is Correct
+          <th>{labels.Check_If_Distribution_Is_Correct}
             
           </th>
         </tr>
@@ -63,8 +49,8 @@
         <template if:true={paginatedProductCategoryAllocation} for:each={paginatedProductCategoryAllocation}
           for:item="productallocate">
           <tr key={productallocate.customerId}>
-            <td data-accountid={productallocate.customerId}>{productallocate.customerName}</td>
-            <td data-accountid={productallocate.customerId}>{productallocate.customerName}</td>
+            <td class="fix" data-accountid={productallocate.customerId}>{productallocate.customerName}</td>
+            <td data-accountid={productallocate.customerId}>{productallocate.totalCompaniesPurches}</td>
             <template for:each={productallocate.productCategory} for:item="pc">
               <td key={pc.pid}>
                 <lightning-input type="number" step="any" min="0" style="margin-top:-16px;width: 70px;" class="inputDetails"

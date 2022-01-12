@@ -1,23 +1,65 @@
-import { LightningElement,track, wire } from 'lwc';
+import { LightningElement,track, wire,api } from 'lwc';
 import { getPicklistValues, getObjectInfo} from 'lightning/uiObjectInfoApi';
 import ACCOUNT_OBJECT from '@salesforce/schema/Account';
 import LeadCustomerType from '@salesforce/schema/Account.Lead_Customer_Type__c';
 import getPotentialAndProfile from '@salesforce/apex/GTMPathFinder.getPotentialAndProfile'
 import updateGTMDetailPotentialProfile from '@salesforce/apex/GTMPathFinder.updateGTMDetailPotentialProfile';
+import getFiscalYear from '@salesforce/apex/GTMPathFinder.getFiscalYear';
+import getInstructions from '@salesforce/apex/GTMPathFinder.getInstructions';
+import Instructions from '@salesforce/label/c.Instructions';
+import Customer_Lead_Customer from '@salesforce/label/c.Customer_Lead_Customer';
+import Customer_Type from '@salesforce/label/c.Customer_Type';
+import Confirm_Customer_Type_Indicated_on_the_Left_Adjacent_Cell from '@salesforce/label/c.Confirm_Customer_Type_Indicated_on_the_Left_Adjacent_Cell';
+import Total_Purcahse_of_Crop_Protection_Industry_Price from '@salesforce/label/c.Total_Purcahse_of_Crop_Protection_Industry_Price';
+import Estimated_Number_Of_Sales_REP_on_Role from '@salesforce/label/c.Estimated_Number_Of_Sales_REP_on_Role';
+import Number_of_Stories_That_the_Channel_has from '@salesforce/label/c.Number_of_Stories_That_the_Channel_has';
+import Confirm_the_Estimated_Revenues_of_the_Customer_in from '@salesforce/label/c.Confirm_the_Estimated_Revenues_of_the_Customer_in';
+import Estimated_Markup_of_Channel_In_of_Sales from '@salesforce/label/c.Estimated_Markup_of_Channel_In_of_Sales';
+import USD_Million from '@salesforce/label/c.USD_Million';
+import Page from '@salesforce/label/c.Page';
 
 export default class GtmPotentialAndProfile extends LightningElement {
-    
+    instrustions = '';
+    showLoading = false;
     @track gtmPotentialProfile=[];
     gtmPotentialProfileVirtual = [];
     @track paginatedGtmPotentialProfile
     customerTypeOptions = [];
+    sortDirection = true;
     @track recordTypeId;
     @track panelStatus={
         notFilled:'0',
         inProgress:'0',
         completed:'0'
     }
+    @track currentPage = 1;
     defaultSelectedOption = '';
+    fiscalYear = '';
+
+    labels = {
+        Instructions:Instructions,
+        Customer_Lead_Customer:Customer_Lead_Customer,
+        Customer_Type:Customer_Type,
+        Confirm_Customer_Type_Indicated_on_the_Left_Adjacent_Cell1:String(Confirm_Customer_Type_Indicated_on_the_Left_Adjacent_Cell).split('<br>')[0],
+        Confirm_Customer_Type_Indicated_on_the_Left_Adjacent_Cell2:String(Confirm_Customer_Type_Indicated_on_the_Left_Adjacent_Cell).split('<br>')[1],
+        Total_Purcahse_of_Crop_Protection_Industry_Price1:String(Total_Purcahse_of_Crop_Protection_Industry_Price).split('<br>')[0],
+        Total_Purcahse_of_Crop_Protection_Industry_Price2:String(Total_Purcahse_of_Crop_Protection_Industry_Price).split('<br>')[1]+' '+this.fiscalYear+' '+USD_Million,
+        Estimated_Markup_of_Channel_In_of_Sales1:String(Estimated_Markup_of_Channel_In_of_Sales).split('<br>')[0],
+        Estimated_Markup_of_Channel_In_of_Sales2:String(Estimated_Markup_of_Channel_In_of_Sales).split('<br>')[1],
+        Confirm_the_Estimated_Revenues_of_the_Customer_in1:String(Confirm_the_Estimated_Revenues_of_the_Customer_in).split('<br>')[0],
+        Confirm_the_Estimated_Revenues_of_the_Customer_in2:String(Confirm_the_Estimated_Revenues_of_the_Customer_in).split('<br>')[1]+' '+this.fiscalYear,
+        Estimated_Number_Of_Sales_REP_on_Role1:String(Estimated_Number_Of_Sales_REP_on_Role).split('<br>')[0],
+        Estimated_Number_Of_Sales_REP_on_Role2:String(Estimated_Number_Of_Sales_REP_on_Role).split('<br>')[1],
+        Number_of_Stories_That_the_Channel_has1:String(Number_of_Stories_That_the_Channel_has).split('<br>')[0],
+        Number_of_Stories_That_the_Channel_has2:String(Number_of_Stories_That_the_Channel_has).split('<br>')[1],
+        Page:Page
+    }
+
+    @wire(getInstructions) getInstrustion({error,data}){
+        if(data){
+            this.instrustions = data.Instruction_Profile_Potential__c;
+        }
+    }
 
     @wire(getObjectInfo, { objectApiName: ACCOUNT_OBJECT })
     wiredObjectInfo({error, data}) {
@@ -42,8 +84,16 @@ export default class GtmPotentialAndProfile extends LightningElement {
         }
     }
 
+    @api onTabRefresh(){
+        
+        setTimeout(() => {
+            this.connectedCallback();
+        }, 500);
+    }
+
     connectedCallback(){
-       
+        this.showLoading = true;
+       console.log('log ...');
         getPotentialAndProfile().then(data=>{
             let tempData = [];
             if(data){
@@ -51,6 +101,7 @@ export default class GtmPotentialAndProfile extends LightningElement {
                     let obj = {
                         id:ele.Id,
                         client:ele.GTM_Customer__r.Name,
+                        clientId:ele.GTM_Customer__c,
                         customerType:ele.GTM_Customer_Type__c,
                         confirmCustomerType:ele.GTM_Customer_Type__c,
                         totalPurcahseCrop:ele.Total_Purchase_of_Crop_Protection_PY__c,
@@ -59,7 +110,11 @@ export default class GtmPotentialAndProfile extends LightningElement {
                         estimateSalesRepRole:ele.Estimated_Number_of_Sales_Rep_on_Role__c,
                         storiesChannelHas:ele.Number_of_Stores_That_the_Channel_Has__c,
                         status:'',
-                        numberOfFieldsFilled:''
+                        numberOfFieldsFilled:'',
+                        isLeadCustomer:ele.GTM_Customer__r.Lead_Customer__c?true:false,
+                        confirmEstimatedRevenue:`The total farm gate revenues are USD $ ${ele.Total_Purchase_of_Crop_Protection_PY__c} million	
+                        `,
+                        pathFinder:ele.GTM_Customer__r.Path_Finder__c
                     }
                     tempData.push(obj);
                 });
@@ -72,9 +127,13 @@ export default class GtmPotentialAndProfile extends LightningElement {
                             this.handleChangeStatusOnLoad(ele.id);
                             this.updateStatusLabel();
                         })
+                        this.showLoading = false;
                 }, 200);
                 console.log('Potential Profile data ',this.gtmPotentialProfile);
             }
+        });
+        getFiscalYear().then(fiscalyear=>{
+            this.fiscalYear = fiscalyear.replace('-20','/');
         })
     }
 
@@ -101,6 +160,8 @@ export default class GtmPotentialAndProfile extends LightningElement {
             }
         }else if(fieldName=='Total_Purchase_of_Crop_Protection_PY__c'){
             this.gtmPotentialProfile[objIndex].totalPurcahseCrop = value;
+            this.gtmPotentialProfile[objIndex].confirmEstimatedRevenue = `The total farm gate revenues are USD $ ${value} million	
+            `
         }else if(fieldName=='Estimated_Markup_of_Channel__c'){
             this.gtmPotentialProfile[objIndex].estimateChannel = value;
         }else if(fieldName=='Estimated_Number_of_Sales_Rep_on_Role__c'){
@@ -110,6 +171,8 @@ export default class GtmPotentialAndProfile extends LightningElement {
         }
         
         setTimeout(() => {
+            let tempData = JSON.parse(JSON.stringify(this.gtmPotentialProfile));
+            this.gtmPotentialProfile = tempData;
             this.paginatedGtmPotentialProfile = this.gtmPotentialProfile;
             this.handleChangeStatusOnLoad(detailId);
             this.updateStatusLabel();
@@ -203,23 +266,119 @@ export default class GtmPotentialAndProfile extends LightningElement {
     }
 
     applyFiltersOnCustomer(filtersValue){
+        this.template.querySelector('c-pagination-cmp').pagevalue = 1;
         console.log('filtersValue -------------->',filtersValue);
+        let mapStatus = new Map([
+            ["Not Fill", 'NotFilled'],
+            ["In Progress", 'INProgress'],
+            ["Completed", 'Completed']
+          ]);
         let search = filtersValue.search.length!=0;
         let filter1 = filtersValue.filter1.length!=0 && filtersValue.filter1!='Both';
         let filter2 = filtersValue.filter2.length!= 0 && filtersValue.filter2!='None';
+        let filter3 = filtersValue.filter3.length!= 0 && filtersValue.filter3!='Both';
 
-        let searchValue = filtersValue.search;
+        let searchValue = String(filtersValue.search).toLocaleLowerCase();
         let filter1Value = filtersValue.filter1;
         let filter2Value = filtersValue.filter2;
+        let filter3Value = filtersValue.filter3;
+
+        filter1Value = filter1Value=='Lead Customer'?true:false;
+
+        this.gtmPotentialProfile = [];
+        this.paginatedGtmPotentialProfile = [];
+
+        this.gtmPotentialProfile = this.gtmPotentialProfileVirtual.filter(ele=>{
+            let custName = String(ele.client).toLowerCase();
+            if (search && filter1 && filter2 && filter3) {
+                return custName.includes(searchValue) && String(ele.isLeadCustomer) == String(filter1Value) && ele.status == mapStatus.get(filter2Value) && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (search && filter1 && filter2 && !filter3) {
+                return custName.includes(searchValue) && ele.isLeadCustomer == filter1Value && ele.status == mapStatus.get(filter2Value);
+            }
+            else if (search && filter1 && !filter2 && filter3) {
+                return custName.includes(searchValue) && ele.isLeadCustomer == filter1Value && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (search && filter1 && !filter2 && !filter3) {
+                return custName.includes(searchValue) && ele.isLeadCustomer == filter1Value;
+            }
+            else if (search && !filter1 && filter2 && filter3) {
+                return custName.includes(searchValue) && ele.status == mapStatus.get(filter2Value) && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (search && !filter1 && filter2 && !filter3) {
+                return custName.includes(searchValue) && ele.status == mapStatus.get(filter2Value);
+            }
+            else if (search && !filter1 && !filter2 && filter3) {
+                return custName.includes(searchValue) && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (search && !filter1 && !filter2 && !filter3) {
+                return custName.includes(searchValue);
+            }
+            else if (!search && filter1 && filter2 && filter3) {
+                return ele.isLeadCustomer == filter1Value && ele.status == mapStatus.get(filter2Value) && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (!search && filter1 && filter2 && !filter3) {
+                return String(ele.isLeadCustomer) == String(filter1Value) && ele.status == mapStatus.get(filter2Value);
+            }
+            else if (!search && filter1 && !filter2 && filter3) {
+                return ele.isLeadCustomer == filter1Value && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (!search && filter1 && !filter2 && !filter3) {
+                console.log(`isLeadCustomer ${ele.isLeadCustomer} filter1 ${filter1Value} ${String(ele.isLeadCustomer) == String(filter1Value)}`)
+                return String(ele.isLeadCustomer) == String(filter1Value);
+            }
+            else if (!search && !filter1 && filter2 && filter3) {
+                return ele.status == mapStatus.get(filter2Value) && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (!search && !filter1 && filter2 && !filter3) {
+                return ele.status == mapStatus.get(filter2Value);
+            }
+            else if (!search && !filter1 && !filter2 && filter3) {
+                return String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (!search && !filter1 && !filter2 && !filter3) {
+                return true;
+            }
+        })
+        this.gtmPotentialProfileVirtual.forEach(ele=>{
+            this.handleChangeStatusOnLoad(ele.id);
+        })
+       this.paginatedGtmPotentialProfile = JSON.parse(JSON.stringify(this.gtmPotentialProfile));
+       setTimeout(() => {
+           this.updateStatusLabel();
+       }, 200);
     }
 
     handlePaginationAction(event){
         // this.gtmPotentialProfile = JSON.parse(JSON.stringify(this.gtmPotentialProfile));
         setTimeout(() => {
+            console.log('curret Page ',event.detail.currentPage);
             this.paginatedGtmPotentialProfile = event.detail.values;
         }, 200);
     }
-    handleCustomerTypeChange(event){
-       
+   
+    handleSort(event){
+        let fieldName = event.target.name;
+        this.sortDirection = !this.sortDirection;
+        this.sortData(fieldName,this.sortDirection);
+    }
+
+    sortData(fieldname, direction) {
+        direction = direction==true?'asc':'des';
+        console.log('Field Name ',fieldname,' direction ',direction);
+        let parseData = JSON.parse(JSON.stringify(this.gtmPotentialProfileVirtual));
+        if(parseData.length>1){
+        let keyValue = (a) => {
+            return a[fieldname];
+        };
+        let isReverse = direction === 'asc' ? 1: -1;
+           parseData.sort((x, y) => {
+            x = keyValue(x) ? keyValue(x) : ''; 
+            y = keyValue(y) ? keyValue(y) : '';
+            return isReverse * ((x > y) - (y > x));
+        });
+        this.gtmPotentialProfile = parseData;
+        }
+
     }
 }

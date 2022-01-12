@@ -1,11 +1,10 @@
 public with sharing class GTMPathFinder {
-
+    private static String fiscalyear = getFiscalYear();
+    private static Sales_Org__c salesOrg = getSalesOrg();
     @AuraEnabled
     public static List<GTM_Details__c> getPotentialAndProfile(){
         List<GTM_Details__c> gtmPotentialProfile = new List<GTM_Details__c>();
         try {
-            String fiscalyear = getFiscalYear();
-            Sales_Org__c salesOrg = getSalesOrg();
             Id userId = userInfo.getUserId();
             List<GTM__c> gtms = new  List<GTM__c>();
             User userDetails = null;
@@ -41,7 +40,6 @@ public with sharing class GTMPathFinder {
 
     @AuraEnabled
     public static Map<string,List<GTM_Details__c>> getCatergoryAllocation(){
-        String fiscalyear = getFiscalYear();
         List<GTM_Details__c> gtmDetails = getGTMDetailsProduct(fiscalyear);
         if(gtmDetails.size()==0){
             gtmDetails = createGTMAndDetailsProductAllocation(); 
@@ -76,7 +74,6 @@ public with sharing class GTMPathFinder {
 
     @AuraEnabled
     public static Map<string,List<GTM_Details__c>> getCropAllocation(){
-        String fiscalyear = getFiscalYear();
         List<GTM_Details__c> gtmDetails = getGTMDetailsCrop(fiscalyear);
         if(gtmDetails.size()==0){
             gtmDetails = createGTMAndDetailsCropAllocation(); 
@@ -111,7 +108,6 @@ public with sharing class GTMPathFinder {
 
     public static void createGTMPotentialAndProfile(GTM__c gtm){
         Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Profile & Potential').getRecordTypeId();
-        Sales_Org__c salesorg = getSalesOrg();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
         for(Account acc:getGTMCustomers()){
             GTM_Details__c gtmd = new GTM_Details__c();
@@ -136,16 +132,15 @@ public with sharing class GTMPathFinder {
         List<Account> gtmCustomers = new List<Account>();
         List<Account> leadCustomerList = new List<Account>();
         List<Account> nonLeadCustomerList = new List<Account>();
-        String saleOrgCode = getSalesOrg().Sales_Org_Code__c;
         Id leadcustomerRecordType = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Lead Customer').getRecordTypeId();
         Id nonleadcustomerRecordType = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Distributor').getRecordTypeId();
         System.debug('leadcustomerRecordType '+leadcustomerRecordType);
         if(Schema.sObjectType.Account.isAccessible()){
             // Getting Lead Customers by record type
-            leadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c=:saleOrgCode  and recordType.Id=:leadcustomerRecordType and Lead_Customer_Ownership__c=:userInfo.getUserId()];
+            leadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c  and recordType.Id=:leadcustomerRecordType and Lead_Customer_Ownership__c=:userInfo.getUserId()];
             System.debug('Lead Customer '+leadCustomerList);
             // Getting non-lead customer when lead customer field is empty
-            nonLeadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c=:saleOrgCode and Account_Type__c='Sold To Party' and Lead_Customer__c=null and Lead_Customer_Ownership__c=:userInfo.getUserId() and recordTypeId=:nonleadcustomerRecordType];
+            nonLeadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c and Account_Type__c='Sold To Party' and Lead_Customer__c=null and Lead_Customer_Ownership__c=:userInfo.getUserId() and recordTypeId=:nonleadcustomerRecordType];
             System.debug('non lead '+nonLeadCustomerList);
             gtmCustomers.addAll(leadCustomerList);
             gtmCustomers.addAll(nonLeadCustomerList);
@@ -158,10 +153,9 @@ public with sharing class GTMPathFinder {
 
     private static List<Product_Category__c> getActiveProductCategory(){
         List<Product_Category_Sales_Org_Mapping__c> productCategoryMapping = new List<Product_Category_Sales_Org_Mapping__c>();
-        String saleOrgCode = getSalesOrg().Sales_Org_Code__c;
         List<Product_Category__c> productCategories = new List<Product_Category__c>();
         if(Schema.sObjectType.Product_Category_Sales_Org_Mapping__c.isAccessible() && Schema.sObjectType.Product_Category__c.isAccessible()){
-            productCategoryMapping = [select id,Name,Product_Category__c,Product_Category__r.Name from Product_Category_Sales_Org_Mapping__c where Status__c='Active' and Sales_Org__r.Sales_Org_Code__c=:saleOrgCode];
+            productCategoryMapping = [select id,Name,Product_Category__c,Product_Category__r.Name from Product_Category_Sales_Org_Mapping__c where Status__c='Active' and Sales_Org__r.Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c];
             List<String> productCategoriesId = new List<String>(); 
             for(Product_Category_Sales_Org_Mapping__c pcm:productCategoryMapping){
                 Product_Category__c productCategory = new Product_Category__c();
@@ -175,8 +169,6 @@ public with sharing class GTMPathFinder {
 
     private static List<GTM_Details__c> createGTMAndDetailsProductAllocation(){
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        String fiscalyear = getFiscalYear();
-        Sales_Org__c salesOrg = getSalesOrg();
         Id userId = userInfo.getUserId();
         List<GTM__c> gtms = new  List<GTM__c>();
         gtms = [SELECT ID,Name,Fiscal_Year__c from GTM__c where Fiscal_Year__c=:fiscalyear and Sales_Org__c=:salesOrg.Id and Sales_Rep__c=:userId];
@@ -236,9 +228,8 @@ public with sharing class GTMPathFinder {
 
     public static List<GTM_Details__c> getGTMPotentialProfile(String fiscalyear){
         Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Profile & Potential').getRecordTypeId();
-        String saleOrg = getSalesOrg().Id;
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Lead_Customer__c,GTM_Customer_Type__c ,Total_Purchase_of_Crop_Protection_PY__c,Estimated_Markup_of_Channel__c,Estimated_Number_of_Sales_Rep_on_Role__c,Number_of_Stores_That_the_Channel_Has__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:saleOrg and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypePotentialProfile];
+        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer_Type__c ,Total_Purchase_of_Crop_Protection_PY__c,Estimated_Markup_of_Channel__c,Estimated_Number_of_Sales_Rep_on_Role__c,Number_of_Stores_That_the_Channel_Has__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypePotentialProfile ORDER BY GTM_Customer__r.Name ASC];
         return gtmDetails;
     }
 
@@ -246,9 +237,8 @@ public with sharing class GTMPathFinder {
 
     public static boolean isGTMProfileAndPotentialCreated(String fiscalyear){
         Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Profile & Potential').getRecordTypeId();
-        String saleOrg = getSalesOrg().Id;
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Lead_Customer__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:saleOrg and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypePotentialProfile];
+        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypePotentialProfile];
         System.debug('gtmDetails Profile And Potential'+gtmDetails.size());
         if(gtmDetails.size()>0){
             return true;
@@ -258,8 +248,6 @@ public with sharing class GTMPathFinder {
 
     private static List<GTM_Details__c> createGTMAndDetailsCropAllocation(){
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        String fiscalyear = getFiscalYear();
-        Sales_Org__c salesOrg = getSalesOrg();
         Id userId = userInfo.getUserId();
         List<GTM__c> gtms = new  List<GTM__c>();
         gtms = [SELECT ID,Name,Fiscal_Year__c from GTM__c where Fiscal_Year__c=:fiscalyear and Sales_Org__c=:salesOrg.Id and Sales_Rep__c=:userId];
@@ -320,10 +308,9 @@ public with sharing class GTMPathFinder {
    }
 
     private static List<Crop__c> getActiveCrop(){
-    String salesOrgCode = getSalesOrg().Sales_Org_Code__c;
     List<Crop__c> listCrop = new List<Crop__c>();
         if(Schema.sObjectType.Crop__c.isAccessible()){
-            listCrop = [select Id,Name from Crop__c where GTM_Status__c='Active' and Sales_Org_Code__c=:salesOrgCode];
+            listCrop = [select Id,Name from Crop__c where GTM_Status__c='Active' and Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c];
         }
         return listCrop;
     }
@@ -353,7 +340,7 @@ public with sharing class GTMPathFinder {
         Id recordTypeProductCategory = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Product Category Allocation').getRecordTypeId();
         Sales_Org__c salesorg = getSalesOrg();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Lead_Customer__c,Product_Category__c,Product_Category__r.Name,Product_Category_Allocation__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesorg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory]; // TODO: Need to Add potential profile field
+        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Product_Category__c,Product_Category__r.Name,Product_Category_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesorg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory]; // TODO: Need to Add potential profile field
 
         System.debug('gtmDetails '+gtmDetails.size());
         if(gtmDetails.size()>0){
@@ -366,7 +353,7 @@ public with sharing class GTMPathFinder {
         Id recordTypeProductCategory = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Crop Allocation').getRecordTypeId();
         Sales_Org__c salesorg  = getSalesOrg();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Lead_Customer__c,Crop__c,Crop__r.Name,Crop_Allocation__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesorg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory];
+        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Crop__c,Crop__r.Name,Crop_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesorg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory];
 
         System.debug('gtmDetails '+gtmDetails.size());
         if(gtmDetails.size()>0){
@@ -430,5 +417,14 @@ public with sharing class GTMPathFinder {
         }
         update detail;
         return value;
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static GTM_Country_Configuration__c getInstructions(){
+        List<GTM_Country_Configuration__c> gcc = [select Id,Name ,Instruction_Profile_Potential__c,Instruction_Product_Category_Allocatio__c,Instruction_Crop_Allocation__c from GTM_Country_Configuration__c where Sales_Org__c=:salesOrg.Id];
+        if(gcc.size()>0){
+            return gcc[0];
+        }
+        return null;
     }
 }

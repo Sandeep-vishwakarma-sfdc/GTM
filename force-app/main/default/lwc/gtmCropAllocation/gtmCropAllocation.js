@@ -1,9 +1,14 @@
-import { LightningElement,track } from 'lwc';
+import { LightningElement,track,api,wire } from 'lwc';
 import getCropAllocation from '@salesforce/apex/GTMPathFinder.getCropAllocation'
 import getFiscalYear from '@salesforce/apex/GTMPathFinder.getFiscalYear'
 import updateGTMDetail from '@salesforce/apex/GTMPathFinder.updateGTMDetailCropAllocation';
-
+import getInstructions from '@salesforce/apex/GTMPathFinder.getInstructions';
+import All_Companies_Purchase_to_Customer from '@salesforce/label/c.All_Companies_Purchase_to_Customer';
+import Customer_Lead_Customer from '@salesforce/label/c.Customer_Lead_Customer';
+import Remaining from '@salesforce/label/c.Remaining';
+import Check_If_Distribution_Is_Correct from '@salesforce/label/c.Check_If_Distribution_Is_Correct';
 export default class GtmCropAllocation extends LightningElement {
+    instrustions = '';
     @track cropAllocations = [];
     copyCropAllocationsVirtual = [];
     showLoading = false;
@@ -17,6 +22,26 @@ export default class GtmCropAllocation extends LightningElement {
     columns = [];
     fiscalYear = '';
     columnfiscalYear = '';
+
+    @wire(getInstructions) getInstrustion({error,data}){
+        if(data){
+            this.instrustions = data.Instruction_Crop_Allocation__c;
+        }
+    }
+
+    @api onTabRefresh(){
+        setTimeout(() => {
+            this.connectedCallback();
+        }, 500);
+    }
+    labels = {
+        All_Companies_Purchase_to_Customer1:All_Companies_Purchase_to_Customer.split('<br />')[0],
+        All_Companies_Purchase_to_Customer2:All_Companies_Purchase_to_Customer.split('<br />')[1]+` ${this.fiscalYear.replace('-20','/')}`,
+        Customer_Lead_Customer:Customer_Lead_Customer,
+        Remaining:Remaining,
+        Check_If_Distribution_Is_Correct:Check_If_Distribution_Is_Correct
+    }
+
     connectedCallback(){
         Promise.all([getFiscalYear(),getCropAllocation()]).then(result=>{
             console.log('results ',result);
@@ -61,8 +86,10 @@ export default class GtmCropAllocation extends LightningElement {
 
     getTableData(data){
         let year = this.fiscalYear.replace('-20','/');
-        this.columnfiscalYear = `All Companies Purchase To Customer ${year}`;
-        this.columns = data[0].crops;
+        this.columnfiscalYear = `${this.labels.All_Companies_Purchase_to_Customer1} ${this.labels.All_Companies_Purchase_to_Customer2} ${year}`;
+        if(data[0]){
+            this.columns = data[0].crops;
+        }
         console.log('columns ',this.columns);
     }
     handleCropDetailChange(event){
@@ -145,7 +172,7 @@ export default class GtmCropAllocation extends LightningElement {
             console.log('percenatge ',percentage);
             let obj = {'cId':ele.Crop__r.Id,'cName':ele.Crop__r.Name,'GTMDetail':ele.Id,'allocation':ele.Crop_Allocation__c};
             arr.push(obj)
-            masterObj = {customerId:ele.GTM_Customer__c,customerName:ele.GTM_Customer__r.Name,crops:arr,'isLeadCustomer':ele.GTM_Customer__r.Lead_Customer__c?true:false,percentage:percentageLabel,percentageValue:percentage};
+            masterObj = {customerId:ele.GTM_Customer__c,customerName:ele.GTM_Customer__r.Name,totalCompaniesPurches:ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,crops:arr,'isLeadCustomer':ele.GTM_Customer__r.Lead_Customer__c?true:false,percentage:percentageLabel,percentageValue:percentage,pathFinder:ele.GTM_Customer__r.Path_Finder__c};
             }
         })
         console.log('Master obj ',masterObj)
@@ -207,6 +234,15 @@ export default class GtmCropAllocation extends LightningElement {
     }
     handlePaginationAction(event){
         this.paginatedCropAllocation = event.detail.values;
+        let copyCropAllocations = this.cropAllocations;
+        this.getTableData(copyCropAllocations);
+            setTimeout(() => {
+                this.paginatedCropAllocation.forEach(ele=>{
+                    console.log('update row status ',ele);
+                    this.updateStatus(ele.customerId);
+                })
+            }, 200);
+        this.updateStatusLabel();
     }
     handleFilterPanelAction(event){
         let filtersValue = JSON.parse(JSON.stringify(event.detail));
@@ -214,11 +250,13 @@ export default class GtmCropAllocation extends LightningElement {
     }
 
     applyFiltersOnCustomer(filtersValue){
+        this.template.querySelector('c-pagination-cmp').pagevalue = 1;
         console.log('filtersValue -------------->',filtersValue);
         let search = filtersValue.search.length!=0;
         let filter1 = filtersValue.filter1.length!=0 && filtersValue.filter1!='Both';
         let filter2 = filtersValue.filter2.length!= 0 && filtersValue.filter2!='None';
-        let searchValue = filtersValue.search;
+        let filter3 = filtersValue.filter3.length!= 0 && filtersValue.filter3!='Both';
+        let searchValue = String(filtersValue.search).toLocaleLowerCase();
         let filter1Value = filtersValue.filter1;
         if(filter1Value=='Lead Customer'){
             filter1Value = true;
@@ -227,6 +265,7 @@ export default class GtmCropAllocation extends LightningElement {
             filter1Value = false;
         }
         let filter2Value = filtersValue.filter2;
+        let filter3Value = filtersValue.filter3;
         console.log('search str length ',searchValue.length);
         this.getCalculatedPercentage();
         console.log('original data ',this.copyCropAllocationsVirtual);
@@ -236,32 +275,52 @@ export default class GtmCropAllocation extends LightningElement {
             console.log(' Condition search',search,' Condition filter1 ',filter1,' Condition filter2 ',filter2);
             console.log('Value search',searchValue,' filter1 ',filter1Value,' filter2 ',filter2Value);
             let custName = String(ele.customerName).toLowerCase();
-            if( search && filter1 && filter2){
-                console.log('condition 1');
-                return custName.includes(searchValue) && ele.isLeadCustomer==filter1Value && ele.percentage==filter2Value;
-            }else if(search && filter1 && !filter2){
-                console.log('condition 2');
+            if (search && filter1 && filter2 && filter3) {
+                return custName.includes(searchValue) && ele.isLeadCustomer==filter1Value && ele.percentage==filter2Value && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (search && filter1 && filter2 && !filter3) {
+               return custName.includes(searchValue) && ele.isLeadCustomer==filter1Value && ele.percentage==filter2Value
+            }
+            else if (search && filter1 && !filter2 && filter3) {
+                return custName.includes(searchValue) && ele.isLeadCustomer==filter1Value  && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (search && filter1 && !filter2 && !filter3) {
                 return custName.includes(searchValue) && ele.isLeadCustomer==filter1Value;
-            }else if(search && !filter1 && filter2){
-                console.log('condition 3');
-                return custName.includes(searchValue) && ele.percentage==filter2Value;
-            }else if(search && !filter1 && !filter2){
-                console.log('condition 4');
+            }
+            else if (search && !filter1 && filter2 && filter3) {
+                return custName.includes(searchValue) && ele.percentage==filter2Value && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (search && !filter1 && filter2 && !filter3) {
+                return custName.includes(searchValue)  && ele.percentage==filter2Value;
+            }
+            else if (search && !filter1 && !filter2 && filter3) {
+                return custName.includes(searchValue) && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (search && !filter1 && !filter2 && !filter3) {
                 return custName.includes(searchValue);
-            }else if(!search && filter1 && filter2){
-                console.log('condition 5');
-                return ele.isLeadCustomer==filter1Value && ele.percentage==filter2Value;
-            }else if(!search && filter1 && !filter2){
-                console.log('condition 6');
-                if(ele.isLeadCustomer==filter1Value){
-                    console.log('ele found ',ele);
-                }
-                return ele.isLeadCustomer==filter1Value;
-            }else if(!search && !filter1 && filter2){
-                console.log('condition 7');
+            }
+            else if (!search && filter1 && filter2 && filter3) {
+                return ele.isLeadCustomer==filter1Value && ele.percentage==filter2Value && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (!search && filter1 && filter2 && !filter3) {
+                return ele.isLeadCustomer==filter1Value && ele.percentage==filter2Value && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (!search && filter1 && !filter2 && filter3) {
+                return ele.isLeadCustomer == filter1Value && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (!search && filter1 && !filter2 && !filter3) {
+                return  ele.isLeadCustomer==filter1Value;
+            }
+            else if (!search && !filter1 && filter2 && filter3) {
+                return ele.percentage==filter2Value && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (!search && !filter1 && filter2 && !filter3) {
                 return ele.percentage==filter2Value;
-            }else if(!search && !filter1 && !filter2){
-                console.log('condition 8');
+            }
+            else if (!search && !filter1 && !filter2 && filter3) {
+                return String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (!search && !filter1 && !filter2 && !filter3) {
                 return true;
             }
         });
@@ -302,7 +361,7 @@ export default class GtmCropAllocation extends LightningElement {
     sortData(fieldname, direction) {
         direction = direction==true?'asc':'des';
         console.log('Field Name ',fieldname,' direction ',direction);
-        let parseData = JSON.parse(JSON.stringify(this.paginatedCropAllocation));
+        let parseData = JSON.parse(JSON.stringify(this.copyCropAllocationsVirtual));
         let keyValue = (a) => {
             return a[fieldname];
         };
@@ -312,7 +371,7 @@ export default class GtmCropAllocation extends LightningElement {
             y = keyValue(y) ? keyValue(y) : '';
             return isReverse * ((x > y) - (y > x));
         });
-        this.paginatedCropAllocation = parseData;
+        this.cropAllocations = parseData;
     }
 
 }

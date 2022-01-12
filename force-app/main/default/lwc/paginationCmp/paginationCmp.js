@@ -1,7 +1,21 @@
 import { LightningElement,api,track } from 'lwc';
+import Records_per_page from '@salesforce/label/c.Records_per_page'
+import Page from '@salesforce/label/c.Page'
+import oflabel from '@salesforce/label/c.of'
+import First from '@salesforce/label/c.First'
+import Next from '@salesforce/label/c.Next'
+import Previous from '@salesforce/label/c.Previous'
+import Last from '@salesforce/label/c.Last'
 
 export default class PaginationCmp extends LightningElement {
-    @track page = 1;
+
+    page = 1;
+    set pagevalue(value){
+        this.page = value;
+    }
+    @api get pagevalue(){
+        return this.page;
+    }
     startingRecord = 1;
     endingRecord = 0;
     pageSize = 10;
@@ -16,24 +30,25 @@ export default class PaginationCmp extends LightningElement {
       return this.items;  
     }
 
+    labels = {
+        Records_per_page:Records_per_page,
+        Page:Page,
+        of:oflabel,
+        First:First,
+        Previous:Previous,
+        Next:Next,
+        Last:Last
+    }
 
     set tabledata(value){
         if(value){
+            setTimeout(() => {
         this.data = JSON.parse(JSON.stringify(value));
-        console.log('Pagination data ',this.data);
+        console.log('Pagination data ',this.data,'page ',this.page);
         this.totalRecordCount = this.data.length;
         this.totalPage = Math.ceil(this.totalRecordCount/this.pageSize);
-        this.items = this.data.slice(0,this.pageSize);
-        this.endingRecord = this.pageSize;
-        console.log('Items ',this.items);
-        let objlist = {values:this.items}
-        setTimeout(() => {
-            if(this.querySelector('.pagenumber')){
-                this.querySelector('.pagenumber').innerHTML = `Page: ${this.page} of ${this.totalPage}`;
-            }
+        this.displayRecordPerPage(this.page);
         }, 500);
-        this.checkNextPreviousbtn(this.page,this.totalPage);
-        this.dispatchEvent(new CustomEvent('action',{detail:objlist}))
         }
     }
     
@@ -79,9 +94,9 @@ export default class PaginationCmp extends LightningElement {
 
         this.items = this.data.slice(this.startingRecord, this.endingRecord);
         this.startingRecord = this.startingRecord + 1;
-        let objlist = {values:this.items}
+        let objlist = {values:this.items,currentPage:this.page}
         if(this.querySelector('.pagenumber')){
-            this.querySelector('.pagenumber').innerHTML = `Page: ${this.page} of ${this.totalPage}`;
+            this.querySelector('.pagenumber').innerHTML = `${this.labels.Page}: ${this.page} ${this.labels.of} ${this.totalPage}`;
         }
         this.checkNextPreviousbtn(this.page,this.totalPage);
         this.dispatchEvent(new CustomEvent('action',{detail:objlist}))

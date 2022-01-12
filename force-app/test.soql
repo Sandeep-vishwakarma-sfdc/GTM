@@ -30,7 +30,7 @@ GTMPathFinder.updateGTMDetail('a4k0k0000002RFtAAM','50');
 List<Account> ac = GTMPathFinder.getGTMCustomers();
 System.debug(ac.size());
 
-List<GTM_Details__c> details = [SELECT ID,Name,GTM__c from GTM_Details__c where GTM__c='a4j0k000000iQpG'];
+List<GTM_Details__c> details = [SELECT ID,Name,GTM__c from GTM_Details__c where GTM__c='a4j0k000000iQpp'];
 delete details;
 System.debug(details[0].get('Name'));
 delete details;
@@ -62,3 +62,6 @@ System.debug('size'+outlooks.size());
 ------------------------------------- Product Category --------------------------------------------------
 
 GTMPathFinder.getCatergoryAllocation();
+
+---------------------------------------GTM Configuration -------------------------------
+select Id,Name from GTM_Country_Configuration__c

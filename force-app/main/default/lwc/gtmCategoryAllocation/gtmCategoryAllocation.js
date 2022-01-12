@@ -1,7 +1,13 @@
-import { LightningElement,track,wire } from 'lwc';
+import { LightningElement,track,wire,api } from 'lwc';
 import getCatergoryAllocation from '@salesforce/apex/GTMPathFinder.getCatergoryAllocation'
 import getFiscalYear from '@salesforce/apex/GTMPathFinder.getFiscalYear'
 import updateGTMDetail from '@salesforce/apex/GTMPathFinder.updateGTMDetailProductAllocation';
+import getInstructions from '@salesforce/apex/GTMPathFinder.getInstructions';
+import All_Companies_Purchase_to_Customer from '@salesforce/label/c.All_Companies_Purchase_to_Customer';
+import Customer_Lead_Customer from '@salesforce/label/c.Customer_Lead_Customer';
+import Remaining from '@salesforce/label/c.Remaining';
+import Check_If_Distribution_Is_Correct from '@salesforce/label/c.Check_If_Distribution_Is_Correct';
+
 export default class GtmCategoryAllocation extends LightningElement {
     @track productAllocations = [];
     copyproductAllocationsVirtual = [];
@@ -16,6 +22,27 @@ export default class GtmCategoryAllocation extends LightningElement {
     columns = [];
     fiscalYear = '';
     columnfiscalYear = '';
+
+    labels = {
+        All_Companies_Purchase_to_Customer1:All_Companies_Purchase_to_Customer.split('<br />')[0],
+        All_Companies_Purchase_to_Customer2:All_Companies_Purchase_to_Customer.split('<br />')[1]+` ${this.fiscalYear.replace('-20','/')}`,
+        Customer_Lead_Customer:Customer_Lead_Customer,
+        Remaining:Remaining,
+        Check_If_Distribution_Is_Correct:Check_If_Distribution_Is_Correct
+    }
+
+    @wire(getInstructions) getInstrustion({error,data}){
+        if(data){
+            this.instrustions = data.Instruction_Product_Category_Allocatio__c;
+        }
+    }
+
+    @api onTabRefresh(){
+        setTimeout(() => {
+            this.connectedCallback();
+        }, 500);
+    }
+
     connectedCallback(){
         this.showLoading = true;
         Promise.all([getFiscalYear(),getCatergoryAllocation()]).then(result=>{
@@ -91,6 +118,8 @@ export default class GtmCategoryAllocation extends LightningElement {
                 }
             })
         })
+        // let tempData = JSON.parse(JSON.stringify(this.copyproductAllocationsVirtual));
+        // this.productAllocations = tempData;
         }
     }
 
@@ -130,7 +159,7 @@ export default class GtmCategoryAllocation extends LightningElement {
 
     getTableData(data){
         let year = this.fiscalYear.replace('-20','/');
-        this.columnfiscalYear = `All Companies Purchase To Customer ${year}`;
+        this.columnfiscalYear = `${this.labels.All_Companies_Purchase_to_Customer1} ${this.labels.All_Companies_Purchase_to_Customer2} ${year}`;
         if(data[0]){
         this.columns = data[0].productCategory;
         }
@@ -155,7 +184,7 @@ export default class GtmCategoryAllocation extends LightningElement {
             console.log('percenatge ',percentage);
             let obj = {'pId':ele.Product_Category__r.Id,'pName':ele.Product_Category__r.Name,'GTMDetail':ele.Id,'allocation':ele.Product_Category_Allocation__c};
             arr.push(obj)
-            masterObj = {customerId:ele.GTM_Customer__c,customerName:ele.GTM_Customer__r.Name,productCategory:arr,'isLeadCustomer':ele.GTM_Customer__r.Lead_Customer__c?true:false,percentage:percentageLabel,percentageValue:percentage};
+            masterObj = {customerId:ele.GTM_Customer__c,customerName:ele.GTM_Customer__r.Name,totalCompaniesPurches:ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c, productCategory:arr,'isLeadCustomer':ele.GTM_Customer__r.Lead_Customer__c?true:false,percentage:percentageLabel,percentageValue:percentage,pathFinder:ele.GTM_Customer__r.Path_Finder__c};
             }
         })
         console.log('Master obj ',masterObj)
@@ -164,6 +193,17 @@ export default class GtmCategoryAllocation extends LightningElement {
 
     handlePaginationAction(event){
         this.paginatedProductCategoryAllocation = event.detail.values;
+        console.log('onPagination action');
+
+        let copyProductAllocations = this.productAllocations;
+                this.getTableData(copyProductAllocations);
+                setTimeout(() => {
+                    this.paginatedProductCategoryAllocation.forEach(ele=>{
+                        console.log('update row status ',ele);
+                        this.updateStatus(ele.customerId);
+                    })
+                }, 200);
+                this.updateStatusLabel();
     }
    
     handleFilterPanelAction(event){
@@ -172,11 +212,13 @@ export default class GtmCategoryAllocation extends LightningElement {
     }
 //searchStr,isLead,percentage
     applyFiltersOnCustomer(filtersValue){
+        this.template.querySelector('c-pagination-cmp').pagevalue = 1;
         console.log('filtersValue -------------->',filtersValue);
         let search = filtersValue.search.length!=0;
         let filter1 = filtersValue.filter1.length!=0 && filtersValue.filter1!='Both';
         let filter2 = filtersValue.filter2.length!= 0 && filtersValue.filter2!='None';
-        let searchValue = filtersValue.search;
+        let filter3 = filtersValue.filter3.length!= 0 && filtersValue.filter3!='Both';
+        let searchValue = String(filtersValue.search).toLocaleLowerCase();
         let filter1Value = filtersValue.filter1;
         if(filter1Value=='Lead Customer'){
             filter1Value = true;
@@ -185,6 +227,7 @@ export default class GtmCategoryAllocation extends LightningElement {
             filter1Value = false;
         }
         let filter2Value = filtersValue.filter2;
+        let filter3Value = filtersValue.filter3;
         console.log('search str length ',searchValue.length);
         this.getCalculatedPercentage();
         console.log('original data ',this.copyproductAllocationsVirtual);
@@ -194,32 +237,52 @@ export default class GtmCategoryAllocation extends LightningElement {
             console.log(' Condition search',search,' Condition filter1 ',filter1,' Condition filter2 ',filter2);
             console.log('Value search',searchValue,' filter1 ',filter1Value,' filter2 ',filter2Value);
             let custName = String(ele.customerName).toLowerCase();
-            if( search && filter1 && filter2){
-                console.log('condition 1');
-                return custName.includes(searchValue) && ele.isLeadCustomer==filter1Value && ele.percentage==filter2Value;
-            }else if(search && filter1 && !filter2){
-                console.log('condition 2');
+            if (search && filter1 && filter2 && filter3) {
+                return custName.includes(searchValue) && ele.isLeadCustomer==filter1Value && ele.percentage==filter2Value && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (search && filter1 && filter2 && !filter3) {
+               return custName.includes(searchValue) && ele.isLeadCustomer==filter1Value && ele.percentage==filter2Value
+            }
+            else if (search && filter1 && !filter2 && filter3) {
+                return custName.includes(searchValue) && ele.isLeadCustomer==filter1Value  && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (search && filter1 && !filter2 && !filter3) {
                 return custName.includes(searchValue) && ele.isLeadCustomer==filter1Value;
-            }else if(search && !filter1 && filter2){
-                console.log('condition 3');
-                return custName.includes(searchValue) && ele.percentage==filter2Value;
-            }else if(search && !filter1 && !filter2){
-                console.log('condition 4');
+            }
+            else if (search && !filter1 && filter2 && filter3) {
+                return custName.includes(searchValue) && ele.percentage==filter2Value && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (search && !filter1 && filter2 && !filter3) {
+                return custName.includes(searchValue)  && ele.percentage==filter2Value;
+            }
+            else if (search && !filter1 && !filter2 && filter3) {
+                return custName.includes(searchValue) && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (search && !filter1 && !filter2 && !filter3) {
                 return custName.includes(searchValue);
-            }else if(!search && filter1 && filter2){
-                console.log('condition 5');
-                return ele.isLeadCustomer==filter1Value && ele.percentage==filter2Value;
-            }else if(!search && filter1 && !filter2){
-                console.log('condition 6');
-                if(ele.isLeadCustomer==filter1Value){
-                    console.log('ele found ',ele);
-                }
-                return ele.isLeadCustomer==filter1Value;
-            }else if(!search && !filter1 && filter2){
-                console.log('condition 7');
+            }
+            else if (!search && filter1 && filter2 && filter3) {
+                return ele.isLeadCustomer==filter1Value && ele.percentage==filter2Value && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (!search && filter1 && filter2 && !filter3) {
+                return ele.isLeadCustomer==filter1Value && ele.percentage==filter2Value && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (!search && filter1 && !filter2 && filter3) {
+                return ele.isLeadCustomer == filter1Value && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (!search && filter1 && !filter2 && !filter3) {
+                return  ele.isLeadCustomer==filter1Value;
+            }
+            else if (!search && !filter1 && filter2 && filter3) {
+                return ele.percentage==filter2Value && String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (!search && !filter1 && filter2 && !filter3) {
                 return ele.percentage==filter2Value;
-            }else if(!search && !filter1 && !filter2){
-                console.log('condition 8');
+            }
+            else if (!search && !filter1 && !filter2 && filter3) {
+                return String(ele.pathFinder) == String(filter3Value);
+            }
+            else if (!search && !filter1 && !filter2 && !filter3) {
                 return true;
             }
         });
@@ -306,6 +369,7 @@ export default class GtmCategoryAllocation extends LightningElement {
             inProgress:yellow,
             notFilled:red
         }
+        
         console.log('Update satus lave ----------->',this.options);
     }
 
@@ -318,7 +382,7 @@ export default class GtmCategoryAllocation extends LightningElement {
     sortData(fieldname, direction) {
         direction = direction==true?'asc':'des';
         console.log('Field Name ',fieldname,' direction ',direction);
-        let parseData = JSON.parse(JSON.stringify(this.paginatedProductCategoryAllocation));
+        let parseData = JSON.parse(JSON.stringify(this.copyproductAllocationsVirtual));
         if(parseData.length>1){
         let keyValue = (a) => {
             return a[fieldname];
@@ -329,7 +393,7 @@ export default class GtmCategoryAllocation extends LightningElement {
             y = keyValue(y) ? keyValue(y) : '';
             return isReverse * ((x > y) - (y > x));
         });
-        this.paginatedProductCategoryAllocation = parseData;
+        this.productAllocations = parseData;
         }
 
     }

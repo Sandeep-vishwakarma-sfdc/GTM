@@ -8,87 +8,60 @@
         </lightning-icon>
       </label>
       <div class="sidebarMenu2">
-        <p>
-          INSTRUCTIONS<br /> <br />
-          All white cells can be edited. For each customer, inform the data in the following order of the
-          labeled columns:<br />
-          (1) Confirm if the type of customer in UPL system is correct. In the dropdown list, select the
-          correct type.<br />
-          (2) Indicate the total purchase of ALL CROP PROTECTION COMPANIES to the channel. This data should be
-          indicated as INDUSTRY PRICE. Only consider sales of PRODUCTS from the following categories:<br />
-          > Fungicides = total fungicides <br />
-          > Insecticides = total insecticides <br />
-          > Herbicides = total herbicides <br />
-          > Biosolutions = biocontrol and biostimulants products <br />
-          > Soil and Seed Health = Seed treatment and special fertilizers <br />
-          > Other relevant crop protection products to UPL business <br /><br />
-          (3) Estimate the markup (profit margin) in percentage of sales charged by the channel to sell to end
-          customers. [ONLY DEALER AND RETAIL / DISTRIBUTOR / COOPERATIVES] <br />
-          (4) Check if the total sales to channel (2) and the markup (3) makes up the estimated revenues of
-          the channel in farm gate price. If the numbers do not seem rigth, please review columns (1) and
-          (2).<br />
-          (5) Estimate the number of sales rep that are employees (it can be full-time employees or third
-          party) in the channel. Consider only sales rep of the forementioned product categories. [ONLY DEALER
-          AND RETAIL / DISTRIBUTOR / COOPERATIVES]<br />
-          (6) Estimate the number of outlets the customer has on your country. [ONLY DEALER AND RETAIL /
-          DISTRIBUTOR / COOPERATIVES]
-
-        </p>
+        <lightning-formatted-rich-text value={instrustions}>
+        </lightning-formatted-rich-text>
       </div>
     </div>
   </div>
   <c-gtm-filter-panel onaction={handleFiltersAction} panel-status={panelStatus}></c-gtm-filter-panel>
 
-  <div class="slds-scrollable_x slds-scrollable_y" style="height:300px; overflow-y:scroll; margin-top:15px;">
+  <div class="table-scroll" style="height:300px; margin-top:15px;">
 
     <table class="slds-table slds-table_cell-buffer slds-table_bordered"
       aria-labelledby="element-with-table-label other-element-with-table-label">
 
       <thead>
         <tr>
-          <th>Client (Lead Client)
-            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!" class="slds-m-right"
-              title="Warning"></lightning-icon>
+          <th class="fix">{labels.Customer_Lead_Customer}
+            <lightning-icon icon-name="utility:sort" onclick={handleSort} name="client" size="xx-small" alternative-text="sort" class="slds-m-right"
+              title=""></lightning-icon>
           </th>
-          <th>Customer Type
-            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!" class="slds-m-right"
-              title="Warning"></lightning-icon>
+          <th>{labels.Customer_Type}
+            <lightning-icon icon-name="utility:sort" onclick={handleSort} name="customerType" size="xx-small" alternative-text="sort" class="slds-m-right"
+              title=""></lightning-icon>
           </th>
-          <th style="text-align:center;">(1) Confirm Customer Type <br>
-            Indicated on the Left Adjacent Cell
-            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!" class="slds-m-right"
-              title="Warning"></lightning-icon>
+          <th style="text-align:center;">{labels.Confirm_Customer_Type_Indicated_on_the_Left_Adjacent_Cell1}<br>
+           {labels.Confirm_Customer_Type_Indicated_on_the_Left_Adjacent_Cell2}
           </th>
-          <th style="text-align:center;">(2) Total Purcahse of Crop Protection<br>
-            (Industry Price) 2020/21 (USD Million)
-            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!" class="slds-m-right"
-              title="Warning"></lightning-icon>
+          <th style="text-align:center;">{labels.Total_Purcahse_of_Crop_Protection_Industry_Price1}<br>
+            {labels.Total_Purcahse_of_Crop_Protection_Industry_Price2}
+            <lightning-icon icon-name="utility:sort" size="xx-small" onclick={handleSort} name="totalPurcahseCrop" alternative-text="sort" class="slds-m-right"
+              title=""></lightning-icon>
           </th>
-          <th style="text-align:center;">(3) Estimated Markup of Channel <br> (In % of Sales)
-            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!" class="slds-m-right"
-              title="Warning"></lightning-icon>
+          <th style="text-align:center;">{labels.Estimated_Markup_of_Channel_In_of_Sales1} <br> {labels.Estimated_Markup_of_Channel_In_of_Sales2}
+            <lightning-icon icon-name="utility:sort" size="xx-small" onclick={handleSort} name="estimateChannel" alternative-text="sort" class="slds-m-right"
+              title=""></lightning-icon>
           </th>
-          <th style="text-align:center;">(4) Confirm the Estimated <br>
-            Revenues of the Customer in 2020/21
-            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!" class="slds-m-right"
-              title="Warning"></lightning-icon>
+          <th style="text-align:center;">{labels.Confirm_the_Estimated_Revenues_of_the_Customer_in1}<br>
+            {labels.Confirm_the_Estimated_Revenues_of_the_Customer_in2}
+            
           </th>
-          <th style="text-align:center;">(5) Estimated Number<br>
-            Of Sales REP on Role
-            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!" class="slds-m-right"
-              title="Warning"></lightning-icon>
+          <th style="text-align:center;">{labels.Estimated_Number_Of_Sales_REP_on_Role1}<br>
+           {labels.Estimated_Number_Of_Sales_REP_on_Role2}
+            <lightning-icon icon-name="utility:sort" onclick={handleSort} name="estimateSalesRepRole" size="xx-small" alternative-text="sort" class="slds-m-right"
+              title=""></lightning-icon>
           </th>
-          <th style="text-align:center;">(6) Number of Stories<br>
-            That the Channel has
-            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!" class="slds-m-right"
-              title="Warning"></lightning-icon>
+          <th style="text-align:center;">{labels.Number_of_Stories_That_the_Channel_has1}<br>
+            {labels.Number_of_Stories_That_the_Channel_has2}
+            <lightning-icon icon-name="utility:sort" onclick={handleSort} name="storiesChannelHas" size="xx-small" alternative-text="sort" class="slds-m-right"
+              title=""></lightning-icon>
           </th>
         </tr>
       </thead>
       <tbody>
         <template for:each={paginatedGtmPotentialProfile} for:item="gtm" for:index="index">
-          <tr key={gtm.id}>
-            <td >{gtm.client}</td>
+          <tr  key={gtm.id}>
+            <td class="fix" >{gtm.client}</td>
             <td >{gtm.customerType}</td>
             <td role="gridcell">
               <div class="" title="" style="margin-top: -15px;">
@@ -112,7 +85,7 @@
             <td style="text-align:center;">
               <lightning-input style="margin-top:-16px;" type="number" value={gtm.estimateChannel} data-id={gtm.id} data-name="Estimated_Markup_of_Channel__c" onfocusout={handleChangeInput}></lightning-input>
             </td>
-            <td style="text-align:center;">The total farm gate revenues are USD $1 million</td>
+            <td style="text-align:center;">{gtm.confirmEstimatedRevenue}</td>
             <td style="text-align:center;">
               <lightning-input style="margin-top:-16px;" type="number" value={gtm.estimateSalesRepRole} data-id={gtm.id} data-name="Estimated_Number_of_Sales_Rep_on_Role__c" onfocusout={handleChangeInput}></lightning-input>
             </td>
@@ -123,10 +96,12 @@
         </template>
       </tbody>
     </table>
-
+    <div if:true={showLoading} class="slds-spinner_inline spinner-padding">
+      <lightning-spinner alternative-text="Loading" size="medium" class="spinnerClass"></lightning-spinner>
+    </div>
   </div>
 
-  <c-pagination-cmp tabledata={gtmPotentialProfile} onaction={handlePaginationAction}>
-    <div class="slds-float_right" style="margin-right: 20rem;" slot="pageNumber"><b class="pagenumber">Page:</b></div>
+  <c-pagination-cmp tabledata={gtmPotentialProfile}  onaction={handlePaginationAction}>
+    <div class="slds-float_right" style="margin-right: 20rem;" slot="pageNumber"><b class="pagenumber">{labels.Page}:</b></div>
   </c-pagination-cmp>
 </template>
