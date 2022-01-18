@@ -44,15 +44,17 @@ System.debug(cropmap);
 List<Crop__c> crops = GTMPathFinder.getActiveCrop();
 System.debug('Crops '+crops.size());
 
-GTM__c gtm = [select Id,Name from GTM__c limit 1];
+GTM__c gtm = [select Id,Name from GTM__c];
 GTMPathFinder.createGTMPotentialAndProfile(gtm);
+
+delete [select Id,Name from GTM__c where Id='a8G5D0000000JbeUAE'];
 
 
 --------------------------------------- OUTLOOK ----------------------------------------------------
 
 Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Outlook').getRecordTypeId();
 
-List<GTM_Details__c> gtmDetailsList = [Select Id, GTM_Customer__r.Name, GTM_Customer__c, Estimated_Growth_NY_to_2NY__c, Estimated_Growth_PY_to_CY__c, Estimated_Growth_PY_to_NY__c, Sales_Org__c from GTM_Details__c];
+List<GTM_Details__c> gtmDetailsList = [Select Id, GTM_Customer__r.Name, GTM_Customer__c, Estimated_Growth_NY_to_2NY__c, Estimated_Growth_PY_to_CY__c, Estimated_Growth_PY_to_NY__c, Sales_Org__c from GTM_Details__c where GTM__c='a8G5D0000000JbeUAE'];
 
 delete gtmDetailsList;
 
@@ -65,3 +67,19 @@ GTMPathFinder.getCatergoryAllocation();
 
 ---------------------------------------GTM Configuration -------------------------------
 select Id,Name from GTM_Country_Configuration__c
+
+
+List<Account> gtmCustomers = new List<Account>();
+List<Account> leadCustomerList = new List<Account>();
+List<Account> nonLeadCustomerList = new List<Account>();
+Id leadcustomerRecordType = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Lead Customer').getRecordTypeId();
+Id nonleadcustomerRecordType = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Distributor').getRecordTypeId();
+
+leadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c='5631'  and recordType.Id=:leadcustomerRecordType and Lead_Customer_Ownership__c='0050K00000B0Ero'];
+System.debug('Lead Customer '+leadCustomerList);
+            // Getting non-lead customer when lead customer field is empty
+nonLeadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c='5631' and Account_Type__c='Sold To Party' and Lead_Customer__c=null and Lead_Customer_Ownership__c='0050K00000B0Ero' and recordTypeId=:nonleadcustomerRecordType];
+System.debug('non lead '+nonLeadCustomerList);
+gtmCustomers.addAll(leadCustomerList);
+gtmCustomers.addAll(nonLeadCustomerList);
+System.debug('GTM Customer size'+gtmCustomers.size());

@@ -24,57 +24,48 @@ import Write_the_name_of_the_8_Company from '@salesforce/label/c.Write_the_name_
 import Indicate_the_Share_of_Wallet_of_the_8_Company from '@salesforce/label/c.Indicate_the_Share_of_Wallet_of_the_8_Company';
 import Remaining from '@salesforce/label/c.Remaining';
 import Check_If_Distribution_Is_Correct from '@salesforce/label/c.Check_If_Distribution_Is_Correct';
-
+import Distribution_completed from '@salesforce/label/c.Distribution_completed';
+import Please_check_the_values_Not_matching_100 from '@salesforce/label/c.Please_check_the_values_Not_matching_100';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import updateshare from '@salesforce/apex/GTMCompetition.updateshare';
+import Share_wallet_already_reached_100 from '@salesforce/label/c.Share_wallet_already_reached_100';
+import isWindowPeriodClosed from '@salesforce/apex/GTMPathFinder.isWindowPeriodClosed';
 
 export default class GtmCompetition extends LightningElement {
-    // 29/12/2021
-
+    
+    disableAll = false;
     @track labels = {
         Customer_Lead_Customer: Customer_Lead_Customer,
         Write_UPL_POSITION: Write_UPL_POSITION,
         UPL_s_Share_of_Wallet: UPL_s_Share_of_Wallet,
         Remaining: Remaining,
         Check_If_Distribution_Is_Correct: Check_If_Distribution_Is_Correct,
+        Distribution_completed:Distribution_completed,
+        Please_check_the_values_Not_matching_100: Please_check_the_values_Not_matching_100,
+        Share_wallet_already_reached_100:Share_wallet_already_reached_100,
 
-        Write_the_name_of_the_1_Company1: Write_the_name_of_the_1_Company.split('<br/>')[0],
-        Write_the_name_of_the_1_Company2: Write_the_name_of_the_1_Company.split('<br/>')[1],
+        Write_the_name_of_the_1_Company: Write_the_name_of_the_1_Company,
+        
 
-        Indicate_the_Share_of_Wallet_of_the_1_Company1: Indicate_the_Share_of_Wallet_of_the_1_Company.split('<br/>')[0],
-        Indicate_the_Share_of_Wallet_of_the_1_Company2: Indicate_the_Share_of_Wallet_of_the_1_Company.split('<br/>')[1],
+        Indicate_the_Share_of_Wallet_of_the_1_Company: Indicate_the_Share_of_Wallet_of_the_1_Company,
+       
 
-        Write_the_name_of_the_2_Company1: Write_the_name_of_the_2_Company.split('<br/>')[0],
-        Write_the_name_of_the_2_Company2: Write_the_name_of_the_2_Company.split('<br/>')[1],
+        Write_the_name_of_the_2_Company: Write_the_name_of_the_2_Company,
+       
+        Indicate_the_Share_of_Wallet_of_the_2_Company: Indicate_the_Share_of_Wallet_of_the_2_Company,
 
-        Indicate_the_Share_of_Wallet_of_the_2_Company1: Indicate_the_Share_of_Wallet_of_the_2_Company.split('<br/>')[0],
-        Indicate_the_Share_of_Wallet_of_the_2_Company2: Indicate_the_Share_of_Wallet_of_the_2_Company.split('<br/>')[1],
-        Write_the_name_of_the_3_Company1: Write_the_name_of_the_3_Company.split('<br/>')[0],
-        Write_the_name_of_the_3_Company2: Write_the_name_of_the_3_Company.split('<br/>')[1],
-        Indicate_the_Share_of_Wallet_of_the_3_Company1: Indicate_the_Share_of_Wallet_of_the_3_Company.split('<br/>')[0],
-        Indicate_the_Share_of_Wallet_of_the_3_Company2: Indicate_the_Share_of_Wallet_of_the_3_Company.split('<br/>')[1],
-        Write_the_name_of_the_4_Company1: Write_the_name_of_the_4_Company.split('<br/>')[0],
-        Write_the_name_of_the_4_Company2: Write_the_name_of_the_4_Company.split('<br/>')[1],
-        Indicate_the_Share_of_Wallet_of_the_4_Company1: Indicate_the_Share_of_Wallet_of_the_4_Company.split('<br/>')[0],
-        Indicate_the_Share_of_Wallet_of_the_4_Company2: Indicate_the_Share_of_Wallet_of_the_4_Company.split('<br/>')[1],
-
-        Write_the_name_of_the_5_Company1: Write_the_name_of_the_5_Company.split('<br/>')[0],
-        Write_the_name_of_the_5_Company2: Write_the_name_of_the_5_Company.split('<br/>')[1],
-        Indicate_the_Share_of_Wallet_of_the_5_Company1: Indicate_the_Share_of_Wallet_of_the_5_Company.split('<br/>')[0],
-        Indicate_the_Share_of_Wallet_of_the_5_Company2: Indicate_the_Share_of_Wallet_of_the_5_Company.split('<br/>')[1],
-
-        Write_the_name_of_the_6_Company1: Write_the_name_of_the_6_Company.split('<br/>')[0],
-        Write_the_name_of_the_6_Company2: Write_the_name_of_the_6_Company.split('<br/>')[1],
-        Indicate_the_Share_of_Wallet_of_the_6_Company1: Indicate_the_Share_of_Wallet_of_the_6_Company.split('<br/>')[0],
-        Indicate_the_Share_of_Wallet_of_the_6_Company2: Indicate_the_Share_of_Wallet_of_the_6_Company.split('<br/>')[1],
-
-        Write_the_name_of_the_7_Company1: Write_the_name_of_the_7_Company.split('<br/>')[0],
-        Write_the_name_of_the_7_Company2: Write_the_name_of_the_7_Company.split('<br/>')[1],
-        Indicate_the_Share_of_Wallet_of_the_7_Company1: Indicate_the_Share_of_Wallet_of_the_7_Company.split('<br/>')[0],
-        Indicate_the_Share_of_Wallet_of_the_7_Company2: Indicate_the_Share_of_Wallet_of_the_7_Company.split('<br/>')[1],
-
-        Write_the_name_of_the_8_Company1: Write_the_name_of_the_8_Company.split('<br/>')[0],
-        Write_the_name_of_the_8_Company2: Write_the_name_of_the_8_Company.split('<br/>')[1],
-        Indicate_the_Share_of_Wallet_of_the_8_Company1: Indicate_the_Share_of_Wallet_of_the_8_Company.split('<br/>')[0],
-        Indicate_the_Share_of_Wallet_of_the_8_Company2: Indicate_the_Share_of_Wallet_of_the_8_Company.split('<br/>')[1],
+        Write_the_name_of_the_3_Company: Write_the_name_of_the_3_Company,
+        Indicate_the_Share_of_Wallet_of_the_3_Company: Indicate_the_Share_of_Wallet_of_the_3_Company,
+        Write_the_name_of_the_4_Company: Write_the_name_of_the_4_Company,
+        Indicate_the_Share_of_Wallet_of_the_4_Company: Indicate_the_Share_of_Wallet_of_the_4_Company,
+        Write_the_name_of_the_5_Company: Write_the_name_of_the_5_Company,
+        Indicate_the_Share_of_Wallet_of_the_5_Company: Indicate_the_Share_of_Wallet_of_the_5_Company,
+        Write_the_name_of_the_6_Company: Write_the_name_of_the_6_Company,
+        Indicate_the_Share_of_Wallet_of_the_6_Company: Indicate_the_Share_of_Wallet_of_the_6_Company,
+        Write_the_name_of_the_7_Company: Write_the_name_of_the_7_Company,
+        Indicate_the_Share_of_Wallet_of_the_7_Company: Indicate_the_Share_of_Wallet_of_the_7_Company,
+        Write_the_name_of_the_8_Company: Write_the_name_of_the_8_Company,
+        Indicate_the_Share_of_Wallet_of_the_8_Company: Indicate_the_Share_of_Wallet_of_the_8_Company,
     }
 
     @track gtmcompetitor = [];
@@ -92,7 +83,7 @@ export default class GtmCompetition extends LightningElement {
 
     @wire(getInstructions1) getInstruction({ error, data }) {
         if (data) {
-            this.instrustions = data.Instruction_Competitor__c;
+            this.instrustions = data.Instruction_Competitor__c ;
         }
     }
 
@@ -101,7 +92,7 @@ export default class GtmCompetition extends LightningElement {
     value = 'new';
     statusOptions = [];
 
-    //
+    
     @api onTabRefresh() {
         setTimeout(() => {
             this.hasOptionsAdded = true;
@@ -122,8 +113,8 @@ export default class GtmCompetition extends LightningElement {
                     }
                 });
                 if (!this.hasOptionsAdded) {
-                    let objNone = { label: 'None', value: "" };
-                    // this.statusOptions.push(objNone);
+                    let objNone = { label: 'None', value: "none" };
+                    this.statusOptions.push(objNone);
                 }
                 data = result[1];
             }
@@ -162,7 +153,7 @@ export default class GtmCompetition extends LightningElement {
                         status: '',
                         numberOfFieldsFilled: '',
                         isLeadCustomer: ele.GTM_Customer__r.Lead_Customer__c ? true : false,
-                        //8/1/2022
+                        
                         pathFinder: ele.GTM_Customer__r.Path_Finder__c,
                         options: this.statusOptions,
                         remainingOptions1: [],
@@ -198,6 +189,9 @@ export default class GtmCompetition extends LightningElement {
                 console.log('Competitior  data ', this.gtmcompetitor);
             }
         })
+        isWindowPeriodClosed().then(isDisable=>{
+            this.disableAll = isDisable
+        })
     }
 
 
@@ -216,81 +210,71 @@ export default class GtmCompetition extends LightningElement {
         if (value == '') {
             value = 0;
         }
-
-        updateGTMDetails({ recordId: id, name: name, value: value }).then(data => {
-
-            console.log('data updated', data);
-
-        });
         let gtmIndex = this.gtmcompetitor.findIndex((obj => obj.id == id));
+        let tempOptions = this.statusOptions.filter(op=>String(op.value)==String(value))[0];
+        let optionValue = tempOptions?tempOptions.label:'';
+        if(optionValue=='UPL'){
+            updateshare({ recordId: id}).then(data => {
+                console.log('The new data is',data);
+            });
+        }else{
+            updateGTMDetails({ recordId: id, name: name, value: value!='none'?value:null }).then(data => {
+                console.log('data updated', data);
+            });
+        }
+
         if (name == 'Competitor_Name_1__c') {
-            console.log('Competitor_Name_1__c');
-            this.gtmcompetitor[gtmIndex].Competitor1 = value;
+            this.gtmcompetitor[gtmIndex].Competitor1 = value!='none'?value:'';
             this.gtmcompetitor[gtmIndex].Competitor1Name = this.statusOptions.filter(op=>String(op.value)==String(value))[0].label;
             
         }
         else if (name == 'Indicate_share_wallet_of_competitor_1__c') {
-            console.log('Indicate_share_wallet_of_competitor_1__c');
             this.gtmcompetitor[gtmIndex].Indicate1 = value;
         }
         else if (name == 'Competitor_Name_2__c') {
-            console.log('Competitor_Name_2__c');
-            this.gtmcompetitor[gtmIndex].Competitor2 = value;
+            this.gtmcompetitor[gtmIndex].Competitor2 = value!='none'?value:''
             this.gtmcompetitor[gtmIndex].Competitor2Name = this.statusOptions.filter(op=>String(op.value)==String(value))[0].label;
         } else if (name == 'Indicate_share_wallet_of_competitor_2__c') {
-            console.log('Indicate_share_wallet_of_competitor_2__c');
             this.gtmcompetitor[gtmIndex].Indicate2 = value;
         } else if (name == 'Competitor_Name_3__c') {
-            console.log('Competitor_Name_3__c');
-            this.gtmcompetitor[gtmIndex].Competitor3 = value;
+            this.gtmcompetitor[gtmIndex].Competitor3 = value!='none'?value:''
             this.gtmcompetitor[gtmIndex].Competitor3Name = this.statusOptions.filter(op=>String(op.value)==String(value))[0].label;
         } else if (name == 'Indicate_share_wallet_of_competitor_3__c') {
-            console.log('Indicate_share_wallet_of_competitor_3__c');
             this.gtmcompetitor[gtmIndex].Indicate3 = value;
         } else if (name == 'Competitor_Name_4__c') {
-            console.log('Competitor_Name_4__c');
-            this.gtmcompetitor[gtmIndex].Competitor4 = value;
+            this.gtmcompetitor[gtmIndex].Competitor4 = value!='none'?value:''
             this.gtmcompetitor[gtmIndex].Competitor4Name = this.statusOptions.filter(op=>String(op.value)==String(value))[0].label;
         } else if (name == 'Indicate_share_wallet_of_competitor_4__c') {
-            console.log('Indicate_share_wallet_of_competitor_4__c');
             this.gtmcompetitor[gtmIndex].Indicate4 = value;
             
         } else if (name == 'Competitor_Name_5__c') {
-            console.log('Competitor_Name_5__c');
-            this.gtmcompetitor[gtmIndex].Competitor5 = value;
+            this.gtmcompetitor[gtmIndex].Competitor5 = value!='none'?value:''
             this.gtmcompetitor[gtmIndex].Competitor5Name = this.statusOptions.filter(op=>String(op.value)==String(value))[0].label;
         } else if (name == 'Indicate_share_wallet_of_competitor_5__c') {
-            console.log('Indicate_share_wallet_of_competitor_5__c');
             this.gtmcompetitor[gtmIndex].Indicate5 = value;
         }
         else if (name == 'Competitor_Name_6__c') {
-            console.log('Competitor_Name_6__c');
-            this.gtmcompetitor[gtmIndex].Competitor6 = value;
+            this.gtmcompetitor[gtmIndex].Competitor6 = value!='none'?value:''
             this.gtmcompetitor[gtmIndex].Competitor6Name = this.statusOptions.filter(op=>String(op.value)==String(value))[0].label;
         } else if (name == 'Indicate_share_wallet_of_competitor_6__c') {
-            console.log('Indicate_share_wallet_of_competitor_6__c');
             this.gtmcompetitor[gtmIndex].Indicate6 = value;
         } else if (name == 'Competitor_Name_7__c') {
-            console.log('Competitor_Name_7__c');
-            this.gtmcompetitor[gtmIndex].Competitor7 = value;
+            this.gtmcompetitor[gtmIndex].Competitor7 = value!='none'?value:''
             this.gtmcompetitor[gtmIndex].Competitor7Name = this.statusOptions.filter(op=>String(op.value)==String(value))[0].label;
         } else if (name == 'Indicate_share_wallet_of_competitor_7__c') {
-            console.log('Indicate_share_wallet_of_competitor_7__c');
             this.gtmcompetitor[gtmIndex].Indicate7 = value;
         } else if (name == 'Competitor_Name_8__c') {
             console.log('Competitor_Name_8__c');
-            this.gtmcompetitor[gtmIndex].Competitor8 = value;
+            this.gtmcompetitor[gtmIndex].Competitor8 = value!='none'?value:''
             this.gtmcompetitor[gtmIndex].Competitor8Name = this.statusOptions.filter(op=>String(op.value)==String(value))[0].label;
         } else if (name == 'Indicate_share_wallet_of_competitor_8__c') {
-            console.log('Indicate_share_wallet_of_competitor_8__c');
             this.gtmcompetitor[gtmIndex].Indicate8 = value;
         } else if (name == 'UPL_Position__c') {
-            console.log('UPL_Position__c');
             this.gtmcompetitor[gtmIndex].uplposition = value;
         } else if (name == 'UPLs_share_of_wallet__c') {
-            console.log('UPLs_share_of_wallet__c');
             this.gtmcompetitor[gtmIndex].uplshare = value;
         }
+        
         this.updatePicklistOptions(this.gtmcompetitor[gtmIndex])
         setTimeout(() => {
             let tempData = JSON.parse(JSON.stringify(this.gtmcompetitor));
@@ -330,31 +314,28 @@ export default class GtmCompetition extends LightningElement {
 
     handleChangeStatusOnLoad(id, value) {
         console.log('id ', id);
-        
-        
     }
 
-    // Today 7/01/2022
 
     mapCustomerCategory(gtmcompetitor, id) {
         let masterObj = {};
         let arr = [];
-        let percentage = 100
+        let remainingPercentage = 100
         productAllocation.forEach(ele => {
             if (ele.GTM_Customer__c == id) {
-                percentage = Number(percentage) - Number(ele.Competitor__c);
+                remainingPercentage = Number(remainingPercentage) - Number(ele.Competitor__c);
                 let percentageLabel = '';
-                if (percentage == 0) {
+                if (remainingPercentage == 0) {
                     percentageLabel = 'Completed';
-                } else if (percentage > 0 && percentage < 100) {
+                } else if (remainingPercentage > 0 && remainingPercentage< 100) {
                     percentageLabel = 'In Progress';
-                } else if (percentage == 100) {
+                } else if (remainingPercentage == 100) {
                     percentageLabel = 'Not Fill';
                 }
-                console.log('percenatge ', percentage);
+                console.log('percenatge ', remainingPercentage);
                 //let obj = {'pId':ele.Product_Category__r.Id,'pName':ele.Product_Category__r.Name,'GTMDetail':ele.Id,'allocation':ele.Product_Category_Allocation__c};
                 //rr.push(obj)
-                masterObj = { id: ele.GTM_Customer__c, 'isLeadCustomer': ele.GTM_Customer__r.Lead_Customer__c ? true : false, percentage: percentageLabel, percentageValue: percentage };
+                masterObj = { id: ele.GTM_Customer__c, 'isLeadCustomer': ele.GTM_Customer__r.Lead_Customer__c ? true : false, remainingPercentage: percentageLabel, percentageValue: remainingPercentage };
             }
         })
         console.log('Master obj ', masterObj)
@@ -362,22 +343,22 @@ export default class GtmCompetition extends LightningElement {
     }
     getCalculatedPercentage() {
         this.gtmcompetitorVirtual.forEach((ele) => {
-            let percentage = 100;
+            let remainingPercentage = 100;
             ele.productCategory.forEach(e => {
-                percentage = Number(percentage) - Number(e.allocation);
+                remainingPercentage = Number(remainingPercentage) - Number(e.allocation);
                 // console.log('cal percenatge ',percentage);
             })
             let percentageLabel = '';
-            if (percentage == 0) {
+            if (remainingPercentage == 0) {
                 percentageLabel = 'Completed';
-            } else if (percentage > 0 && percentage < 100) {
+            } else if (remainingPercentage > 0 && remainingPercentage < 100) {
                 percentageLabel = 'In Progress';
-            } else if (percentage == 100) {
+            } else if (remainingPercentage == 100) {
                 percentageLabel = 'Not Fill';
             }
             setTimeout(() => {
-                ele.percentage = percentageLabel;
-                ele.percentageValue = percentage;
+                ele.remainingPercentage = percentageLabel;
+                ele.percentageValue = remainingPercentage;
                 // console.log('percentage label ',ele.percentage);
             }, 50);
         })
@@ -411,16 +392,6 @@ export default class GtmCompetition extends LightningElement {
             })
         }, 200);
     }
-
-
-
-
-
-
-    // Today 7/07/2022
-
-
-
 
 
     handleSort(event) {
@@ -553,6 +524,15 @@ export default class GtmCompetition extends LightningElement {
     }
 
     updatePicklistOptions(obj) {
+        console.log('The value of obj is',obj)
+        console.log('the id of obj is',obj.Indicate1);
+        
+
+        
+        
+        
+
+        
 
         obj.remainingOptions1 = obj.options.filter(ele => {
             return ele.value != obj.Competitor2 && ele.value != obj.Competitor3 && ele.value != obj.Competitor4 && ele.value != obj.Competitor5 && ele.value != obj.Competitor6 && ele.value != obj.Competitor7 && ele.value != obj.Competitor8
@@ -606,52 +586,185 @@ export default class GtmCompetition extends LightningElement {
         }
         if(String(obj.Competitor1Name).toLowerCase()=='UPL'.toLowerCase() || String(obj.Competitor2Name).toLowerCase()=='UPL'.toLowerCase() || String(obj.Competitor3Name).toLowerCase()=='UPL'.toLowerCase() || String(obj.Competitor4Name).toLowerCase()=='UPL'.toLowerCase() || String(obj.Competitor5Name).toLowerCase()=='UPL'.toLowerCase() || String(obj.Competitor6Name).toLowerCase()=='UPL'.toLowerCase() || String(obj.Competitor7Name).toLowerCase()=='UPL'.toLowerCase() || String(obj.Competitor8Name).toLowerCase()=='UPL'.toLowerCase()){
             obj.isUPLSelected=true
-        }else{
+            obj.uplposition=0;
+            obj.uplshare=0;
+            updateshare({ recordId: obj.id}).then(data => {
+
+                console.log('The new data is',data);
+               });
+
+              
+
+        }
+        else{
             obj.isUPLSelected=false
         }
         let initialPercentage = 100;
         let numberOfColumn = obj.isUPLSelected==false?(this.statusOptions.length + 1)>9?9:(this.statusOptions.length + 1):this.statusOptions.length>8?8:this.statusOptions.length;
-        let len = this.statusOptions.length>numberOfColumn?numberOfColumn:this.statusOptions.length;
-        let percentageUnit = Number(100 / len) != NaN ? Number(Number(100 / len)).toFixed(2) : 0;
-        console.log(`status Option length ${this.statusOptions.length} percentageUnit ${percentageUnit}`)
-        console.log('obj ', obj);
-        if (obj.Competitor1) {
-            initialPercentage = Number(initialPercentage).toFixed(2) - percentageUnit;
+        //let len = this.statusOptions.length>numberOfColumn?numberOfColumn:this.statusOptions.length;
+       // let percentageUnit = Number(100 / len) != NaN ? Number(Number(100 / len)).toFixed(2) : 0;
+        //console.log(`status Option length ${this.statusOptions.length} percentageUnit ${percentageUnit}`)
+        
+        if (obj.Indicate1 && obj.Competitor1) {
+           let  tempinitialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate1;
+
+            if(tempinitialPercentage<0)
+            {
+                obj.Indicate1=0;
+             updateGTMDetails({ recordId: obj.id, name:'Indicate_share_wallet_of_competitor_1__c', value: obj.Indicate1 }).then(data => {
+
+               console.log('The new data is',data);
+              });
+              this.showToast('','Share wallet already reached 100% ','error','dismissable');
+            }
+            initialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate1;
+
+
+           
         }
-        if (obj.Competitor2) {
+         
+        if (obj.Indicate2 && obj.Competitor2) {
             
-            initialPercentage = Number(initialPercentage).toFixed(2) - percentageUnit;
+            let  tempinitialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate2;
+            if(tempinitialPercentage<0)
+            {
+                obj.Indicate2=0;
+               updateGTMDetails({ recordId: obj.id, name:'Indicate_share_wallet_of_competitor_2__c', value: obj.Indicate2 }).then(data => {
+
+               console.log('The new data is',data);
+              });
+              this.showToast('','Share wallet already reached 100% ','error','dismissable');
+          }
+          initialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate2;
         }
-        if (obj.Competitor3) {
-            initialPercentage = Number(initialPercentage).toFixed(2) - percentageUnit;
+        
+        if (obj.Indicate3 && obj.Competitor3) {
+            let  tempinitialPercentage= Number(initialPercentage).toFixed(2) - obj.Indicate3;
+            if(tempinitialPercentage<0)
+            {
+                obj.Indicate3=0;
+               updateGTMDetails({ recordId: obj.id, name:'Indicate_share_wallet_of_competitor_3__c', value: obj.Indicate3 }).then(data => {
+
+               console.log('The new data is',data);
+              });
+              this.showToast('','Share wallet already reached 100% ','error','dismissable');
+          }
+          initialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate3;
         }
-        if (obj.Competitor4) {
-            initialPercentage = Number(initialPercentage).toFixed(2) - percentageUnit;
+        
+        if (obj.Indicate4 && obj.Competitor4) {
+            let  tempinitialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate4;
+            if(tempinitialPercentage<0)
+            {
+                obj.Indicate4=0;
+               updateGTMDetails({ recordId: obj.id, name:'Indicate_share_wallet_of_competitor_4__c', value: obj.Indicate4 }).then(data => {
+
+               console.log('The new data is',data);
+              });
+              this.showToast('','Share wallet already reached 100% ','error','dismissable');
+          }
+          initialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate4;
         }
-        if (obj.Competitor5) {
-            initialPercentage = Number(initialPercentage).toFixed(2) - percentageUnit;
+        
+        if (obj.Indicate5 && obj.Competitor5) {
+            let  tempinitialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate5;
+            if(tempinitialPercentage<0)
+            {
+                obj.Indicate5=0;
+               updateGTMDetails({ recordId: obj.id, name:'Indicate_share_wallet_of_competitor_5__c', value: obj.Indicate5 }).then(data => {
+
+               console.log('The new data is',data);
+              });
+              this.showToast('','Share wallet already reached 100% ','error','dismissable');
+            }
+            initialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate5;
         }
-        if (obj.Competitor6) {
-            initialPercentage = Number(initialPercentage).toFixed(2) - percentageUnit;
+        
+        if (obj.Indicate6 && obj.Competitor6) {
+            let  tempinitialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate6;
+            if(tempinitialPercentage<0)
+            {
+                obj.Indicate6=0;
+               updateGTMDetails({ recordId: obj.id, name:'Indicate_share_wallet_of_competitor_6__c', value: obj.Indicate6 }).then(data => {
+
+               console.log('The new data is',data);
+              });
+              this.showToast('','Share wallet already reached 100% ','error','dismissable');
+            }
+            initialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate6;
         }
-        if (obj.Competitor7) {
-            initialPercentage = Number(initialPercentage).toFixed(2) - percentageUnit;
+        
+        if (obj.Indicate7 && obj.Competitor7) {
+            let  tempinitialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate7;
+            if(tempinitialPercentage<0)
+            {
+                obj.Indicate7=0;
+               updateGTMDetails({ recordId: obj.id, name:'Indicate_share_wallet_of_competitor_7__c', value: obj.Indicate7 }).then(data => {
+
+               console.log('The new data is',data);
+              });
+              this.showToast('','Share wallet already reached 100% ','error','dismissable');
+            }
+            initialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate7;
         }
-        if (obj.Competitor8) {
-            initialPercentage = Number(initialPercentage).toFixed(2) - percentageUnit;
+        
+        
+        if (obj.Indicate8 && obj.Competitor8) {
+            let  tempinitialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate8;
+            if(tempinitialPercentage<0)
+            {
+                obj.Indicate8=0;
+               updateGTMDetails({ recordId: obj.id, name:'Indicate_share_wallet_of_competitor_8__c', value: obj.Indicate8 }).then(data => {
+
+               console.log('The new data is',data);
+              });
+              this.showToast('','Share wallet already reached 100% ','error','dismissable');
+            }
+            initialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate8;
         }
-        if(obj.uplposition && obj.isUPLSelected==false){
-            initialPercentage = Number(initialPercentage).toFixed(2) - Number(percentageUnit).toFixed(2);
-            console.log('initialPercentage ',initialPercentage);
+       
+        if(obj.uplshare && obj.uplposition && obj.isUPLSelected==false){
+            let  tempinitialPercentage = Number(initialPercentage).toFixed(2) - obj.uplshare;
+            if(tempinitialPercentage<0)
+            {
+                obj.uplshare=0;
+               updateGTMDetails({ recordId: obj.id, name:'UPLs_share_of_wallet__c', value: obj.uplshare }).then(data => {
+
+               console.log('The new data is',data);
+              });
+              this.showToast('','Share wallet already reached 100% ','error','dismissable');
+            }
+            initialPercentage = Number(initialPercentage).toFixed(2) - obj.uplshare;
+            //console.log('initialPercentage ',initialPercentage);
         }
+       // if(initialPercentage.toFixed(1)<0)
+        //{
+        //    this.showToast('','Share wallet already reached 100% ','error','dismissable');
+
+        //}
+        
+
         obj.remainingPercentage = Number(initialPercentage).toFixed(1);
+        console.log('obj ', obj);
         if (obj.remainingPercentage > 0) {
             obj.isDistributionCompleted = false;
         } else if (obj.remainingPercentage == 0) {
             obj.isDistributionCompleted = true;
+           
+
         }
         
 
     }
+    showToast(title,message,variant,mode) {
+		const event = new ShowToastEvent({
+			title: title,
+			message: message,
+			variant: 'error',
+			mode: mode
+		});
+		this.dispatchEvent(event);
+	}
+
 
 }

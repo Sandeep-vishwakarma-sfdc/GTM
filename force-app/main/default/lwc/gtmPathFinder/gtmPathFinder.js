@@ -44,7 +44,6 @@ export default class GtmPathFinder extends LightningElement {
 
     onTabChange(event){
         let cmpName = event.target.name;
-        console.log('onTabChange ',cmpName);
         let cmp = this.template.querySelector(`${cmpName}`);
         if(cmp){
             cmp.onTabRefresh();

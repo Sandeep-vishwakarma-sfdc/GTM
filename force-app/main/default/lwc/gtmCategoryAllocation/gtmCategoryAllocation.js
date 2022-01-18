@@ -3,15 +3,20 @@ import getCatergoryAllocation from '@salesforce/apex/GTMPathFinder.getCatergoryA
 import getFiscalYear from '@salesforce/apex/GTMPathFinder.getFiscalYear'
 import updateGTMDetail from '@salesforce/apex/GTMPathFinder.updateGTMDetailProductAllocation';
 import getInstructions from '@salesforce/apex/GTMPathFinder.getInstructions';
+import isWindowPeriodClosed from '@salesforce/apex/GTMPathFinder.isWindowPeriodClosed';
 import All_Companies_Purchase_to_Customer from '@salesforce/label/c.All_Companies_Purchase_to_Customer';
 import Customer_Lead_Customer from '@salesforce/label/c.Customer_Lead_Customer';
 import Remaining from '@salesforce/label/c.Remaining';
 import Check_If_Distribution_Is_Correct from '@salesforce/label/c.Check_If_Distribution_Is_Correct';
+import Please_check_the_values_Not_matching_100 from '@salesforce/label/c.Please_check_the_values_Not_matching_100';
+import Distribution_completed from '@salesforce/label/c.Distribution_completed';
+import Instructions from '@salesforce/label/c.Instructions';
 
 export default class GtmCategoryAllocation extends LightningElement {
     @track productAllocations = [];
     copyproductAllocationsVirtual = [];
     showLoading = false;
+    disableAll = false;
     @track options = {
         notFilled:'0',
         inProgress:'0',
@@ -28,7 +33,10 @@ export default class GtmCategoryAllocation extends LightningElement {
         All_Companies_Purchase_to_Customer2:All_Companies_Purchase_to_Customer.split('<br />')[1]+` ${this.fiscalYear.replace('-20','/')}`,
         Customer_Lead_Customer:Customer_Lead_Customer,
         Remaining:Remaining,
-        Check_If_Distribution_Is_Correct:Check_If_Distribution_Is_Correct
+        Check_If_Distribution_Is_Correct:Check_If_Distribution_Is_Correct,
+        Please_check_the_values_Not_matching_100:Please_check_the_values_Not_matching_100,
+        Distribution_completed:Distribution_completed,
+        Instructions:Instructions
     }
 
     @wire(getInstructions) getInstrustion({error,data}){
@@ -46,7 +54,6 @@ export default class GtmCategoryAllocation extends LightningElement {
     connectedCallback(){
         this.showLoading = true;
         Promise.all([getFiscalYear(),getCatergoryAllocation()]).then(result=>{
-            console.log('results ',result);
             this.fiscalYear = '';
             let data = [];
             let tempProductAllocation=[];
@@ -55,27 +62,21 @@ export default class GtmCategoryAllocation extends LightningElement {
                 this.fiscalYear = result[0];
                 data = result[1]
             }
-            console.log('getCatergoryAllocation',data);
             for(let key in data){
                 tempProductAllocation.push({key:key,value:data[key]})
             }
             tempProductAllocation.forEach(ele=>{
-                console.log('value',ele.value);
-                console.log('value string ',JSON.stringify(ele.value));
                 let categoryObj = this.mapCustomerCategory(ele.value,ele.key)
-                console.log('category obj ',categoryObj);
                 tempAllProductAllocations.push(categoryObj);
             });
             setTimeout(() => {
                 this.productAllocations = tempAllProductAllocations;
                 this.copyproductAllocationsVirtual = tempAllProductAllocations;
-                console.log('ProductAllocation ',this.productAllocations);
                 this.paginatedProductCategoryAllocation = this.productAllocations;
                 let copyProductAllocations = this.productAllocations;
                 this.getTableData(copyProductAllocations);
                 setTimeout(() => {
                     this.paginatedProductCategoryAllocation.forEach(ele=>{
-                        console.log('update row status ',ele);
                         this.updateStatus(ele.customerId);
                     })
                 }, 200);
@@ -88,15 +89,15 @@ export default class GtmCategoryAllocation extends LightningElement {
             this.showLoading = false;
             console.log(err)
         });
+        isWindowPeriodClosed().then(isDisable=>{
+            this.disableAll = isDisable
+        })
     }
 
     handleProductDetailChange(event){
-        console.log('detail changed ',event.currentTarget.dataset.detail);
-        console.log('account ',event.currentTarget.dataset.accountid);
         let detailId =  event.currentTarget.dataset.detail;
         let accid = event.currentTarget.dataset.accountid;
         let value = event.target.value
-        console.log('value ',value);
         if(String(value).length==0){
             this.template.querySelector('[data-detail="' + detailId + '"]').value = '0';
             value = 0;
@@ -118,13 +119,10 @@ export default class GtmCategoryAllocation extends LightningElement {
                 }
             })
         })
-        // let tempData = JSON.parse(JSON.stringify(this.copyproductAllocationsVirtual));
-        // this.productAllocations = tempData;
         }
     }
 
     onChangeLabelOption(value,accid,detailId){
-        console.log('Value ',value);
         this.productAllocations.forEach(ele=>{
             if(ele.customerId==accid){
                 let percent = 100;
@@ -133,10 +131,8 @@ export default class GtmCategoryAllocation extends LightningElement {
                     if(e.GTMDetail!=detailId){
                         tempValue = Number(e.allocation)+Number(tempValue);
                     }
-                    console.log('temp Value --------->',tempValue);
                 })
                 percent = Number(percent) - Number(tempValue);
-                console.log('percentage ---------->',percent);
                 let percentageLabel = '';
                 if(percent==0){
                     percentageLabel = 'Completed';
@@ -153,7 +149,6 @@ export default class GtmCategoryAllocation extends LightningElement {
     
     updateGTMDetail(tempGtmId,tempValue){
         updateGTMDetail({gtmId:tempGtmId,value:tempValue}).then(value=>{
-            console.log('updated ',value);
         }).catch(err=>console.log('Error while updating GTMDetails ',gtmId,' ',err))
     }
 
@@ -163,7 +158,6 @@ export default class GtmCategoryAllocation extends LightningElement {
         if(data[0]){
         this.columns = data[0].productCategory;
         }
-        console.log('columns ',this.columns);
     }
 
     mapCustomerCategory(productAllocation,customerid){
@@ -187,19 +181,16 @@ export default class GtmCategoryAllocation extends LightningElement {
             masterObj = {customerId:ele.GTM_Customer__c,customerName:ele.GTM_Customer__r.Name,totalCompaniesPurches:ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c, productCategory:arr,'isLeadCustomer':ele.GTM_Customer__r.Lead_Customer__c?true:false,percentage:percentageLabel,percentageValue:percentage,pathFinder:ele.GTM_Customer__r.Path_Finder__c};
             }
         })
-        console.log('Master obj ',masterObj)
         return masterObj;
     }
 
     handlePaginationAction(event){
         this.paginatedProductCategoryAllocation = event.detail.values;
-        console.log('onPagination action');
 
         let copyProductAllocations = this.productAllocations;
                 this.getTableData(copyProductAllocations);
                 setTimeout(() => {
                     this.paginatedProductCategoryAllocation.forEach(ele=>{
-                        console.log('update row status ',ele);
                         this.updateStatus(ele.customerId);
                     })
                 }, 200);
@@ -213,7 +204,6 @@ export default class GtmCategoryAllocation extends LightningElement {
 //searchStr,isLead,percentage
     applyFiltersOnCustomer(filtersValue){
         this.template.querySelector('c-pagination-cmp').pagevalue = 1;
-        console.log('filtersValue -------------->',filtersValue);
         let search = filtersValue.search.length!=0;
         let filter1 = filtersValue.filter1.length!=0 && filtersValue.filter1!='Both';
         let filter2 = filtersValue.filter2.length!= 0 && filtersValue.filter2!='None';
@@ -228,14 +218,10 @@ export default class GtmCategoryAllocation extends LightningElement {
         }
         let filter2Value = filtersValue.filter2;
         let filter3Value = filtersValue.filter3;
-        console.log('search str length ',searchValue.length);
         this.getCalculatedPercentage();
-        console.log('original data ',this.copyproductAllocationsVirtual);
         this.productAllocations = [];
         this.paginatedProductCategoryAllocation =[];
         this.productAllocations = this.copyproductAllocationsVirtual.filter(ele=>{
-            console.log(' Condition search',search,' Condition filter1 ',filter1,' Condition filter2 ',filter2);
-            console.log('Value search',searchValue,' filter1 ',filter1Value,' filter2 ',filter2Value);
             let custName = String(ele.customerName).toLowerCase();
             if (search && filter1 && filter2 && filter3) {
                 return custName.includes(searchValue) && ele.isLeadCustomer==filter1Value && ele.percentage==filter2Value && String(ele.pathFinder) == String(filter3Value);
@@ -286,7 +272,6 @@ export default class GtmCategoryAllocation extends LightningElement {
                 return true;
             }
         });
-        console.log('return  products ',this.productAllocations);
         this.copyproductAllocationsVirtual.forEach(ele=>{
             this.updateStatus(ele.customerId);
         })
@@ -335,12 +320,12 @@ export default class GtmCategoryAllocation extends LightningElement {
             if(col.classList.value.includes('distribution')){
                 col.style.backgroundColor = 'green';
                 col.style.color = '#fff';
-                col.firstChild.data = 'Distribution completed'
+                col.firstChild.data = this.labels.Distribution_completed;
             }
             if(col.classList.value.includes('distribution') && inputCompleted<=100 && inputCompleted!=0){
                 col.style.backgroundColor = 'red';
                 col.style.color = '#fff';
-                col.firstChild.data = 'Please check the values. Not matching 100%'
+                col.firstChild.data = this.labels.Please_check_the_values_Not_matching_100;
             }
         })
     }, 200);
@@ -350,9 +335,7 @@ export default class GtmCategoryAllocation extends LightningElement {
         let green= 0;
         let red=0;
         let yellow=0;
-        console.log('Update satus lave ----------->');
         this.productAllocations.forEach(ele=>{
-            console.log('Update satus lave ele',ele);
             if(ele.percentage=='Completed'){
                 green++;
             }
@@ -369,8 +352,6 @@ export default class GtmCategoryAllocation extends LightningElement {
             inProgress:yellow,
             notFilled:red
         }
-        
-        console.log('Update satus lave ----------->',this.options);
     }
 
     handleSort(event){
@@ -381,7 +362,6 @@ export default class GtmCategoryAllocation extends LightningElement {
 
     sortData(fieldname, direction) {
         direction = direction==true?'asc':'des';
-        console.log('Field Name ',fieldname,' direction ',direction);
         let parseData = JSON.parse(JSON.stringify(this.copyproductAllocationsVirtual));
         if(parseData.length>1){
         let keyValue = (a) => {

@@ -8,8 +8,8 @@
           <div class="header4"></div>
           <input type="checkbox" class="openSidebarMenu4" id="openSidebarMenu4">
           <label for="openSidebarMenu4" class="sidebarIconToggle4">
-            <lightning-icon icon-name="action:info" size="small" alternative-text="Instructions"
-              title="Instructions"></lightning-icon>
+            <lightning-icon icon-name="action:info" size="small" alternative-text={labels.Instructions}
+              title={labels.Instructions}></lightning-icon>
           </label>
           <div class="sidebarMenu4">
             <lightning-formatted-rich-text value={instrustions}>
@@ -29,18 +29,18 @@
                 <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
                   class="slds-m-right" name="customerName" title="Warning" onclick={handleSort}></lightning-icon>
               </th>
-              <th>{labels.All_Companies_Purchase_to_Customer1}<br>{labels.All_Companies_Purchase_to_Customer2}
+              <th>{labels.All_Companies_Purchase_to_Customer1}
                 <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text=""
                   class="slds-m-right" name="customerName" title="" onclick={handleSort}></lightning-icon>
               </th>
               <template for:each={columns} for:item="col">
               <th key={col.cid} style="text-align:center;width: 70px;">{col.cName}</th>
               </template>
-              <th >Remaining
+              <th >{labels.Remaining}
                 <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text=""
                   class="slds-m-right" title="" name="percentageValue" onclick={handleSort}></lightning-icon>
               </th>
-              <th >Check If Distribution Is Correct
+              <th >{labels.Check_If_Distribution_Is_Correct}
                
               </th>
             </tr>
@@ -53,15 +53,15 @@
               <td data-accountid={cropallocate.customerId}>{cropallocate.totalCompaniesPurches}</td> 
               <template for:each={cropallocate.crops} for:item="crop">
                 <td key={crop.cid}>
-                  <lightning-input type="number" step="any" min="0" style="margin-top:-16px;width: 70px;" class="inputDetails"
+                  <lightning-input disabled={disableAll} type="number" step="any" min="0" style="margin-top:-16px;width: 70px;" class="inputDetails"
                     data-id={crop.cId} data-detail={crop.GTMDetail} data-accountid={cropallocate.customerId}
                     value={crop.allocation} message-when-range-underflow="Please enter a correct value"
-                    onfocusout={handleCropDetailChange} formatter="percent-fixed"></lightning-input>
+                    onfocusout={handleCropDetailChange}></lightning-input>
                 </td>
               </template>
               <td data-accountid={cropallocate.customerId} class="percentage dontremove">100%</td>
               <td data-accountid={cropallocate.customerId} class="distribution dontremove"
-              style="background:#368628; color:#fff;">Distribution completed</td>
+              style="background:#368628; color:#fff;">{labels.Distribution_completed}</td>
             </tr>
           </template>
           </tbody>
@@ -72,6 +72,6 @@
       <c-pagination-cmp 
       tabledata={cropAllocations} 
       onaction={handlePaginationAction}>
-          <div class="slds-float_right" style="margin-right: 20rem;" slot="pageNumber"><b class="pagenumber">Page:1 of 10</b></div>
+          <div class="slds-float_right" style="margin-right: 20rem;" slot="pageNumber"><b class="pagenumber">Page:</b></div>
   </c-pagination-cmp>
 </template>

@@ -4,7 +4,7 @@
       <div class="header2"></div>
       <input type="checkbox" class="openSidebarMenu2" id="openSidebarMenu2">
       <label for="openSidebarMenu2" class="sidebarIconToggle2">
-        <lightning-icon icon-name="action:info" size="small" alternative-text="Instructions" title="Instructions">
+        <lightning-icon icon-name="action:info" size="small" alternative-text={labels.Instructions} title={labels.Instructions}>
         </lightning-icon>
       </label>
       <div class="sidebarMenu2">
@@ -22,7 +22,7 @@
 
       <thead>
         <tr>
-          <th class="fix">{labels.Customer_Lead_Customer}
+          <th class="fix" style="width: 50px;">{labels.Customer_Lead_Customer}
             <lightning-icon icon-name="utility:sort" onclick={handleSort} name="client" size="xx-small" alternative-text="sort" class="slds-m-right"
               title=""></lightning-icon>
           </th>
@@ -30,29 +30,24 @@
             <lightning-icon icon-name="utility:sort" onclick={handleSort} name="customerType" size="xx-small" alternative-text="sort" class="slds-m-right"
               title=""></lightning-icon>
           </th>
-          <th style="text-align:center;">{labels.Confirm_Customer_Type_Indicated_on_the_Left_Adjacent_Cell1}<br>
-           {labels.Confirm_Customer_Type_Indicated_on_the_Left_Adjacent_Cell2}
+          <th style="text-align:center;">{labels.Confirm_Customer_Type_Indicated_on_the_Left_Adjacent_Cell1}
           </th>
-          <th style="text-align:center;">{labels.Total_Purcahse_of_Crop_Protection_Industry_Price1}<br>
-            {labels.Total_Purcahse_of_Crop_Protection_Industry_Price2}
+          <th style="text-align:center;">{labels.Total_Purcahse_of_Crop_Protection_Industry_Price1}
             <lightning-icon icon-name="utility:sort" size="xx-small" onclick={handleSort} name="totalPurcahseCrop" alternative-text="sort" class="slds-m-right"
               title=""></lightning-icon>
           </th>
-          <th style="text-align:center;">{labels.Estimated_Markup_of_Channel_In_of_Sales1} <br> {labels.Estimated_Markup_of_Channel_In_of_Sales2}
+          <th style="text-align:center;">{labels.Estimated_Markup_of_Channel_In_of_Sales1}
             <lightning-icon icon-name="utility:sort" size="xx-small" onclick={handleSort} name="estimateChannel" alternative-text="sort" class="slds-m-right"
               title=""></lightning-icon>
           </th>
-          <th style="text-align:center;">{labels.Confirm_the_Estimated_Revenues_of_the_Customer_in1}<br>
-            {labels.Confirm_the_Estimated_Revenues_of_the_Customer_in2}
+          <th style="text-align:center;">{labels.Confirm_the_Estimated_Revenues_of_the_Customer_in1}
             
           </th>
-          <th style="text-align:center;">{labels.Estimated_Number_Of_Sales_REP_on_Role1}<br>
-           {labels.Estimated_Number_Of_Sales_REP_on_Role2}
+          <th style="text-align:center;">{labels.Estimated_Number_Of_Sales_REP_on_Role1}
             <lightning-icon icon-name="utility:sort" onclick={handleSort} name="estimateSalesRepRole" size="xx-small" alternative-text="sort" class="slds-m-right"
               title=""></lightning-icon>
           </th>
-          <th style="text-align:center;">{labels.Number_of_Stories_That_the_Channel_has1}<br>
-            {labels.Number_of_Stories_That_the_Channel_has2}
+          <th style="text-align:center;">{labels.Number_of_Stories_That_the_Channel_has1}
             <lightning-icon icon-name="utility:sort" onclick={handleSort} name="storiesChannelHas" size="xx-small" alternative-text="sort" class="slds-m-right"
               title=""></lightning-icon>
           </th>
@@ -61,7 +56,7 @@
       <tbody>
         <template for:each={paginatedGtmPotentialProfile} for:item="gtm" for:index="index">
           <tr  key={gtm.id}>
-            <td class="fix" >{gtm.client}</td>
+            <td class="fix" style="width: 50px;" title={gtm.client}>{gtm.client}</td>
             <td >{gtm.customerType}</td>
             <td role="gridcell">
               <div class="" title="" style="margin-top: -15px;">
@@ -70,27 +65,37 @@
                     <lightning-combobox
                     data-id={gtm.id}
                     data-name="GTM_Customer_Type__c"
-                    value={defaultSelectedOption}
+                    value={gtm.confirmCustomerType}
                     placeholder="Select Progress"
                     options={customerTypeOptions}
-                    onchange={handleChangeInput} ></lightning-combobox>
+                    onchange={handleChangeInput} 
+                    disabled={disableAll} ></lightning-combobox>
                   </div>
                 </div>
               </div>
             </td>
             <td style="text-align:center;">
-              <lightning-input style="margin-top:-16px;" type="number" value={gtm.totalPurcahseCrop} data-id={gtm.id} data-name="Total_Purchase_of_Crop_Protection_PY__c" onfocusout={handleChangeInput}>
+              <lightning-input style="margin-top:-16px;" type="number" value={gtm.totalPurcahseCrop} data-id={gtm.id} data-name="Total_Purchase_of_Crop_Protection_PY__c" onfocusout={handleChangeInput} disabled={disableAll}>
               </lightning-input>
             </td>
-            <td style="text-align:center;">
-              <lightning-input style="margin-top:-16px;" type="number" value={gtm.estimateChannel} data-id={gtm.id} data-name="Estimated_Markup_of_Channel__c" onfocusout={handleChangeInput}></lightning-input>
+            <td if:true={disableAll} style="text-align:center;">
+              <lightning-input style="margin-top:-16px;" type="number" value={gtm.estimateChannel} data-id={gtm.id} data-name="Estimated_Markup_of_Channel__c" onfocusout={handleChangeInput} disabled={disableAll}></lightning-input>
+            </td>
+            <td if:false={disableAll} style="text-align:center;">
+              <lightning-input style="margin-top:-16px;" type="number" value={gtm.estimateChannel} data-id={gtm.id} data-name="Estimated_Markup_of_Channel__c" onfocusout={handleChangeInput} disabled={gtm.disableFields}></lightning-input>
             </td>
             <td style="text-align:center;">{gtm.confirmEstimatedRevenue}</td>
-            <td style="text-align:center;">
-              <lightning-input style="margin-top:-16px;" type="number" value={gtm.estimateSalesRepRole} data-id={gtm.id} data-name="Estimated_Number_of_Sales_Rep_on_Role__c" onfocusout={handleChangeInput}></lightning-input>
+            <td if:true={disableAll} style="text-align:center;">
+              <lightning-input style="margin-top:-16px;" type="number" value={gtm.estimateSalesRepRole} data-id={gtm.id} data-name="Estimated_Number_of_Sales_Rep_on_Role__c" onfocusout={handleChangeInput} disabled={disableAll}></lightning-input>
             </td>
-            <td style="text-align:center;">
-              <lightning-input style="margin-top:-16px;"  type="number" value={gtm.storiesChannelHas} data-id={gtm.id} data-name="Number_of_Stores_That_the_Channel_Has__c" onfocusout={handleChangeInput}></lightning-input>
+            <td if:false={disableAll} style="text-align:center;">
+              <lightning-input style="margin-top:-16px;" type="number" value={gtm.estimateSalesRepRole} data-id={gtm.id} data-name="Estimated_Number_of_Sales_Rep_on_Role__c" onfocusout={handleChangeInput} disabled={gtm.disableFields}></lightning-input>
+            </td>
+            <td if:true={disableAll} style="text-align:center;">
+              <lightning-input style="margin-top:-16px;"  type="number" value={gtm.storiesChannelHas} data-id={gtm.id} data-name="Number_of_Stores_That_the_Channel_Has__c" onfocusout={handleChangeInput} disabled={disableAll}></lightning-input>
+            </td>
+            <td if:false={disableAll} style="text-align:center;">
+              <lightning-input style="margin-top:-16px;"  type="number" value={gtm.storiesChannelHas} data-id={gtm.id} data-name="Number_of_Stores_That_the_Channel_Has__c" onfocusout={handleChangeInput} disabled={gtm.disableFields}></lightning-input>
             </td>
           </tr>
         </template>

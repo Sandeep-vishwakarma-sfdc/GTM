@@ -1,8 +1,8 @@
-public with sharing class GTMPathFinder {
+public without sharing class GTMPathFinder {
     private static String fiscalyear = getFiscalYear();
     private static Sales_Org__c salesOrg = getSalesOrg();
     @AuraEnabled
-    public static List<GTM_Details__c> getPotentialAndProfile(){
+    public static List<GTM_Details__c> getPotentialAndProfile(){ // PotentialAndProfile Data used in GTMComponents
         List<GTM_Details__c> gtmPotentialProfile = new List<GTM_Details__c>();
         try {
             Id userId = userInfo.getUserId();
@@ -20,6 +20,7 @@ public with sharing class GTMPathFinder {
                 gtm.Sales_Rep__c = userInfo.getUserId();
                 gtm.Sales_Rep_Name__c = userInfo.getName();
                 gtm.Role__c = userDetails.UserRole.Name;
+                gtm.Email__c = userDetails.Email;
                 if(Schema.sObjectType.GTM__c.isCreateable()){
                     System.debug('Create GTM');
                     insert gtm;
@@ -39,7 +40,7 @@ public with sharing class GTMPathFinder {
     }
 
     @AuraEnabled
-    public static Map<string,List<GTM_Details__c>> getCatergoryAllocation(){
+    public static Map<string,List<GTM_Details__c>> getCatergoryAllocation(){ // Product Catergory Allocation Data used in GTMComponents
         List<GTM_Details__c> gtmDetails = getGTMDetailsProduct(fiscalyear);
         if(gtmDetails.size()==0){
             gtmDetails = createGTMAndDetailsProductAllocation(); 
@@ -73,7 +74,7 @@ public with sharing class GTMPathFinder {
     }
 
     @AuraEnabled
-    public static Map<string,List<GTM_Details__c>> getCropAllocation(){
+    public static Map<string,List<GTM_Details__c>> getCropAllocation(){ // Crop Allocation Data used in GTMComponents
         List<GTM_Details__c> gtmDetails = getGTMDetailsCrop(fiscalyear);
         if(gtmDetails.size()==0){
             gtmDetails = createGTMAndDetailsCropAllocation(); 
@@ -135,6 +136,7 @@ public with sharing class GTMPathFinder {
         Id leadcustomerRecordType = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Lead Customer').getRecordTypeId();
         Id nonleadcustomerRecordType = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Distributor').getRecordTypeId();
         System.debug('leadcustomerRecordType '+leadcustomerRecordType);
+        System.debug('filter Sales_Org_Code__c'+salesOrg.Sales_Org_Code__c+' leadrecordType '+leadcustomerRecordType+' Lead_Customer_Ownership__c '+userInfo.getUserId());
         if(Schema.sObjectType.Account.isAccessible()){
             // Getting Lead Customers by record type
             leadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c  and recordType.Id=:leadcustomerRecordType and Lead_Customer_Ownership__c=:userInfo.getUserId()];
@@ -155,7 +157,7 @@ public with sharing class GTMPathFinder {
         List<Product_Category_Sales_Org_Mapping__c> productCategoryMapping = new List<Product_Category_Sales_Org_Mapping__c>();
         List<Product_Category__c> productCategories = new List<Product_Category__c>();
         if(Schema.sObjectType.Product_Category_Sales_Org_Mapping__c.isAccessible() && Schema.sObjectType.Product_Category__c.isAccessible()){
-            productCategoryMapping = [select id,Name,Product_Category__c,Product_Category__r.Name from Product_Category_Sales_Org_Mapping__c where Status__c='Active' and Sales_Org__r.Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c];
+            productCategoryMapping = [select id,Name,Category_Index__c,Product_Category__c,Product_Category__r.Name from Product_Category_Sales_Org_Mapping__c where Status__c='Active' and Sales_Org__r.Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c ORDER BY Category_Index__c DESC]; // TODO: To add Order by index
             List<String> productCategoriesId = new List<String>(); 
             for(Product_Category_Sales_Org_Mapping__c pcm:productCategoryMapping){
                 Product_Category__c productCategory = new Product_Category__c();
@@ -229,7 +231,7 @@ public with sharing class GTMPathFinder {
     public static List<GTM_Details__c> getGTMPotentialProfile(String fiscalyear){
         Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Profile & Potential').getRecordTypeId();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer_Type__c ,Total_Purchase_of_Crop_Protection_PY__c,Estimated_Markup_of_Channel__c,Estimated_Number_of_Sales_Rep_on_Role__c,Number_of_Stores_That_the_Channel_Has__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypePotentialProfile ORDER BY GTM_Customer__r.Name ASC];
+        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer_Type__c ,Total_Purchase_of_Crop_Protection_PY__c,Estimated_Markup_of_Channel__c,Estimated_Number_of_Sales_Rep_on_Role__c,Number_of_Stores_That_the_Channel_Has__c,GTM_Customer__r.Lead_Customer_Type__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypePotentialProfile ORDER BY GTM_Customer__r.Name ASC];
         return gtmDetails;
     }
 
@@ -238,7 +240,7 @@ public with sharing class GTMPathFinder {
     public static boolean isGTMProfileAndPotentialCreated(String fiscalyear){
         Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Profile & Potential').getRecordTypeId();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypePotentialProfile];
+        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer__r.Lead_Customer_Type__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypePotentialProfile];
         System.debug('gtmDetails Profile And Potential'+gtmDetails.size());
         if(gtmDetails.size()>0){
             return true;
@@ -310,11 +312,12 @@ public with sharing class GTMPathFinder {
     private static List<Crop__c> getActiveCrop(){
     List<Crop__c> listCrop = new List<Crop__c>();
         if(Schema.sObjectType.Crop__c.isAccessible()){
-            listCrop = [select Id,Name from Crop__c where GTM_Status__c='Active' and Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c];
+            listCrop = [select Id,Name,Category_Index__c from Crop__c where GTM_Status__c='Active' and Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c ORDER BY Category_Index__c DESC];// TODO: To add Order by index
         }
         return listCrop;
     }
 
+    @AuraEnabled
     public static Sales_Org__c getSalesOrg(){
         String country = '';
         Sales_Org__c salesorg;
@@ -338,9 +341,8 @@ public with sharing class GTMPathFinder {
 
     private static List<GTM_Details__c> getGTMDetailsProduct(String fiscalyear){
         Id recordTypeProductCategory = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Product Category Allocation').getRecordTypeId();
-        Sales_Org__c salesorg = getSalesOrg();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Product_Category__c,Product_Category__r.Name,Product_Category_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesorg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory]; // TODO: Need to Add potential profile field
+        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Product_Category__c,Product_Category__r.Name,Product_Category_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory]; 
 
         System.debug('gtmDetails '+gtmDetails.size());
         if(gtmDetails.size()>0){
@@ -351,9 +353,8 @@ public with sharing class GTMPathFinder {
 
     private static List<GTM_Details__c> getGTMDetailsCrop(String fiscalyear){
         Id recordTypeProductCategory = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Crop Allocation').getRecordTypeId();
-        Sales_Org__c salesorg  = getSalesOrg();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Crop__c,Crop__r.Name,Crop_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesorg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory];
+        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Crop__c,Crop__r.Name,Crop_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory];
 
         System.debug('gtmDetails '+gtmDetails.size());
         if(gtmDetails.size()>0){
@@ -421,10 +422,31 @@ public with sharing class GTMPathFinder {
 
     @AuraEnabled(cacheable=true)
     public static GTM_Country_Configuration__c getInstructions(){
-        List<GTM_Country_Configuration__c> gcc = [select Id,Name ,Instruction_Profile_Potential__c,Instruction_Product_Category_Allocatio__c,Instruction_Crop_Allocation__c from GTM_Country_Configuration__c where Sales_Org__c=:salesOrg.Id];
+        List<GTM_Country_Configuration__c> gcc = null; 
+        if(Schema.sObjectType.GTM_Country_Configuration__c.isAccessible()){
+            gcc = [select Id,Name ,Instruction_Profile_Potential__c,Instruction_Product_Category_Allocatio__c,Instruction_Crop_Allocation__c from GTM_Country_Configuration__c where Sales_Org__c=:salesOrg.Id];
+        }
         if(gcc.size()>0){
             return gcc[0];
         }
         return null;
+    }
+
+    @AuraEnabled
+    public static boolean isWindowPeriodClosed(){
+        List<String>  months = new List<String>{'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'};
+        GTM_Country_Configuration__c gcc = [select Id,Start_Day__c,Start_Month__c,End_Day__c,End_Month__c  from GTM_Country_Configuration__c where Sales_Org__c=:salesOrg.Id  limit 1];
+        Date currentDate = Date.today();
+        Integer startMonth = months.indexOf(gcc.Start_Month__c)+1;
+        Integer endMonth = months.indexOf(gcc.End_Month__c)+1;
+        Integer startDay = Integer.valueOf(gcc.Start_Day__c);
+        Integer endDay = Integer.valueOf(gcc.End_Day__c);
+        Integer currentMonth = currentDate.month();
+        Integer currentDay = currentDate.day();
+        if(currentDay>=startDay && currentDay<=endDay && currentMonth>=startMonth && currentMonth<=endMonth){//Users are allowed to edit records
+            return false;
+        }else{// Disable editing records
+            return true;
+        }
     }
 }

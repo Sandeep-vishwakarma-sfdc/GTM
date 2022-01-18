@@ -3,6 +3,7 @@ import { getPicklistValues, getObjectInfo} from 'lightning/uiObjectInfoApi';
 import ACCOUNT_OBJECT from '@salesforce/schema/Account';
 import LeadCustomerType from '@salesforce/schema/Account.Lead_Customer_Type__c';
 import getPotentialAndProfile from '@salesforce/apex/GTMPathFinder.getPotentialAndProfile'
+import isWindowPeriodClosed from '@salesforce/apex/GTMPathFinder.isWindowPeriodClosed';
 import updateGTMDetailPotentialProfile from '@salesforce/apex/GTMPathFinder.updateGTMDetailPotentialProfile';
 import getFiscalYear from '@salesforce/apex/GTMPathFinder.getFiscalYear';
 import getInstructions from '@salesforce/apex/GTMPathFinder.getInstructions';
@@ -16,6 +17,7 @@ import Number_of_Stories_That_the_Channel_has from '@salesforce/label/c.Number_o
 import Confirm_the_Estimated_Revenues_of_the_Customer_in from '@salesforce/label/c.Confirm_the_Estimated_Revenues_of_the_Customer_in';
 import Estimated_Markup_of_Channel_In_of_Sales from '@salesforce/label/c.Estimated_Markup_of_Channel_In_of_Sales';
 import USD_Million from '@salesforce/label/c.USD_Million';
+import The_total_farm_gate_revenues_are_USD from '@salesforce/label/c.The_total_farm_gate_revenues_are_USD';
 import Page from '@salesforce/label/c.Page';
 
 export default class GtmPotentialAndProfile extends LightningElement {
@@ -25,7 +27,9 @@ export default class GtmPotentialAndProfile extends LightningElement {
     gtmPotentialProfileVirtual = [];
     @track paginatedGtmPotentialProfile
     customerTypeOptions = [];
+    optionsToDisable = ['Farmer','B2B'];
     sortDirection = true;
+    disableAll = false;
     @track recordTypeId;
     @track panelStatus={
         notFilled:'0',
@@ -40,19 +44,15 @@ export default class GtmPotentialAndProfile extends LightningElement {
         Instructions:Instructions,
         Customer_Lead_Customer:Customer_Lead_Customer,
         Customer_Type:Customer_Type,
-        Confirm_Customer_Type_Indicated_on_the_Left_Adjacent_Cell1:String(Confirm_Customer_Type_Indicated_on_the_Left_Adjacent_Cell).split('<br>')[0],
-        Confirm_Customer_Type_Indicated_on_the_Left_Adjacent_Cell2:String(Confirm_Customer_Type_Indicated_on_the_Left_Adjacent_Cell).split('<br>')[1],
-        Total_Purcahse_of_Crop_Protection_Industry_Price1:String(Total_Purcahse_of_Crop_Protection_Industry_Price).split('<br>')[0],
-        Total_Purcahse_of_Crop_Protection_Industry_Price2:String(Total_Purcahse_of_Crop_Protection_Industry_Price).split('<br>')[1]+' '+this.fiscalYear+' '+USD_Million,
-        Estimated_Markup_of_Channel_In_of_Sales1:String(Estimated_Markup_of_Channel_In_of_Sales).split('<br>')[0],
-        Estimated_Markup_of_Channel_In_of_Sales2:String(Estimated_Markup_of_Channel_In_of_Sales).split('<br>')[1],
-        Confirm_the_Estimated_Revenues_of_the_Customer_in1:String(Confirm_the_Estimated_Revenues_of_the_Customer_in).split('<br>')[0],
-        Confirm_the_Estimated_Revenues_of_the_Customer_in2:String(Confirm_the_Estimated_Revenues_of_the_Customer_in).split('<br>')[1]+' '+this.fiscalYear,
-        Estimated_Number_Of_Sales_REP_on_Role1:String(Estimated_Number_Of_Sales_REP_on_Role).split('<br>')[0],
-        Estimated_Number_Of_Sales_REP_on_Role2:String(Estimated_Number_Of_Sales_REP_on_Role).split('<br>')[1],
-        Number_of_Stories_That_the_Channel_has1:String(Number_of_Stories_That_the_Channel_has).split('<br>')[0],
-        Number_of_Stories_That_the_Channel_has2:String(Number_of_Stories_That_the_Channel_has).split('<br>')[1],
-        Page:Page
+        Confirm_Customer_Type_Indicated_on_the_Left_Adjacent_Cell1:Confirm_Customer_Type_Indicated_on_the_Left_Adjacent_Cell,
+        Total_Purcahse_of_Crop_Protection_Industry_Price1:Total_Purcahse_of_Crop_Protection_Industry_Price,
+        Estimated_Markup_of_Channel_In_of_Sales1:Estimated_Markup_of_Channel_In_of_Sales,
+        Confirm_the_Estimated_Revenues_of_the_Customer_in1:Confirm_the_Estimated_Revenues_of_the_Customer_in,
+        Estimated_Number_Of_Sales_REP_on_Role1:Estimated_Number_Of_Sales_REP_on_Role,
+        Number_of_Stories_That_the_Channel_has1:Number_of_Stories_That_the_Channel_has,
+        Page:Page,
+        The_total_farm_gate_revenues_are_USD:The_total_farm_gate_revenues_are_USD,
+        USD_Million:USD_Million
     }
 
     @wire(getInstructions) getInstrustion({error,data}){
@@ -96,14 +96,15 @@ export default class GtmPotentialAndProfile extends LightningElement {
        console.log('log ...');
         getPotentialAndProfile().then(data=>{
             let tempData = [];
+            
             if(data){
                 data.forEach(ele=>{
                     let obj = {
                         id:ele.Id,
                         client:ele.GTM_Customer__r.Name,
                         clientId:ele.GTM_Customer__c,
-                        customerType:ele.GTM_Customer_Type__c,
-                        confirmCustomerType:ele.GTM_Customer_Type__c,
+                        customerType:ele.GTM_Customer__r.Lead_Customer_Type__c,
+                        confirmCustomerType:ele.GTM_Customer_Type__c?String(ele.GTM_Customer_Type__c):'',
                         totalPurcahseCrop:ele.Total_Purchase_of_Crop_Protection_PY__c,
                         estimateChannel:ele.Estimated_Markup_of_Channel__c,
                         confirmEstimateRevenues:'',
@@ -112,9 +113,10 @@ export default class GtmPotentialAndProfile extends LightningElement {
                         status:'',
                         numberOfFieldsFilled:'',
                         isLeadCustomer:ele.GTM_Customer__r.Lead_Customer__c?true:false,
-                        confirmEstimatedRevenue:`The total farm gate revenues are USD $ ${ele.Total_Purchase_of_Crop_Protection_PY__c} million	
+                        confirmEstimatedRevenue:`${this.labels.The_total_farm_gate_revenues_are_USD}  ${ele.Total_Purchase_of_Crop_Protection_PY__c} ${this.labels.USD_Million}	
                         `,
-                        pathFinder:ele.GTM_Customer__r.Path_Finder__c
+                        pathFinder:ele.GTM_Customer__r.Path_Finder__c,
+                        disableFields:this.optionsToDisable.includes(ele.GTM_Customer_Type__c)
                     }
                     tempData.push(obj);
                 });
@@ -134,6 +136,9 @@ export default class GtmPotentialAndProfile extends LightningElement {
         });
         getFiscalYear().then(fiscalyear=>{
             this.fiscalYear = fiscalyear.replace('-20','/');
+        })
+        isWindowPeriodClosed().then(isDisable=>{
+            this.disableAll = isDisable
         })
     }
 
@@ -155,12 +160,13 @@ export default class GtmPotentialAndProfile extends LightningElement {
             let comboboxValue = event.detail.value;
             if(comboboxValue){
                 console.log('comboBox enter ',comboboxValue);
-                this.gtmPotentialProfile[objIndex].customerType = comboboxValue;
+                // this.gtmPotentialProfile[objIndex].customerType = comboboxValue;
+                this.gtmPotentialProfile[objIndex].disableFields = this.optionsToDisable.includes(value);
                 this.gtmPotentialProfile[objIndex].confirmCustomerType = comboboxValue;
             }
         }else if(fieldName=='Total_Purchase_of_Crop_Protection_PY__c'){
             this.gtmPotentialProfile[objIndex].totalPurcahseCrop = value;
-            this.gtmPotentialProfile[objIndex].confirmEstimatedRevenue = `The total farm gate revenues are USD $ ${value} million	
+            this.gtmPotentialProfile[objIndex].confirmEstimatedRevenue = `${this.labels.The_total_farm_gate_revenues_are_USD} ${value} ${this.labels.USD_Million}	
             `
         }else if(fieldName=='Estimated_Markup_of_Channel__c'){
             this.gtmPotentialProfile[objIndex].estimateChannel = value;
@@ -247,7 +253,8 @@ export default class GtmPotentialAndProfile extends LightningElement {
         let value = event.target.value;
         this.gtmPotentialProfile.forEach(e=>{
             if(e.id == id){
-                e.customerType = value;
+                e.confirmCustomerType = value;
+                e.disableFields = this.optionsToDisable.includes(value);
             }
         })
         setTimeout(() => {

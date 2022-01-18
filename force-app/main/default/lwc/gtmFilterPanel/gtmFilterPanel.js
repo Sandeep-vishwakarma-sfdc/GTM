@@ -8,6 +8,7 @@ import Nos_in_Progress from '@salesforce/label/c.Nos_in_Progress';
 import Select from '@salesforce/label/c.Select';
 import Filter_by_Path_Finder from '@salesforce/label/c.Filter_by_Path_Finder';
 import Filter_By_Status from '@salesforce/label/c.Filter_By_Status';
+import reset from '@salesforce/label/c.reset';
 
 export default class GtmFilterPanel extends LightningElement {
     @track panelStatusObj={
@@ -28,7 +29,8 @@ export default class GtmFilterPanel extends LightningElement {
         Nos_in_Progress,
         Select,
         Filter_by_Path_Finder,
-        Filter_By_Status
+        Filter_By_Status,
+        reset
     }
 
     set panelStatus(value){
@@ -90,6 +92,14 @@ export default class GtmFilterPanel extends LightningElement {
         }
         if(event.target.name=='filter3'){
             this.filters.filter3 = event.target.value;
+        }
+        if(event.target.name=='reset'){
+            this.filters = {
+                search:'',
+                filter1:'',
+                filter2:'',
+                filter3:''
+            }
         }
         this.dispatchAllevents();
     }

@@ -7,7 +7,7 @@
       <div class="header3"></div>
       <input type="checkbox" class="openSidebarMenu3" id="openSidebarMenu3">
       <label for="openSidebarMenu3" class="sidebarIconToggle3">
-        <lightning-icon icon-name="action:info" size="small" alternative-text="Instructions" title="Instructions">
+        <lightning-icon icon-name="action:info" size="small" alternative-text={labels.Instructions} title={labels.Instructions}>
         </lightning-icon>
       </label>
       <div class="sidebarMenu3">
@@ -28,7 +28,7 @@
             <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="" class="slds-m-right" title="" name="customerName" onclick={handleSort}>
             </lightning-icon>
           </th>
-          <th>{labels.All_Companies_Purchase_to_Customer1}<br>{labels.All_Companies_Purchase_to_Customer2}
+          <th>{labels.All_Companies_Purchase_to_Customer1}
             <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="" class="slds-m-right" title="">
             </lightning-icon>
           </th>
@@ -53,10 +53,10 @@
             <td data-accountid={productallocate.customerId}>{productallocate.totalCompaniesPurches}</td>
             <template for:each={productallocate.productCategory} for:item="pc">
               <td key={pc.pid}>
-                <lightning-input type="number" step="any" min="0" style="margin-top:-16px;width: 70px;" class="inputDetails"
+                <lightning-input disabled={disableAll} type="number" step="any" min="0" style="margin-top:-16px;width: 70px;" class="inputDetails"
                   data-id={pc.pId} data-detail={pc.GTMDetail} data-accountid={productallocate.customerId}
                   value={pc.allocation} message-when-range-underflow="Please enter a correct value"
-                  onfocusout={handleProductDetailChange} formatter="percent-fixed"></lightning-input>
+                  onfocusout={handleProductDetailChange}></lightning-input>
               </td>
             </template>
             <td data-accountid={productallocate.customerId} class="percentage dontremove">100%</td>
