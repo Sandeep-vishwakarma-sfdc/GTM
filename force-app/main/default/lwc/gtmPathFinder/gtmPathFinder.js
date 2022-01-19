@@ -40,6 +40,11 @@ export default class GtmPathFinder extends LightningElement {
             let title = year.replace('/','-');
             this.title = `${this.labels.GTM_FY} ${title}`;
         })
+
+        Promise.All([]).then({
+
+        }).catch(er=>console.log(er))
+
     }
 
     onTabChange(event){

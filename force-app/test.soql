@@ -68,20 +68,63 @@ System.debug('size'+outlooks.size());
 GTMPathFinder.getCatergoryAllocation();
 
 ---------------------------------------GTM Configuration -------------------------------
-select Id,Name from GTM_Country_Configuration__c
 
-
+---------------------------------------GTM CUSTOMERS ----------------------------------
 List<Account> gtmCustomers = new List<Account>();
-List<Account> leadCustomerList = new List<Account>();
-List<Account> nonLeadCustomerList = new List<Account>();
-Id leadcustomerRecordType = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Lead Customer').getRecordTypeId();
-Id nonleadcustomerRecordType = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Distributor').getRecordTypeId();
-
-leadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c='5631'  and recordType.Id=:leadcustomerRecordType and Lead_Customer_Ownership__c='0050K00000B0Ero'];
-System.debug('Lead Customer '+leadCustomerList);
+        List<Account> leadCustomerList = new List<Account>();
+        List<Account> nonLeadCustomerList = new List<Account>();
+        Map<String,Account> newGTMCustomers = new Map<String,Account>();
+        Set<String> oldAccounts = new Set<String>();
+        List<Account> newAccountsFound = new List<Account>();
+        Map<String,List<String>> maprecordTypeDetails = new Map<String,List<String>>();
+        Id leadcustomerRecordType = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Lead Customer').getRecordTypeId();
+        Id nonleadcustomerRecordType = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Distributor').getRecordTypeId();
+        System.debug('leadcustomerRecordType '+leadcustomerRecordType);
+        if(Schema.sObjectType.Account.isAccessible()){
+            // Getting Lead Customers by record type
+            leadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c='5631'  and recordType.Id=:leadcustomerRecordType and Lead_Customer_Ownership__c=:userInfo.getUserId()];
             // Getting non-lead customer when lead customer field is empty
-nonLeadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c='5631' and Account_Type__c='Sold To Party' and Lead_Customer__c=null and Lead_Customer_Ownership__c='0050K00000B0Ero' and recordTypeId=:nonleadcustomerRecordType];
-System.debug('non lead '+nonLeadCustomerList);
-gtmCustomers.addAll(leadCustomerList);
-gtmCustomers.addAll(nonLeadCustomerList);
-System.debug('GTM Customer size'+gtmCustomers.size());
+            nonLeadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c='5631' and Account_Type__c='Sold To Party' and Lead_Customer__c=null and Lead_Customer_Ownership__c=:userInfo.getUserId() and recordTypeId=:nonleadcustomerRecordType];
+        }
+        System.debug('Lead Customer '+leadCustomerList);
+        System.debug('non lead '+nonLeadCustomerList);
+        gtmCustomers.addAll(leadCustomerList);
+        gtmCustomers.addAll(nonLeadCustomerList);
+        System.debug('GTM Customer size'+gtmCustomers.size());
+        for(Account customer : gtmCustomers){
+            newGTMCustomers.put(customer.Id,customer);
+        }
+        List<GTM_Details__c> gtmdetailsAccounts = [Select Id,recordTypeId,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer__r.Lead_Customer_Type__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:GTMPathFinder.getFiscalYear() and GTM__r.Sales_Org__c=:GTMPathFinder.getSalesOrg().Id and GTM__r.Sales_Rep__c=:userInfo.getUserId()];
+        for(GTM_Details__c detailsAccount:gtmdetailsAccounts){
+            List<String> listAccount = new List<String>();
+            if(maprecordTypeDetails.containskey(detailsAccount.recordTypeId)){
+                listAccount = maprecordTypeDetails.get(detailsAccount.recordTypeId);
+                listAccount.add(detailsAccount.GTM_Customer__c);
+                maprecordTypeDetails.put(detailsAccount.recordTypeId,listAccount);
+            }else{
+                listAccount.add(detailsAccount.GTM_Customer__c);
+                maprecordTypeDetails.put(detailsAccount.recordTypeId,listAccount);
+            }
+        }
+
+        Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Profile & Potential').getRecordTypeId();
+        Id recordTypeCropAllocation = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Crop Allocation').getRecordTypeId();
+        Id recordTypeProductCategory = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Product Category Allocation').getRecordTypeId();
+        Id recordTypeCompetition = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Competitor').getRecordTypeId();
+        Id recordTypeOutlook = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Outlook').getRecordTypeId();
+
+        System.debug('maprecordTypeDetails '+maprecordTypeDetails);
+        for(Account newCustomer : newGTMCustomers.values()){
+            boolean potentialProfileData = maprecordTypeDetails.get(recordTypePotentialProfile)?.contains(newCustomer.id);
+            boolean productCatergoryData = maprecordTypeDetails.get(recordTypeCropAllocation)?.contains(newCustomer.id);
+            boolean cropAllocationData = maprecordTypeDetails.get(recordTypeProductCategory)?.contains(newCustomer.id);
+            boolean competitionData = maprecordTypeDetails.get(recordTypeCompetition)?.contains(newCustomer.id);
+            boolean outlookdata = maprecordTypeDetails.get(recordTypeOutlook)?.contains(newCustomer.id);
+
+            if(potentialProfileData==false && productCatergoryData==false && cropAllocationData==false && competitionData==false && outlookdata==false){ // new customer not having any type of GTM Details
+                newAccountsFound.add(newCustomer);
+            }
+        }
+        
+        
+        System.debug('new Accounts added'+newAccountsFound);
