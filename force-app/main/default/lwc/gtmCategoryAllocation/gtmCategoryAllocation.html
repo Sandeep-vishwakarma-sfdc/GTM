@@ -49,14 +49,14 @@
         <template if:true={paginatedProductCategoryAllocation} for:each={paginatedProductCategoryAllocation}
           for:item="productallocate">
           <tr key={productallocate.customerId}>
-            <td class="fix" data-accountid={productallocate.customerId}>{productallocate.customerName}</td>
+            <td class="fix" data-accountid={productallocate.customerId} title={productallocate.customerName}>{productallocate.customerName}</td>
             <td data-accountid={productallocate.customerId}>{productallocate.totalCompaniesPurches}</td>
             <template for:each={productallocate.productCategory} for:item="pc">
               <td key={pc.pid}>
                 <lightning-input disabled={disableAll} type="number" step="any" min="0" style="margin-top:-16px;width: 70px;" class="inputDetails"
                   data-id={pc.pId} data-detail={pc.GTMDetail} data-accountid={productallocate.customerId}
                   value={pc.allocation} message-when-range-underflow="Please enter a correct value"
-                  onfocusout={handleProductDetailChange}></lightning-input>
+                  onfocusout={handleProductDetailChange}  max="100" formatter="percent-fixed"></lightning-input>
               </td>
             </template>
             <td data-accountid={productallocate.customerId} class="percentage dontremove">100%</td>

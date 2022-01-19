@@ -116,10 +116,6 @@ public without sharing class GTMPathFinder {
             gtmd.recordTypeId = recordTypePotentialProfile;
             gtmd.GTM_Customer_Type__c = acc.Lead_Customer_Type__c;
             gtmd.GTM__c = gtm.Id;
-            gtmd.Total_Purchase_of_Crop_Protection_PY__c = 0;
-            gtmd.Estimated_Markup_of_Channel__c = 0;
-            gtmd.Estimated_Number_of_Sales_Rep_on_Role__c = 0;
-            gtmd.Number_of_Stores_That_the_Channel_Has__c = 0;
             gtmd.Sales_Org__c = salesorg.Id;
             gtmDetails.add(gtmd);
         }
@@ -210,7 +206,6 @@ public without sharing class GTMPathFinder {
                 gtmDetail.recordTypeId = recordTypeProductCategory;
                 gtmDetail.Product_Category__c = pc.Id;
                 gtmDetail.GTM_Customer__c = acc.Id;
-                gtmDetail.Product_Category_Allocation__c = 0;
                 gtmDetail.Sales_Org__c = salesOrg.Id;
                 gtmDetail.GTM__c = gtms[0].Id;
                 gtmDetail.GTM_Details__c = mapPotentialProfile.get(acc.Id).Id;
@@ -288,7 +283,6 @@ public without sharing class GTMPathFinder {
                 GTM_Details__c gtmDetail = new GTM_Details__c();
                 gtmDetail.recordTypeId = recordTypeCropAllocation;
                 gtmDetail.Crop__c = crop.Id;
-                gtmDetail.Crop_Allocation__c = 0;
                 gtmDetail.GTM_Customer__c = acc.Id;
                 gtmDetail.Sales_Org__c = salesOrg.Id;
                 gtmDetail.GTM__c = gtms[0].Id;
@@ -400,7 +394,8 @@ public without sharing class GTMPathFinder {
 
     @AuraEnabled
     public static string updateGTMDetailPotentialProfile(String gtmId,String name,String value){
-        GTM_Details__c detail = [SELECT ID,Name,Crop_Allocation__c from GTM_Details__c where Id=:gtmId];
+        try {
+           GTM_Details__c detail = [SELECT ID,Name,Crop_Allocation__c from GTM_Details__c where Id=:gtmId];
         if(name=='Total_Purchase_of_Crop_Protection_PY__c'){
             detail.Total_Purchase_of_Crop_Protection_PY__c = Decimal.valueOf(value);
         }
@@ -417,7 +412,10 @@ public without sharing class GTMPathFinder {
             detail.GTM_Customer_Type__c = value;
         }
         update detail;
-        return value;
+       } catch (Exception e) {
+           System.debug('custom exception value null '+e);
+       }
+       return value;
     }
 
     @AuraEnabled(cacheable=true)

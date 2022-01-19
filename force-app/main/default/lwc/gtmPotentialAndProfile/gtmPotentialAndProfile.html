@@ -75,27 +75,27 @@
               </div>
             </td>
             <td style="text-align:center;">
-              <lightning-input style="margin-top:-16px;" type="number" value={gtm.totalPurcahseCrop} data-id={gtm.id} data-name="Total_Purchase_of_Crop_Protection_PY__c" onfocusout={handleChangeInput} disabled={disableAll}>
+              <lightning-input style="margin-top:-16px;" type="number" value={gtm.totalPurcahseCrop} data-id={gtm.id} data-name="Total_Purchase_of_Crop_Protection_PY__c" onfocusout={handleChangeInput} disabled={disableAll} min="0">
               </lightning-input>
             </td>
             <td if:true={disableAll} style="text-align:center;">
-              <lightning-input style="margin-top:-16px;" type="number" value={gtm.estimateChannel} data-id={gtm.id} data-name="Estimated_Markup_of_Channel__c" onfocusout={handleChangeInput} disabled={disableAll}></lightning-input>
+              <lightning-input style="margin-top:-16px;" type="number" value={gtm.estimateChannel} data-id={gtm.id} data-name="Estimated_Markup_of_Channel__c" onfocusout={handleChangeInput} disabled={disableAll} min="0"></lightning-input>
             </td>
             <td if:false={disableAll} style="text-align:center;">
-              <lightning-input style="margin-top:-16px;" type="number" value={gtm.estimateChannel} data-id={gtm.id} data-name="Estimated_Markup_of_Channel__c" onfocusout={handleChangeInput} disabled={gtm.disableFields}></lightning-input>
+              <lightning-input style="margin-top:-16px;" type="number" value={gtm.estimateChannel} data-id={gtm.id} data-name="Estimated_Markup_of_Channel__c" onfocusout={handleChangeInput} disabled={gtm.disableFields} formatter="percent-fixed" ></lightning-input>
             </td>
             <td style="text-align:center;">{gtm.confirmEstimatedRevenue}</td>
             <td if:true={disableAll} style="text-align:center;">
-              <lightning-input style="margin-top:-16px;" type="number" value={gtm.estimateSalesRepRole} data-id={gtm.id} data-name="Estimated_Number_of_Sales_Rep_on_Role__c" onfocusout={handleChangeInput} disabled={disableAll}></lightning-input>
+              <lightning-input style="margin-top:-16px;" type="number" value={gtm.estimateSalesRepRole} data-id={gtm.id} data-name="Estimated_Number_of_Sales_Rep_on_Role__c" onfocusout={handleChangeInput} disabled={disableAll} min="0"></lightning-input>
             </td>
             <td if:false={disableAll} style="text-align:center;">
-              <lightning-input style="margin-top:-16px;" type="number" value={gtm.estimateSalesRepRole} data-id={gtm.id} data-name="Estimated_Number_of_Sales_Rep_on_Role__c" onfocusout={handleChangeInput} disabled={gtm.disableFields}></lightning-input>
+              <lightning-input style="margin-top:-16px;" type="number" value={gtm.estimateSalesRepRole} data-id={gtm.id} data-name="Estimated_Number_of_Sales_Rep_on_Role__c" onfocusout={handleChangeInput} disabled={gtm.disableFields} min="0"></lightning-input>
             </td>
             <td if:true={disableAll} style="text-align:center;">
-              <lightning-input style="margin-top:-16px;"  type="number" value={gtm.storiesChannelHas} data-id={gtm.id} data-name="Number_of_Stores_That_the_Channel_Has__c" onfocusout={handleChangeInput} disabled={disableAll}></lightning-input>
+              <lightning-input style="margin-top:-16px;"  type="number" value={gtm.storiesChannelHas} data-id={gtm.id} data-name="Number_of_Stores_That_the_Channel_Has__c" onfocusout={handleChangeInput} disabled={disableAll} min="0"></lightning-input>
             </td>
             <td if:false={disableAll} style="text-align:center;">
-              <lightning-input style="margin-top:-16px;"  type="number" value={gtm.storiesChannelHas} data-id={gtm.id} data-name="Number_of_Stores_That_the_Channel_Has__c" onfocusout={handleChangeInput} disabled={gtm.disableFields}></lightning-input>
+              <lightning-input style="margin-top:-16px;"  type="number" value={gtm.storiesChannelHas} data-id={gtm.id} data-name="Number_of_Stores_That_the_Channel_Has__c" onfocusout={handleChangeInput} disabled={gtm.disableFields} min="0"></lightning-input>
             </td>
           </tr>
         </template>

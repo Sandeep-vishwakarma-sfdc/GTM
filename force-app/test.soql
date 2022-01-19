@@ -47,14 +47,16 @@ System.debug('Crops '+crops.size());
 GTM__c gtm = [select Id,Name from GTM__c];
 GTMPathFinder.createGTMPotentialAndProfile(gtm);
 
-delete [select Id,Name from GTM__c where Id='a8G5D0000000JbeUAE'];
+delete [select Id,Name from GTM__c];
+
+Decimal val = Decimal.valueOf(null);
 
 
 --------------------------------------- OUTLOOK ----------------------------------------------------
 
 Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Outlook').getRecordTypeId();
 
-List<GTM_Details__c> gtmDetailsList = [Select Id, GTM_Customer__r.Name, GTM_Customer__c, Estimated_Growth_NY_to_2NY__c, Estimated_Growth_PY_to_CY__c, Estimated_Growth_PY_to_NY__c, Sales_Org__c from GTM_Details__c where GTM__c='a8G5D0000000JbeUAE'];
+List<GTM_Details__c> gtmDetailsList = [Select Id, GTM_Customer__r.Name, GTM_Customer__c, Estimated_Growth_NY_to_2NY__c, Estimated_Growth_PY_to_CY__c, Estimated_Growth_PY_to_NY__c, Sales_Org__c from GTM_Details__c];
 
 delete gtmDetailsList;
 

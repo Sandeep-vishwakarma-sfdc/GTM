@@ -8,7 +8,7 @@ import Nos_in_Progress from '@salesforce/label/c.Nos_in_Progress';
 import Select from '@salesforce/label/c.Select';
 import Filter_by_Path_Finder from '@salesforce/label/c.Filter_by_Path_Finder';
 import Filter_By_Status from '@salesforce/label/c.Filter_By_Status';
-import reset from '@salesforce/label/c.reset';
+import reset from '@salesforce/label/c.Reset_All_filters';
 
 export default class GtmFilterPanel extends LightningElement {
     @track panelStatusObj={

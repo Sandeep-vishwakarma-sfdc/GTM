@@ -49,14 +49,14 @@
           <tbody>
           <template if:true={paginatedCropAllocation} for:each={paginatedCropAllocation} for:item="cropallocate">
             <tr key={cropallocate.customerId}>
-              <td class="fix" data-accountid={cropallocate.customerId}>{cropallocate.customerName}</td> 
+              <td class="fix" data-accountid={cropallocate.customerId} title={cropallocate.customerName}>{cropallocate.customerName}</td> 
               <td data-accountid={cropallocate.customerId}>{cropallocate.totalCompaniesPurches}</td> 
               <template for:each={cropallocate.crops} for:item="crop">
                 <td key={crop.cid}>
                   <lightning-input disabled={disableAll} type="number" step="any" min="0" style="margin-top:-16px;width: 70px;" class="inputDetails"
                     data-id={crop.cId} data-detail={crop.GTMDetail} data-accountid={cropallocate.customerId}
                     value={crop.allocation} message-when-range-underflow="Please enter a correct value"
-                    onfocusout={handleCropDetailChange}></lightning-input>
+                    onfocusout={handleCropDetailChange} max="100" formatter="percent-fixed"></lightning-input>
                 </td>
               </template>
               <td data-accountid={cropallocate.customerId} class="percentage dontremove">100%</td>

@@ -11,6 +11,7 @@ import Check_If_Distribution_Is_Correct from '@salesforce/label/c.Check_If_Distr
 import Please_check_the_values_Not_matching_100 from '@salesforce/label/c.Please_check_the_values_Not_matching_100';
 import Distribution_completed from '@salesforce/label/c.Distribution_completed';
 import Instructions from '@salesforce/label/c.Instructions';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 export default class GtmCategoryAllocation extends LightningElement {
     @track productAllocations = [];
@@ -98,11 +99,23 @@ export default class GtmCategoryAllocation extends LightningElement {
         let detailId =  event.currentTarget.dataset.detail;
         let accid = event.currentTarget.dataset.accountid;
         let value = event.target.value
-        if(String(value).length==0){
-            this.template.querySelector('[data-detail="' + detailId + '"]').value = '0';
-            value = 0;
+       
+
+        this.template.querySelectorAll('[data-accountid="' + accid + '"]').forEach(col=>{
+            if(col.classList.value.includes('percentage')){
+                let remainingValue = Number(String(col.firstChild.data).replace('%',''));
+                if((remainingValue - Number(value))<0){
+                    //TODO: Add custom label for validation
+                    this.showToast('Total Remaining Allocation','Total remaining allocations value must be positive','error');
+                    value = '';
+                }
+            }
+        });
+        if(String(value).length==0 || (Number(value)<0 && Number(value)>=100)){// when inputs are Invalid
+            this.template.querySelector('[data-detail="' + detailId + '"]').value = '';
+            value = null;
         }
-        if(Number(value)>=0){
+        if(Number(value)>=0 && Number(value)<=100){// when inputs are valid
         if(accid && value){
             this.updateGTMDetail(detailId,value);
             this.updateStatus(accid);
@@ -375,6 +388,15 @@ export default class GtmCategoryAllocation extends LightningElement {
         });
         this.productAllocations = parseData;
         }
+    }
 
+    showToast(title,message,variant) {
+        const event = new ShowToastEvent({
+            title: title,
+            message: message,
+            variant: variant,
+            mode: 'dismissable'
+        });
+        this.dispatchEvent(event);
     }
 }

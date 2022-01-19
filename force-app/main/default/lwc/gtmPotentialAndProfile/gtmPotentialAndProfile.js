@@ -99,6 +99,7 @@ export default class GtmPotentialAndProfile extends LightningElement {
             
             if(data){
                 data.forEach(ele=>{
+                    let tempValue = ele.Total_Purchase_of_Crop_Protection_PY__c?ele.Total_Purchase_of_Crop_Protection_PY__c:0;
                     let obj = {
                         id:ele.Id,
                         client:ele.GTM_Customer__r.Name,
@@ -113,7 +114,7 @@ export default class GtmPotentialAndProfile extends LightningElement {
                         status:'',
                         numberOfFieldsFilled:'',
                         isLeadCustomer:ele.GTM_Customer__r.Lead_Customer__c?true:false,
-                        confirmEstimatedRevenue:`${this.labels.The_total_farm_gate_revenues_are_USD}  ${ele.Total_Purchase_of_Crop_Protection_PY__c} ${this.labels.USD_Million}	
+                        confirmEstimatedRevenue:`${this.labels.The_total_farm_gate_revenues_are_USD}  ${tempValue} ${this.labels.USD_Million}	
                         `,
                         pathFinder:ele.GTM_Customer__r.Path_Finder__c,
                         disableFields:this.optionsToDisable.includes(ele.GTM_Customer_Type__c)
@@ -147,12 +148,12 @@ export default class GtmPotentialAndProfile extends LightningElement {
         let fieldName = event.target.dataset.name;
         let value = event.target.value;
         let detailId = event.target.dataset.id;
-        if(value==''){
-            value =0;
+        if(value=='' || (Number(value)<0 && fieldName!='Estimated_Markup_of_Channel__c')){
+            value = null;
         }
         updateGTMDetailPotentialProfile({gtmId:detailId,name:fieldName,value:value}).then(res=>{
             console.log('Response ',res);
-        });
+        }).catch(err=>console.log('Null Value'+err));
         
         let objIndex = this.gtmPotentialProfile.findIndex(obj=>obj.id==detailId);
         
@@ -165,8 +166,9 @@ export default class GtmPotentialAndProfile extends LightningElement {
                 this.gtmPotentialProfile[objIndex].confirmCustomerType = comboboxValue;
             }
         }else if(fieldName=='Total_Purchase_of_Crop_Protection_PY__c'){
+            let temp = value?value:0;
             this.gtmPotentialProfile[objIndex].totalPurcahseCrop = value;
-            this.gtmPotentialProfile[objIndex].confirmEstimatedRevenue = `${this.labels.The_total_farm_gate_revenues_are_USD} ${value} ${this.labels.USD_Million}	
+            this.gtmPotentialProfile[objIndex].confirmEstimatedRevenue = `${this.labels.The_total_farm_gate_revenues_are_USD} ${temp} ${this.labels.USD_Million}	
             `
         }else if(fieldName=='Estimated_Markup_of_Channel__c'){
             this.gtmPotentialProfile[objIndex].estimateChannel = value;
