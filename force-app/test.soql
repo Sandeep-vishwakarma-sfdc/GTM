@@ -125,6 +125,16 @@ List<Account> gtmCustomers = new List<Account>();
                 newAccountsFound.add(newCustomer);
             }
         }
-        
-        
         System.debug('new Accounts added'+newAccountsFound);
+
+
+        System.debug('New  Crops '+GTMPathFinder.getNewlyAddedCrop());
+
+        System.debug(GTMPathFinder.getSalesOrg());
+
+        List<GTM_Details__c> gtmdetails = [Select id,Name,isSubmitted__c,GTM__c from GTM_Details__c where isSubmitted__c=true];
+
+            for(GTM_Details__c gtmd:gtmdetails){
+                gtmd.isSubmitted__c = false;
+            }
+            update gtmdetails;

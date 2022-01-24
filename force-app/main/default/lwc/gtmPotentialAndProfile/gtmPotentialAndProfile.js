@@ -7,6 +7,7 @@ import isWindowPeriodClosed from '@salesforce/apex/GTMPathFinder.isWindowPeriodC
 import updateGTMDetailPotentialProfile from '@salesforce/apex/GTMPathFinder.updateGTMDetailPotentialProfile';
 import getFiscalYear from '@salesforce/apex/GTMPathFinder.getFiscalYear';
 import getInstructions from '@salesforce/apex/GTMPathFinder.getInstructions';
+import updateClassificationDependent from '@salesforce/apex/GTMPathFinder.updateClassificationDependent';
 import Instructions from '@salesforce/label/c.Instructions';
 import Customer_Lead_Customer from '@salesforce/label/c.Customer_Lead_Customer';
 import Customer_Type from '@salesforce/label/c.Customer_Type';
@@ -21,6 +22,7 @@ import The_total_farm_gate_revenues_are_USD from '@salesforce/label/c.The_total_
 import Page from '@salesforce/label/c.Page';
 
 export default class GtmPotentialAndProfile extends LightningElement {
+    hasRendered = false;
     instrustions = '';
     showLoading = false;
     @track gtmPotentialProfile=[];
@@ -91,15 +93,31 @@ export default class GtmPotentialAndProfile extends LightningElement {
         }, 500);
     }
 
+    renderedCallback(){
+        if(!this.hasRendered && this.gtmPotentialProfileVirtual.length>0){
+            setTimeout(() => {
+                this.gtmPotentialProfileVirtual.forEach(row=>{
+                    if(row.isSubmitted__c){
+                        this.template.querySelectorAll('[data-id="' + row.id + '"]').forEach(cell=>{
+                            console.log('cell ',cell);
+                            cell.disabled = true;
+                        })
+                    }
+                })
+                this.hasRendered = true;
+            }, 500);
+        }
+    }
+
     connectedCallback(){
         this.showLoading = true;
-       console.log('log ...');
         getPotentialAndProfile().then(data=>{
             let tempData = [];
             
             if(data){
                 data.forEach(ele=>{
-                    let tempValue = ele.Total_Purchase_of_Crop_Protection_PY__c?ele.Total_Purchase_of_Crop_Protection_PY__c:0;
+                    let calculation = ele.Total_Purchase_of_Crop_Protection_PY__c && ele.Estimated_Markup_of_Channel__c?((Number(ele.Total_Purchase_of_Crop_Protection_PY__c) * Number(ele.Estimated_Markup_of_Channel__c))/100)+ele.Total_Purchase_of_Crop_Protection_PY__c:0;
+                    let tempValue = calculation?calculation:0;
                     let obj = {
                         id:ele.Id,
                         client:ele.GTM_Customer__r.Name,
@@ -117,13 +135,14 @@ export default class GtmPotentialAndProfile extends LightningElement {
                         confirmEstimatedRevenue:`${this.labels.The_total_farm_gate_revenues_are_USD}  ${tempValue} ${this.labels.USD_Million}	
                         `,
                         pathFinder:ele.GTM_Customer__r.Path_Finder__c,
-                        disableFields:this.optionsToDisable.includes(ele.GTM_Customer_Type__c)
+                        disableFields:this.optionsToDisable.includes(ele.GTM_Customer_Type__c),
+                        isSubmitted__c:ele.isSubmitted__c
                     }
                     tempData.push(obj);
+                    
                 });
                 setTimeout(() => {
                     this.gtmPotentialProfile = tempData;
-                    console.log('gtmPotentialProfile string',JSON.stringify(this.gtmPotentialProfile));
                     this.gtmPotentialProfileVirtual = tempData;
                     this.paginatedGtmPotentialProfile = this.gtmPotentialProfile;
                         this.gtmPotentialProfile.forEach(ele=>{
@@ -132,14 +151,13 @@ export default class GtmPotentialAndProfile extends LightningElement {
                         })
                         this.showLoading = false;
                 }, 200);
-                console.log('Potential Profile data ',this.gtmPotentialProfile);
             }
         });
         getFiscalYear().then(fiscalyear=>{
             this.fiscalYear = fiscalyear.replace('-20','/');
         })
         isWindowPeriodClosed().then(isDisable=>{
-            this.disableAll = isDisable
+            this.disableAll = isDisable;
         })
     }
 
@@ -160,15 +178,21 @@ export default class GtmPotentialAndProfile extends LightningElement {
         if(fieldName=='GTM_Customer_Type__c'){
             let comboboxValue = event.detail.value;
             if(comboboxValue){
-                console.log('comboBox enter ',comboboxValue);
                 // this.gtmPotentialProfile[objIndex].customerType = comboboxValue;
                 this.gtmPotentialProfile[objIndex].disableFields = this.optionsToDisable.includes(value);
                 this.gtmPotentialProfile[objIndex].confirmCustomerType = comboboxValue;
+                this.gtmPotentialProfile[objIndex].estimateChannel = null;
+                this.gtmPotentialProfile[objIndex].estimateSalesRepRole = null;
+                this.gtmPotentialProfile[objIndex].storiesChannelHas = null;
+                this.gtmPotentialProfile[objIndex].confirmCustomerType = comboboxValue;
+                updateClassificationDependent({detailId:detailId}).then(data=>console.log(data)).catch(err=>console.log(err));
             }
         }else if(fieldName=='Total_Purchase_of_Crop_Protection_PY__c'){
-            let temp = value?value:0;
+            
             this.gtmPotentialProfile[objIndex].totalPurcahseCrop = value;
-            this.gtmPotentialProfile[objIndex].confirmEstimatedRevenue = `${this.labels.The_total_farm_gate_revenues_are_USD} ${temp} ${this.labels.USD_Million}	
+            let calculation = (value && this.gtmPotentialProfile[objIndex].estimateChannel)?((Number(value) * Number(this.gtmPotentialProfile[objIndex].estimateChannel))/100)+Number(value):0;
+            
+            this.gtmPotentialProfile[objIndex].confirmEstimatedRevenue = `${this.labels.The_total_farm_gate_revenues_are_USD} ${calculation} ${this.labels.USD_Million}	
             `
         }else if(fieldName=='Estimated_Markup_of_Channel__c'){
             this.gtmPotentialProfile[objIndex].estimateChannel = value;
@@ -211,29 +235,26 @@ export default class GtmPotentialAndProfile extends LightningElement {
     }
    
     handleChangeStatusOnLoad(detailId){
-        console.log('detailId ',detailId);
             this.gtmPotentialProfile.forEach(ele=>{
-                console.log('ele ',JSON.stringify(ele));
                 let NumberOfFilled=0;
                 if(ele.confirmCustomerType){
-                    NumberOfFilled++;
-                    console.log('Condition 1');
+                    if(this.optionsToDisable.includes(ele.confirmCustomerType)){
+                        NumberOfFilled = NumberOfFilled + 4;
+                    }else{
+                        NumberOfFilled++;
+                    }
                 }
                 if(ele.totalPurcahseCrop && Number(ele.totalPurcahseCrop)!=0){
                     NumberOfFilled++;
-                    console.log('Condition 2');
                 }
                 if(ele.estimateChannel && Number(ele.estimateChannel)!=0){
                     NumberOfFilled++;
-                    console.log('Condition 3');
                 }
                 if(ele.estimateSalesRepRole && Number(ele.estimateSalesRepRole)!=0){
                     NumberOfFilled++;
-                    console.log('Condition 4');
                 }
                 if(ele.storiesChannelHas && Number(ele.storiesChannelHas)!=0){
                     NumberOfFilled++;
-                    console.log('Condition 5');
                 }
                 ele.numberOfFieldsFilled= NumberOfFilled;
                 if(NumberOfFilled==5){
@@ -246,7 +267,6 @@ export default class GtmPotentialAndProfile extends LightningElement {
                     ele.status = 'NotFilled';
                 }
             })
-            console.log('Added status ',this.gtmPotentialProfile);
     }
 
     handleChangeCustomerTypeOptions(event){
@@ -363,6 +383,7 @@ export default class GtmPotentialAndProfile extends LightningElement {
         setTimeout(() => {
             console.log('curret Page ',event.detail.currentPage);
             this.paginatedGtmPotentialProfile = event.detail.values;
+            this.hasRendered = false;
         }, 200);
     }
    

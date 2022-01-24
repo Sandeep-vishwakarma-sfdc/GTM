@@ -15,6 +15,7 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 export default class GtmCategoryAllocation extends LightningElement {
     @track productAllocations = [];
+    hasRendered = false;
     copyproductAllocationsVirtual = [];
     showLoading = false;
     disableAll = false;
@@ -50,6 +51,23 @@ export default class GtmCategoryAllocation extends LightningElement {
         setTimeout(() => {
             this.connectedCallback();
         }, 500);
+    }
+
+    renderedCallback(){
+        if(!this.hasRendered && this.copyproductAllocationsVirtual.length>0){
+            setTimeout(() => {
+                this.copyproductAllocationsVirtual.forEach(row=>{
+                    row.productCategory.forEach(col=>{
+                        if(col.isSubmitted__c){
+                            this.template.querySelectorAll('[data-detail="' + col.GTMDetail + '"]').forEach(cell=>{
+                                cell.disabled = true;
+                            })
+                        }
+                    })
+                })
+                this.hasRendered = true;
+            }, 500);
+        }
     }
 
     connectedCallback(){
@@ -98,22 +116,41 @@ export default class GtmCategoryAllocation extends LightningElement {
     handleProductDetailChange(event){
         let detailId =  event.currentTarget.dataset.detail;
         let accid = event.currentTarget.dataset.accountid;
-        let value = event.target.value
-       
-
-        this.template.querySelectorAll('[data-accountid="' + accid + '"]').forEach(col=>{
-            if(col.classList.value.includes('percentage')){
-                let remainingValue = Number(String(col.firstChild.data).replace('%',''));
-                if((remainingValue - Number(value))<0){
-                    //TODO: Add custom label for validation
-                    this.showToast('Total Remaining Allocation','Total remaining allocations value must be positive','error');
-                    value = '';
+        let value = event.target.value;
+        
+        let remainigPercentage = 0;
+        let row = this.copyproductAllocationsVirtual.filter(ele=>ele.customerId==accid);
+        if(row[0].productCategory){
+            row[0].productCategory.forEach(e=>{
+                if(e.GTMDetail==event.currentTarget.dataset.detail){
+                    e.allocation = value;
+                    this.updateStatus(event.currentTarget.dataset.accountid);
                 }
+            })
+            row[0].productCategory.forEach(e=>{
+                console.log('e.allocation ',e.allocation);
+                let tempAllocation = isNaN(Number(e.allocation))?0:Number(e.allocation);
+                remainigPercentage = Number(remainigPercentage) + tempAllocation;
+                console.log('remainigPercentage ',remainigPercentage);
+            })
+        
+            if(remainigPercentage<0 || remainigPercentage>100){
+                this.showToast('Total Remaining Allocation','Total remaining allocations value must be positive','error');
+                remainigPercentage =0;
+                value = '';
+                row[0].productCategory.forEach(e=>{
+                if(e.GTMDetail==event.currentTarget.dataset.detail){
+                    e.allocation = null;
+                    this.updateStatus(event.currentTarget.dataset.accountid);
+                }
+                })
             }
-        });
-        if(String(value).length==0 || (Number(value)<0 && Number(value)>=100)){// when inputs are Invalid
+        }
+        
+        if(!value || (Number(value)<0 && Number(value)>=100)){// when inputs are Invalid
             this.template.querySelector('[data-detail="' + detailId + '"]').value = '';
             value = null;
+            this.updateGTMDetail(detailId,value);
         }
         if(Number(value)>=0 && Number(value)<=100){// when inputs are valid
         if(accid && value){
@@ -124,15 +161,8 @@ export default class GtmCategoryAllocation extends LightningElement {
                 this.updateStatusLabel();
             }, 200);
         }
-        this.copyproductAllocationsVirtual.forEach(ele=>{
-            ele.productCategory.forEach(e=>{
-                if(e.GTMDetail==event.currentTarget.dataset.detail){
-                    e.allocation = value;
-                    this.updateStatus(event.currentTarget.dataset.accountid);
-                }
-            })
-        })
-        }
+       
+    }
     }
 
     onChangeLabelOption(value,accid,detailId){
@@ -140,9 +170,11 @@ export default class GtmCategoryAllocation extends LightningElement {
             if(ele.customerId==accid){
                 let percent = 100;
                 let tempValue = value;
+                let tempAllocation = 0;
                 ele.productCategory.forEach(e=>{
+                    tempAllocation = isNaN(e.allocation)?0:e.allocation;
                     if(e.GTMDetail!=detailId){
-                        tempValue = Number(e.allocation)+Number(tempValue);
+                        tempValue = Number(tempAllocation)+Number(tempValue);
                     }
                 })
                 percent = Number(percent) - Number(tempValue);
@@ -178,8 +210,10 @@ export default class GtmCategoryAllocation extends LightningElement {
         let arr = [];
         let percentage = 100 
         productAllocation.forEach(ele=>{
+            let tempAllocation = 0;
             if(ele.GTM_Customer__c == customerid){
-            percentage = Number(percentage)-Number(ele.Product_Category_Allocation__c);
+                tempAllocation = isNaN(ele.Product_Category_Allocation__c)?0:ele.Product_Category_Allocation__c;
+            percentage = Number(percentage)-Number(tempAllocation);
             let percentageLabel = '';
             if(percentage==0){
                 percentageLabel = 'Completed';
@@ -188,8 +222,8 @@ export default class GtmCategoryAllocation extends LightningElement {
             }else if(percentage==100){
                 percentageLabel = 'Not Fill';
             }
-            console.log('percenatge ',percentage);
-            let obj = {'pId':ele.Product_Category__r.Id,'pName':ele.Product_Category__r.Name,'GTMDetail':ele.Id,'allocation':ele.Product_Category_Allocation__c};
+            // console.log('percenatge ',percentage);
+            let obj = {'pId':ele.Product_Category__r.Id,'pName':ele.Product_Category__r.Name,'GTMDetail':ele.Id,'allocation':ele.Product_Category_Allocation__c,isSubmitted__c:ele.isSubmitted__c};
             arr.push(obj)
             masterObj = {customerId:ele.GTM_Customer__c,customerName:ele.GTM_Customer__r.Name,totalCompaniesPurches:ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c, productCategory:arr,'isLeadCustomer':ele.GTM_Customer__r.Lead_Customer__c?true:false,percentage:percentageLabel,percentageValue:percentage,pathFinder:ele.GTM_Customer__r.Path_Finder__c};
             }
@@ -201,13 +235,14 @@ export default class GtmCategoryAllocation extends LightningElement {
         this.paginatedProductCategoryAllocation = event.detail.values;
 
         let copyProductAllocations = this.productAllocations;
-                this.getTableData(copyProductAllocations);
-                setTimeout(() => {
-                    this.paginatedProductCategoryAllocation.forEach(ele=>{
-                        this.updateStatus(ele.customerId);
-                    })
-                }, 200);
-                this.updateStatusLabel();
+        this.getTableData(copyProductAllocations);
+            setTimeout(() => {
+                this.paginatedProductCategoryAllocation.forEach(ele=>{
+                    this.updateStatus(ele.customerId);
+                })
+            }, 200);
+        this.updateStatusLabel();
+        this.hasRendered = false;
     }
    
     handleFilterPanelAction(event){
@@ -295,9 +330,11 @@ export default class GtmCategoryAllocation extends LightningElement {
     getCalculatedPercentage(){
         this.copyproductAllocationsVirtual.forEach((ele)=>{
             let percentage = 100;
+            let tempAllocation = 0; 
             ele.productCategory.forEach(e=>{
-                percentage = Number(percentage) - Number(e.allocation); 
-                // console.log('cal percenatge ',percentage);
+                tempAllocation = isNaN(e.allocation)?0:e.allocation;
+                percentage = Number(percentage) - Number(tempAllocation); 
+                console.log('cal percenatge ',percentage);
             })
             let percentageLabel = '';
             if(percentage==0){

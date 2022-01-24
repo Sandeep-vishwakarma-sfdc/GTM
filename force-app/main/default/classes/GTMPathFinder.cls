@@ -29,9 +29,9 @@ public without sharing class GTMPathFinder {
                     System.debug('Please provide GTM__c Create Access to the profile');
                 }
             }
-            
-            createGTMPotentialAndProfile(gtms[0]); // Creating Potential and Profile Details 
-            
+            if(isGTMProfileAndPotentialCreated(fiscalyear)==false){
+                createGTMPotentialAndProfile(gtms[0]);
+            }
             gtmPotentialProfile = getGTMPotentialProfile(fiscalyear);
         } catch (Exception e) {
             System.debug('Exception in getPotentialAndProfile'+e);
@@ -42,9 +42,9 @@ public without sharing class GTMPathFinder {
     @AuraEnabled
     public static Map<string,List<GTM_Details__c>> getCatergoryAllocation(){ // Product Catergory Allocation Data used in GTMComponents
         List<GTM_Details__c> gtmDetails = getGTMDetailsProduct(fiscalyear);
-        
-        gtmDetails = createGTMAndDetailsProductAllocation(); // Creating GTM Details for Product Allocation
-        
+        if(gtmDetails.size()==0){
+            gtmDetails = createGTMAndDetailsProductAllocation(); 
+        }
         System.debug('GTM Details'+gtmDetails);
         Map<string,List<GTM_Details__c>> gtmProductAllocation= new Map<string,List<GTM_Details__c>>();
         for(GTM_Details__c gtmd : gtmDetails){
@@ -76,7 +76,9 @@ public without sharing class GTMPathFinder {
     @AuraEnabled
     public static Map<string,List<GTM_Details__c>> getCropAllocation(){ // Crop Allocation Data used in GTMComponents
         List<GTM_Details__c> gtmDetails = getGTMDetailsCrop(fiscalyear);
-        gtmDetails = createGTMAndDetailsCropAllocation(); // creating GTM Details for Crop Allocation
+        if(gtmDetails.size()==0){
+            gtmDetails = createGTMAndDetailsCropAllocation(getActiveCrop()); 
+        }
         System.debug('GTM Details'+gtmDetails);
         Map<string,List<GTM_Details__c>> gtmCropAllocation= new Map<string,List<GTM_Details__c>>();
         for(GTM_Details__c gtmd : gtmDetails){
@@ -127,58 +129,24 @@ public without sharing class GTMPathFinder {
         List<Account> gtmCustomers = new List<Account>();
         List<Account> leadCustomerList = new List<Account>();
         List<Account> nonLeadCustomerList = new List<Account>();
-        Map<String,Account> newGTMCustomers = new Map<String,Account>();
-        Set<String> oldAccounts = new Set<String>();
-        List<Account> newAccountsFound = new List<Account>();
         Id leadcustomerRecordType = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Lead Customer').getRecordTypeId();
         Id nonleadcustomerRecordType = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Distributor').getRecordTypeId();
+        System.debug('leadcustomerRecordType '+leadcustomerRecordType);
+        System.debug('filter Sales_Org_Code__c'+salesOrg.Sales_Org_Code__c+' leadrecordType '+leadcustomerRecordType+' Lead_Customer_Ownership__c '+userInfo.getUserId());
         if(Schema.sObjectType.Account.isAccessible()){
             // Getting Lead Customers by record type
             leadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c  and recordType.Id=:leadcustomerRecordType and Lead_Customer_Ownership__c=:userInfo.getUserId()];
+            System.debug('Lead Customer '+leadCustomerList);
             // Getting non-lead customer when lead customer field is empty
             nonLeadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c and Account_Type__c='Sold To Party' and Lead_Customer__c=null and Lead_Customer_Ownership__c=:userInfo.getUserId() and recordTypeId=:nonleadcustomerRecordType];
+            System.debug('non lead '+nonLeadCustomerList);
+            gtmCustomers.addAll(leadCustomerList);
+            gtmCustomers.addAll(nonLeadCustomerList);
+            System.debug('GTM Customer size'+gtmCustomers.size());
+            return gtmCustomers;
         }
-        gtmCustomers.addAll(leadCustomerList);
-        gtmCustomers.addAll(nonLeadCustomerList);
-        System.debug('GTM Customer size'+gtmCustomers.size());
-        for(Account customer : gtmCustomers){
-            newGTMCustomers.put(customer.Id,customer);
-        }
-        Map<String,List<String>> maprecordTypeDetails = new Map<String,List<String>>();
-        List<GTM_Details__c> gtmdetailsAccounts = [Select Id,recordTypeId,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer__r.Lead_Customer_Type__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId()];
-
-        for(GTM_Details__c detailsAccount:gtmdetailsAccounts){
-            List<String> listAccount = new List<String>();
-            if(maprecordTypeDetails.containskey(detailsAccount.recordTypeId)){
-                listAccount = maprecordTypeDetails.get(detailsAccount.recordTypeId);
-                listAccount.add(detailsAccount.GTM_Customer__c);
-                maprecordTypeDetails.put(detailsAccount.recordTypeId,listAccount);
-            }else{
-                listAccount.add(detailsAccount.GTM_Customer__c);
-                maprecordTypeDetails.put(detailsAccount.recordTypeId,listAccount);
-            }
-        }
-
-        Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Profile & Potential').getRecordTypeId();
-        Id recordTypeCropAllocation = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Crop Allocation').getRecordTypeId();
-        Id recordTypeProductCategory = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Product Category Allocation').getRecordTypeId();
-        Id recordTypeCompetition = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Competitor').getRecordTypeId();
-        Id recordTypeOutlook = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Outlook').getRecordTypeId();
-
-        System.debug('maprecordTypeDetails '+maprecordTypeDetails);
-        for(Account newCustomer : newGTMCustomers.values()){
-            boolean potentialProfileData = maprecordTypeDetails.get(recordTypePotentialProfile)?.contains(newCustomer.id);
-            boolean productCatergoryData = maprecordTypeDetails.get(recordTypeCropAllocation)?.contains(newCustomer.id);
-            boolean cropAllocationData = maprecordTypeDetails.get(recordTypeProductCategory)?.contains(newCustomer.id);
-            boolean competitionData = maprecordTypeDetails.get(recordTypeCompetition)?.contains(newCustomer.id);
-            boolean outlookdata = maprecordTypeDetails.get(recordTypeOutlook)?.contains(newCustomer.id);
-
-            if(potentialProfileData==false && productCatergoryData==false && cropAllocationData==false && competitionData==false && outlookdata==false){ // new customer not having any type of GTM Details
-                newAccountsFound.add(newCustomer);
-            }
-        }
-        System.debug('new Accounts added'+newAccountsFound);
-        return newAccountsFound;
+        System.debug(gtmCustomers);
+        return gtmCustomers;
     }
 
     private static List<Product_Category__c> getActiveProductCategory(){
@@ -223,9 +191,9 @@ public without sharing class GTMPathFinder {
         Id recordTypeProductCategory = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Product Category Allocation').getRecordTypeId();
         System.debug('recordTypeProductCategory '+recordTypeProductCategory);
         List<GTM_Details__c> gtmPotentialProfile = new List<GTM_Details__c>();
-        
-        createGTMPotentialAndProfile(gtms[0]); // Creating Potential and Profile Details befor Crop/Category Details
-        
+        if(isGTMProfileAndPotentialCreated(fiscalyear)==false){
+            createGTMPotentialAndProfile(gtms[0]);
+        }
         gtmPotentialProfile = getGTMPotentialProfile(fiscalyear);
         Map<String,GTM_Details__c> mapPotentialProfile = new  Map<String,GTM_Details__c>();
         for(GTM_Details__c gtm1:gtmPotentialProfile){
@@ -258,7 +226,7 @@ public without sharing class GTMPathFinder {
     public static List<GTM_Details__c> getGTMPotentialProfile(String fiscalyear){
         Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Profile & Potential').getRecordTypeId();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer_Type__c ,Total_Purchase_of_Crop_Protection_PY__c,Estimated_Markup_of_Channel__c,Estimated_Number_of_Sales_Rep_on_Role__c,Number_of_Stores_That_the_Channel_Has__c,GTM_Customer__r.Lead_Customer_Type__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypePotentialProfile ORDER BY GTM_Customer__r.Name ASC];
+        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer_Type__c ,Total_Purchase_of_Crop_Protection_PY__c,Estimated_Markup_of_Channel__c,Estimated_Number_of_Sales_Rep_on_Role__c,Number_of_Stores_That_the_Channel_Has__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypePotentialProfile ORDER BY GTM_Customer__r.Name ASC];
         return gtmDetails;
     }
 
@@ -267,7 +235,7 @@ public without sharing class GTMPathFinder {
     public static boolean isGTMProfileAndPotentialCreated(String fiscalyear){
         Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Profile & Potential').getRecordTypeId();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer__r.Lead_Customer_Type__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypePotentialProfile];
+        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypePotentialProfile];
         System.debug('gtmDetails Profile And Potential'+gtmDetails.size());
         if(gtmDetails.size()>0){
             return true;
@@ -275,7 +243,8 @@ public without sharing class GTMPathFinder {
         return false;
     }
 
-    private static List<GTM_Details__c> createGTMAndDetailsCropAllocation(){
+    @AuraEnabled
+    public static List<GTM_Details__c> createGTMAndDetailsCropAllocation(List<Crop__c> activeCrops){
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
         Id userId = userInfo.getUserId();
         List<GTM__c> gtms = new  List<GTM__c>();
@@ -298,9 +267,9 @@ public without sharing class GTMPathFinder {
             }
         }
         List<GTM_Details__c> gtmPotentialProfile = new List<GTM_Details__c>();
-       
-         createGTMPotentialAndProfile(gtms[0]); // Creating Potential and Profile Details befor Crop/Category Details
-    
+        if(isGTMProfileAndPotentialCreated(fiscalyear)==false){
+            createGTMPotentialAndProfile(gtms[0]);
+        }
         gtmPotentialProfile = getGTMPotentialProfile(fiscalyear);
         Map<String,GTM_Details__c> mapPotentialProfile = new  Map<String,GTM_Details__c>();
         for(GTM_Details__c gtm1:gtmPotentialProfile){
@@ -310,7 +279,7 @@ public without sharing class GTMPathFinder {
         Id recordTypeCropAllocation = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Crop Allocation').getRecordTypeId();
         System.debug('recordTypeCropAllocation '+recordTypeCropAllocation);
         for(Account acc:getGTMCustomers()){
-            for(Crop__c crop:getActiveCrop()){
+            for(Crop__c crop:activeCrops){
                 System.debug('For loop Crop__c '+crop);
                 GTM_Details__c gtmDetail = new GTM_Details__c();
                 gtmDetail.recordTypeId = recordTypeCropAllocation;
@@ -336,7 +305,7 @@ public without sharing class GTMPathFinder {
    }
 
     private static List<Crop__c> getActiveCrop(){
-        List<Crop__c> listCrop = new List<Crop__c>();
+    List<Crop__c> listCrop = new List<Crop__c>();
         if(Schema.sObjectType.Crop__c.isAccessible()){
             listCrop = [select Id,Name,Category_Index__c from Crop__c where GTM_Status__c='Active' and Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c ORDER BY Category_Index__c DESC];// TODO: To add Order by index
         }
@@ -368,7 +337,7 @@ public without sharing class GTMPathFinder {
     private static List<GTM_Details__c> getGTMDetailsProduct(String fiscalyear){
         Id recordTypeProductCategory = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Product Category Allocation').getRecordTypeId();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Product_Category__c,Product_Category__r.Name,Product_Category_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory]; 
+        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Product_Category__c,Product_Category__r.Name,Product_Category_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory]; 
 
         System.debug('gtmDetails '+gtmDetails.size());
         if(gtmDetails.size()>0){
@@ -380,7 +349,7 @@ public without sharing class GTMPathFinder {
     private static List<GTM_Details__c> getGTMDetailsCrop(String fiscalyear){
         Id recordTypeProductCategory = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Crop Allocation').getRecordTypeId();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Crop__c,Crop__r.Name,Crop_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory];
+        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Crop__c,Crop__r.Name,Crop_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory];
 
         System.debug('gtmDetails '+gtmDetails.size());
         if(gtmDetails.size()>0){
@@ -406,18 +375,22 @@ public without sharing class GTMPathFinder {
 
     @AuraEnabled
     public static string updateGTMDetailProductAllocation(String gtmId,String value){
-        GTM_Details__c detail = [SELECT ID,Name,Product_Category_Allocation__c from GTM_Details__c where Id=:gtmId];
-        detail.Product_Category_Allocation__c = Decimal.valueOf(value);
-        if(Schema.sObjectType.GTM_Details__c.isUpdateable()){
-            update detail;
-        }else{System.debug('Please provide GTM_Details__c update access to profile');}
+        try {
+            GTM_Details__c detail = [SELECT ID,Name,Product_Category_Allocation__c from GTM_Details__c where Id=:gtmId];
+            detail.Product_Category_Allocation__c = value!=null?Decimal.valueOf(value):null;
+            if(Schema.sObjectType.GTM_Details__c.isUpdateable()){
+                update detail;
+            }
+        } catch (Exception e) {
+            System.debug('Exception in updateGTMDetailProductAllocation '+e);
+        }
         return value;
     }
     
     @AuraEnabled
     public static string updateGTMDetailCropAllocation(String gtmId,String value){
         GTM_Details__c detail = [SELECT ID,Name,Crop_Allocation__c from GTM_Details__c where Id=:gtmId];
-        detail.Crop_Allocation__c = Decimal.valueOf(value);
+        detail.Crop_Allocation__c = value!=null?Decimal.valueOf(value):null;
         if(Schema.sObjectType.GTM_Details__c.isUpdateable()){
             update detail;
         }else{System.debug('Please provide GTM_Details__c update access to profile');}
@@ -429,16 +402,16 @@ public without sharing class GTMPathFinder {
         try {
            GTM_Details__c detail = [SELECT ID,Name,Crop_Allocation__c from GTM_Details__c where Id=:gtmId];
         if(name=='Total_Purchase_of_Crop_Protection_PY__c'){
-            detail.Total_Purchase_of_Crop_Protection_PY__c = Decimal.valueOf(value);
+            detail.Total_Purchase_of_Crop_Protection_PY__c = value!=null?Decimal.valueOf(value):null;
         }
         if(name=='Estimated_Markup_of_Channel__c'){
-            detail.Estimated_Markup_of_Channel__c = Decimal.valueOf(value);
+            detail.Estimated_Markup_of_Channel__c = value!=null?Decimal.valueOf(value):null;
         }
         if(name=='Estimated_Number_of_Sales_Rep_on_Role__c'){
-            detail.Estimated_Number_of_Sales_Rep_on_Role__c = Decimal.valueOf(value);
+            detail.Estimated_Number_of_Sales_Rep_on_Role__c = value!=null?Decimal.valueOf(value):null;
         }
         if(name=='Number_of_Stores_That_the_Channel_Has__c'){
-            detail.Number_of_Stores_That_the_Channel_Has__c = Decimal.valueOf(value);
+            detail.Number_of_Stores_That_the_Channel_Has__c = value!=null?Decimal.valueOf(value):null;
         }
         if(name=='GTM_Customer_Type__c'){
             detail.GTM_Customer_Type__c = value;
@@ -477,6 +450,195 @@ public without sharing class GTMPathFinder {
             return false;
         }else{// Disable editing records
             return true;
+        }
+    }
+
+    @AuraEnabled
+    public static List<Account> getNewGTMCustomers(){ 
+        Map<String,Account> newGTMCustomers = new Map<String,Account>();
+        Set<String> oldAccounts = new Set<String>();
+        List<Account> newAccountsFound = new List<Account>();
+        for(Account customer : getGTMCustomers()){
+            newGTMCustomers.put(customer.Id,customer);
+        }
+        Map<String,List<String>> maprecordTypeDetails = new Map<String,List<String>>();
+        List<GTM_Details__c> gtmdetailsAccounts = [Select Id,recordTypeId,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId()];
+
+        for(GTM_Details__c detailsAccount:gtmdetailsAccounts){
+            List<String> listAccount = new List<String>();
+            if(maprecordTypeDetails.containskey(detailsAccount.recordTypeId)){
+                listAccount = maprecordTypeDetails.get(detailsAccount.recordTypeId);
+                listAccount.add(detailsAccount.GTM_Customer__c);
+                maprecordTypeDetails.put(detailsAccount.recordTypeId,listAccount);
+            }else{
+                listAccount.add(detailsAccount.GTM_Customer__c);
+                maprecordTypeDetails.put(detailsAccount.recordTypeId,listAccount);
+            }
+        }
+
+        Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Profile & Potential').getRecordTypeId();
+        Id recordTypeCropAllocation = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Crop Allocation').getRecordTypeId();
+        Id recordTypeProductCategory = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Product Category Allocation').getRecordTypeId();
+        Id recordTypeCompetition = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Competitor').getRecordTypeId();
+        Id recordTypeOutlook = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Outlook').getRecordTypeId();
+
+        System.debug('maprecordTypeDetails '+maprecordTypeDetails);
+        for(Account newCustomer : newGTMCustomers.values()){
+            boolean potentialProfileData = maprecordTypeDetails.get(recordTypePotentialProfile)?.contains(newCustomer.id);
+            boolean productCatergoryData = maprecordTypeDetails.get(recordTypeCropAllocation)?.contains(newCustomer.id);
+            boolean cropAllocationData = maprecordTypeDetails.get(recordTypeProductCategory)?.contains(newCustomer.id);
+            boolean competitionData = maprecordTypeDetails.get(recordTypeCompetition)?.contains(newCustomer.id);
+            boolean outlookdata = maprecordTypeDetails.get(recordTypeOutlook)?.contains(newCustomer.id);
+
+            if(potentialProfileData==false && productCatergoryData==false && cropAllocationData==false && competitionData==false && outlookdata==false){ // new customer not having any type of GTM Details
+                newAccountsFound.add(newCustomer);
+            }
+        }
+        System.debug('new Accounts added'+newAccountsFound);
+        return newAccountsFound;
+    }
+
+    @AuraEnabled
+    public static string createNewCustomerDetails(String newAccounts){
+        Id userId = userInfo.getUserId();
+        GTM__c gtm = [SELECT ID,Name,Fiscal_Year__c from GTM__c where Fiscal_Year__c=:fiscalyear and Sales_Org__c=:salesOrg.Id and Sales_Rep__c=:userId limit 1];
+        
+
+        Map<String,GTM_Details__c> mapPotentialProfile = new  Map<String,GTM_Details__c>();
+        List<Account> newCustomers = (List<Account>)JSON.deserialize(newAccounts,List<Account>.class);
+
+        Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Profile & Potential').getRecordTypeId();
+        Id recordTypeCropAllocation = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Crop Allocation').getRecordTypeId();
+        Id recordTypeProductCategory = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Product Category Allocation').getRecordTypeId();
+        Id recordTypeCompetition = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Competitor').getRecordTypeId();
+        Id recordTypeOutlook = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Outlook').getRecordTypeId();
+
+        List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
+        //Create Potential Profile for newly added customers
+        for(Account acc:newCustomers){
+            GTM_Details__c gtmd = new GTM_Details__c();
+            gtmd.GTM_Customer__c = acc.Id;
+            gtmd.recordTypeId = recordTypePotentialProfile;
+            gtmd.GTM_Customer_Type__c = acc.Lead_Customer_Type__c;
+            gtmd.GTM__c = gtm.Id;
+            gtmd.Sales_Org__c = salesorg.Id;
+            gtmDetails.add(gtmd);
+        }
+        insert gtmDetails;
+        
+        for(GTM_Details__c gtm1:gtmDetails){
+            mapPotentialProfile.put(gtm1.GTM_Customer__c,gtm1);
+        }
+        // Create Crop Allocation for newly added Customers
+        gtmDetails.clear();
+        for(Account acc:newCustomers){
+            for(Crop__c crop:getActiveCrop()){
+                System.debug('For loop Crop__c '+crop);
+                GTM_Details__c gtmDetail = new GTM_Details__c();
+                gtmDetail.recordTypeId = recordTypeCropAllocation;
+                gtmDetail.Crop__c = crop.Id;
+                gtmDetail.GTM_Customer__c = acc.Id;
+                gtmDetail.Sales_Org__c = salesOrg.Id;
+                gtmDetail.GTM__c = gtm.Id;
+                gtmDetail.GTM_Details__c = mapPotentialProfile.get(acc.Id).Id;
+                gtmDetails.add(gtmDetail);
+            }
+        }
+        insert gtmDetails;
+
+        // Create Product Allocation for newly added Customers
+        gtmDetails.clear();
+        for(Account acc:newCustomers){
+            for(Product_Category__c pc:getActiveProductCategory()){
+                System.debug('For loop Product_Category__c '+pc);
+                GTM_Details__c gtmDetail = new GTM_Details__c();
+                gtmDetail.recordTypeId = recordTypeProductCategory;
+                gtmDetail.Product_Category__c = pc.Id;
+                gtmDetail.GTM_Customer__c = acc.Id;
+                gtmDetail.Sales_Org__c = salesOrg.Id;
+                gtmDetail.GTM__c = gtm.Id;
+                gtmDetail.GTM_Details__c = mapPotentialProfile.get(acc.Id).Id;
+                gtmDetails.add(gtmDetail);
+            }
+        }
+        insert gtmDetails;
+
+        // Create Competition for newly added Customers
+        gtmDetails.clear();
+        for(Account acc:newCustomers){
+            GTM_Details__c gtmd = new GTM_Details__c();
+            gtmd.recordTypeId = recordTypeCompetition;
+            gtmd.GTM_Customer__c = acc.Id;
+            gtmd.GTM__c=gtm.Id;
+            gtmd.Sales_Org__c=salesOrg.Id;
+            gtmd.GTM_Details__c = mapPotentialProfile.get(acc.Id).Id;
+            gtmDetails.add(gtmd);
+        }
+        insert gtmDetails;
+
+        //Create outlook 
+        gtmDetails.clear();
+        for(Account acc :newCustomers){
+            GTM_Details__c gtmDetailsTemp = new GTM_Details__c();
+            gtmDetailsTemp.recordTypeId = recordTypeOutlook;
+            gtmDetailsTemp.GTM_Customer__c = acc.Id;
+            gtmDetailsTemp.Sales_Org__c = salesorg.Id;
+            gtmDetailsTemp.GTM__c = gtm.Id;
+            gtmDetailsTemp.GTM_Details__c = mapPotentialProfile.get(acc.Id).Id;
+            gtmDetails.add(gtmDetailsTemp);
+         }
+         insert gtmDetails;
+         return '';
+    }
+
+    @AuraEnabled
+    public static List<Crop__c> getNewlyAddedCrop(){
+        Id userId = userInfo.getUserId();
+        GTM__c gtm = [SELECT ID,Name,Fiscal_Year__c from GTM__c where Fiscal_Year__c=:fiscalyear and Sales_Org__c=:salesOrg.Id and Sales_Rep__c=:userId limit 1];
+        Id recordTypeCropAllocation = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Crop Allocation').getRecordTypeId();
+        List<Crop__c> allCrops = getActiveCrop(); // All Active Crops
+        List<String> oldCrops = new List<String>();
+        List<Crop__c> newCrops = new List<Crop__c>();
+        Map<String,Crop__c> mapCrop = new Map<String,Crop__c>();
+        List<AggregateResult> gtmCropDetails = [Select COUNT(Id),Crop__c from GTM_Details__c where GTM__c=:gtm.Id and recordTypeId=:recordTypeCropAllocation GROUP BY Crop__c]; // GTM details having crops
+        
+        for(AggregateResult  arrg: gtmCropDetails){
+            oldCrops.add((String)arrg.get('Crop__c'));
+        }
+
+        for(Crop__c crop:allCrops){
+            if(!oldCrops.contains(crop.Id)){
+                newCrops.add(crop);
+            }
+        }
+        return newCrops;
+    }
+
+    @AuraEnabled
+    public static boolean updateClassificationDependent(String detailId){
+        GTM_Details__c gtmD = [select Id,Name,Estimated_Markup_of_Channel__c,Estimated_Number_of_Sales_Rep_on_Role__c,Number_of_Stores_That_the_Channel_Has__c from GTM_Details__c where id=:detailId limit 1];
+        gtmD.Estimated_Markup_of_Channel__c = null;
+        gtmD.Estimated_Number_of_Sales_Rep_on_Role__c = null;
+        gtmD.Number_of_Stores_That_the_Channel_Has__c = null;
+        update gtmD;
+        return true;
+    }
+
+    @AuraEnabled
+    public static boolean submitGTMDetails(){
+        try {
+            GTM__c gtm = [SELECT ID,Name,Fiscal_Year__c from GTM__c where Fiscal_Year__c=:fiscalyear and Sales_Org__c=:salesOrg.Id and Sales_Rep__c=:userInfo.getUserId() limit 1];
+
+            List<GTM_Details__c> gtmdetails = [Select id,Name,isSubmitted__c,GTM__c from GTM_Details__c where isSubmitted__c=false and GTM__c=:gtm.Id];
+
+            for(GTM_Details__c gtmd:gtmdetails){
+                gtmd.isSubmitted__c = true;
+            }
+            update gtmdetails;
+            return true;
+        } catch (Exception e) {
+            System.debug('Exception while submitting records '+e);
+            return false;
         }
     }
 }

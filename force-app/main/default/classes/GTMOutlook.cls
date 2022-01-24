@@ -138,6 +138,5 @@ public without sharing class GTMOutlook {
         
       }
       return null;
-      
     }
  }

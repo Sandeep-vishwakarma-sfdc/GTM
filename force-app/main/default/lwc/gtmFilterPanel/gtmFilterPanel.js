@@ -9,6 +9,15 @@ import Select from '@salesforce/label/c.Select';
 import Filter_by_Path_Finder from '@salesforce/label/c.Filter_by_Path_Finder';
 import Filter_By_Status from '@salesforce/label/c.Filter_By_Status';
 import reset from '@salesforce/label/c.Reset_All_filters';
+import Lead_Customer from '@salesforce/label/c.Lead_Customer';
+import Non_Lead_Customer from '@salesforce/label/c.Non_Lead_Customer';
+import Both from '@salesforce/label/c.Both';
+import Not_Fill from '@salesforce/label/c.Not_Fill';
+import In_Progress from '@salesforce/label/c.In_Progress';
+import Completed from '@salesforce/label/c.Completed';
+import None from '@salesforce/label/c.None';
+import Yes from '@salesforce/label/c.Yes';
+import No from '@salesforce/label/c.No';
 
 export default class GtmFilterPanel extends LightningElement {
     @track panelStatusObj={
@@ -30,7 +39,16 @@ export default class GtmFilterPanel extends LightningElement {
         Select,
         Filter_by_Path_Finder,
         Filter_By_Status,
-        reset
+        reset,
+        Lead_Customer,
+        Non_Lead_Customer,
+        Both,
+        Not_Fill,
+        In_Progress,
+        Completed,
+        None,
+        Yes,
+        No
     }
 
     set panelStatus(value){
@@ -51,24 +69,24 @@ export default class GtmFilterPanel extends LightningElement {
     }
     get options1() {
         return [
-            { label: 'Lead Customer', value: 'Lead Customer'  },
-            { label: 'Non Lead Customer', value: 'Non Lead Customer' },
-            { label: 'Both', value: 'Both' },
+            { label: this.labels.Lead_Customer, value: 'Lead Customer'  },
+            { label: this.labels.Non_Lead_Customer, value: 'Non Lead Customer' },
+            { label: this.labels.Both, value: 'Both' },
         ];
     }
     get options2() {
         return [
-            { label: 'Not Fill', value: 'Not Fill' },
-            { label: 'In Progress', value: 'In Progress' },
-            { label: 'Completed', value: 'Completed' },
-            { label: 'None', value: 'None' },
+            { label: this.labels.Not_Fill, value: 'Not Fill' },
+            { label: this.labels.In_Progress, value: 'In Progress' },
+            { label: this.labels.Completed, value: 'Completed' },
+            { label: this.labels.None, value: 'None' },
         ];
     }
     get options3() {
         return [
-            { label: 'Both', value: 'Both' },
-            { label: 'Yes', value: 'true' },
-            { label: 'No', value: 'false' }
+            { label: this.labels.Both, value: 'Both' },
+            { label: this.labels.Yes, value: 'true' },
+            { label: this.labels.No, value: 'false' }
         ];
     }
 
