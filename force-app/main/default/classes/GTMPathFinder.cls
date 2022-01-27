@@ -1,6 +1,17 @@
 public without sharing class GTMPathFinder {
-    private static String fiscalyear = getFiscalYear();
+    private static String fiscalyear = setFiscalYear('');
     private static Sales_Org__c salesOrg = getSalesOrg();
+
+    @AuraEnabled
+    public static String setFiscalYear(String financialYear){
+        if(String.isEmpty(financialYear)){
+            fiscalyear = getFiscalYear();
+        }else{
+            fiscalyear = financialYear;
+        }
+        return fiscalyear;
+    }
+
     @AuraEnabled
     public static List<GTM_Details__c> getPotentialAndProfile(){ // PotentialAndProfile Data used in GTMComponents
         List<GTM_Details__c> gtmPotentialProfile = new List<GTM_Details__c>();
@@ -149,7 +160,7 @@ public without sharing class GTMPathFinder {
         return gtmCustomers;
     }
 
-    private static List<Product_Category__c> getActiveProductCategory(){
+    public static List<Product_Category__c> getActiveProductCategory(){
         List<Product_Category_Sales_Org_Mapping__c> productCategoryMapping = new List<Product_Category_Sales_Org_Mapping__c>();
         List<Product_Category__c> productCategories = new List<Product_Category__c>();
         if(Schema.sObjectType.Product_Category_Sales_Org_Mapping__c.isAccessible() && Schema.sObjectType.Product_Category__c.isAccessible()){
@@ -304,7 +315,7 @@ public without sharing class GTMPathFinder {
     return getGTMDetailsCrop(fiscalyear);
    }
 
-    private static List<Crop__c> getActiveCrop(){
+    public static List<Crop__c> getActiveCrop(){
     List<Crop__c> listCrop = new List<Crop__c>();
         if(Schema.sObjectType.Crop__c.isAccessible()){
             listCrop = [select Id,Name,Category_Index__c from Crop__c where GTM_Status__c='Active' and Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c ORDER BY Category_Index__c DESC];// TODO: To add Order by index
@@ -360,17 +371,17 @@ public without sharing class GTMPathFinder {
     
     @AuraEnabled
     public static String getFiscalYear(){
-        list<Period> listOfPeriod = new list<Period>();
-        if(Schema.sObjectType.Period.isAccessible()){
-        listOfPeriod = [SELECT FiscalYearSettings.Name , StartDate,EndDate, type FROM Period WHERE Type = 'Year' AND StartDate <= TODAY AND EndDate >= TODAY limit 1];
-        }
-        if(listOfPeriod.size()>0){
-            String startYear = String.valueOf(listOfPeriod[0].StartDate.year());
-            String endYear = String.valueOf(listOfPeriod[0].EndDate.year());
-            String fiscalyear = startYear+'-'+endYear;
-            return fiscalyear;
-        }
-        return '';
+            list<Period> listOfPeriod = new list<Period>();
+            if(Schema.sObjectType.Period.isAccessible()){
+            listOfPeriod = [SELECT FiscalYearSettings.Name , StartDate,EndDate, type FROM Period WHERE Type = 'Year' AND StartDate <= TODAY AND EndDate >= TODAY limit 1];
+            }
+            if(listOfPeriod.size()>0){
+                String startYear = String.valueOf(listOfPeriod[0].StartDate.year());
+                String endYear = String.valueOf(listOfPeriod[0].EndDate.year());
+                String fiscalyear = startYear+'-'+endYear;
+                return fiscalyear;
+            }
+            return '';
     }
 
     @AuraEnabled
@@ -640,5 +651,11 @@ public without sharing class GTMPathFinder {
             System.debug('Exception while submitting records '+e);
             return false;
         }
+    }
+
+    @AuraEnabled
+    public static GTM__c getGTM(String id){
+        GTM__c gtm = [SELECT ID,Name,Fiscal_Year__c from GTM__c where Id=:id];
+        return gtm;
     }
 }

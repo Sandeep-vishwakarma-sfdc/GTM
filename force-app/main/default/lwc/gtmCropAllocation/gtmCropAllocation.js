@@ -10,6 +10,8 @@ import Remaining from '@salesforce/label/c.Remaining';
 import Check_If_Distribution_Is_Correct from '@salesforce/label/c.Check_If_Distribution_Is_Correct';
 import Distribution_completed from '@salesforce/label/c.Distribution_completed';
 import Please_check_the_values_Not_matching_100 from '@salesforce/label/c.Please_check_the_values_Not_matching_100';
+import Combined_Total_Value from '@salesforce/label/c.Combined_Total_Value';
+import Combined_total_value_more_than_100_is_not_allowed from '@salesforce/label/c.Combined_total_value_more_than_100_is_not_allowed';
 import Instructions from '@salesforce/label/c.Instructions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 export default class GtmCropAllocation extends LightningElement {
@@ -48,7 +50,9 @@ export default class GtmCropAllocation extends LightningElement {
         Check_If_Distribution_Is_Correct:Check_If_Distribution_Is_Correct,
         Distribution_completed:Distribution_completed,
         Please_check_the_values_Not_matching_100:Please_check_the_values_Not_matching_100,
-        Instructions:Instructions
+        Instructions:Instructions,
+        Combined_total_value_more_than_100_is_not_allowed,
+        Combined_Total_Value
     }
 
     renderedCallback(){
@@ -108,7 +112,7 @@ export default class GtmCropAllocation extends LightningElement {
 
     getTableData(data){
         let year = this.fiscalYear.replace('-20','/');
-        this.columnfiscalYear = `${this.labels.All_Companies_Purchase_to_Customer1} ${this.labels.All_Companies_Purchase_to_Customer2} ${year}`;
+        this.columnfiscalYear = `${this.labels.All_Companies_Purchase_to_Customer1} ${year}`;
         if(data[0]){
             this.columns = data[0].crops;
         }
@@ -130,13 +134,13 @@ export default class GtmCropAllocation extends LightningElement {
             })
             row[0].crops.forEach(e=>{
                 console.log('e.allocation ',e.allocation);
-                let tempAllocation = isNaN(Number(e.allocation))?0:Number(e.allocation);
-                remainigPercentage = Number(remainigPercentage) + tempAllocation;
-                console.log('remainigPercentage ',remainigPercentage);
+                let tempAllocation = isNaN(Number(e.allocation))?0:Number(e.allocation).toFixed(2);
+                remainigPercentage = Number(remainigPercentage).toFixed(2) + tempAllocation;
+                console.log('total Percentage ',remainigPercentage);
             })
         
             if(remainigPercentage<0 || remainigPercentage>100){
-                this.showToast('Total Remaining Allocation','Total remaining allocations value must be positive','error');
+                this.showToast(this.labels.Combined_Total_Value,this.labels.Combined_total_value_more_than_100_is_not_allowed,'error');
                 remainigPercentage =0;
                 value = '';
                 row[0].crops.forEach(e=>{
@@ -248,6 +252,7 @@ export default class GtmCropAllocation extends LightningElement {
                 col.style.color = '#fff';
                 col.firstChild.data = this.labels.Please_check_the_values_Not_matching_100;
             }
+            console.log('inputCompleted ',inputCompleted);
         })
     }, 200);
     }

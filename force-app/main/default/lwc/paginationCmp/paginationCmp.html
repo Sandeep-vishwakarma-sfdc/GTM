@@ -19,7 +19,7 @@
             <lightning-button class="slds-float_right" variant="brand-outline" label={labels.Previous}
                 icon-name="utility:chevronleft" icon-position="left" title={labels.Previous} onclick={handlePrevious} disabled={disableBtn.previous}>
             </lightning-button>
-            <lightning-button class="slds-float_right slds-m-right_medium" variant="brand-outline" label="First" icon-name="utility:jump_to_left" icon-position="left" title={labels.First} onclick={handleFirst} disabled={disableBtn.first}></lightning-button>
+            <lightning-button class="slds-float_right slds-m-right_medium" variant="brand-outline" label={labels.First} icon-name="utility:jump_to_left" icon-position="left" title={labels.First} onclick={handleFirst} disabled={disableBtn.first}></lightning-button>
             <slot name="pageNumber"></slot>
         </div>
     </lightning-card>

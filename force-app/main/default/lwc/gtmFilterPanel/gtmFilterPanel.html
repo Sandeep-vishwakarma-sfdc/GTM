@@ -7,20 +7,20 @@
     </div>
 
     <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
-      <lightning-combobox name="filter1" value={filters.filter1} label={labels.Filter_By} placeholder={labels.Select}
+      <lightning-combobox name="filter1" value={filters.filter1} label={labels.Filter_By} style="font-weight:600;" placeholder={labels.Select}
         options={options1} onchange={handleValueChange}></lightning-combobox>
     </div>
 
     <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
-      <lightning-combobox name="filter2" label={labels.Filter_By_Status} value={filters.filter2}
+      <lightning-combobox name="filter2" label={labels.Filter_By_Status} style="font-weight:600;" value={filters.filter2}
         placeholder={labels.Select} options={options2} onchange={handleValueChange}></lightning-combobox>
     </div>
 
     <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12">
-      <lightning-combobox name="filter3" label={labels.Filter_by_Path_Finder} value={filters.filter3}
+      <lightning-combobox name="filter3" label={labels.Filter_by_Path_Finder} style="font-weight:600;" value={filters.filter3}
         placeholder={labels.Select} options={options3} onchange={handleValueChange}></lightning-combobox>
     </div>
-    <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-12" style="margin-top: 23px;">
+    <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-12" style="margin-top: 23px;font-weight:600;">
       <lightning-button-icon icon-name="utility:refresh"  name="reset" alternative-text={labels.reset} title={labels.reset} onclick={handleValueChange}></lightning-button-icon>
     </div>
 

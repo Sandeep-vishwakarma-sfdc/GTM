@@ -146,6 +146,7 @@ export default class GtmPotentialAndProfile extends LightningElement {
                     this.gtmPotentialProfileVirtual = tempData;
                     this.paginatedGtmPotentialProfile = this.gtmPotentialProfile;
                         this.gtmPotentialProfile.forEach(ele=>{
+                            ele.disableFields = this.optionsToDisable.includes(ele.customerType);
                             this.handleChangeStatusOnLoad(ele.id);
                             this.updateStatusLabel();
                         })
@@ -169,6 +170,9 @@ export default class GtmPotentialAndProfile extends LightningElement {
         if(value=='' || (Number(value)<0 && fieldName!='Estimated_Markup_of_Channel__c')){
             value = null;
         }
+        if((fieldName=='Estimated_Number_of_Sales_Rep_on_Role__c' || fieldName=='Number_of_Stores_That_the_Channel_Has__c') && !Number.isInteger(Number(value))){
+            value = null;
+        }
         updateGTMDetailPotentialProfile({gtmId:detailId,name:fieldName,value:value}).then(res=>{
             console.log('Response ',res);
         }).catch(err=>console.log('Null Value'+err));
@@ -181,30 +185,49 @@ export default class GtmPotentialAndProfile extends LightningElement {
                 // this.gtmPotentialProfile[objIndex].customerType = comboboxValue;
                 this.gtmPotentialProfile[objIndex].disableFields = this.optionsToDisable.includes(value);
                 this.gtmPotentialProfile[objIndex].confirmCustomerType = comboboxValue;
-                this.gtmPotentialProfile[objIndex].estimateChannel = null;
-                this.gtmPotentialProfile[objIndex].estimateSalesRepRole = null;
-                this.gtmPotentialProfile[objIndex].storiesChannelHas = null;
+                if(this.optionsToDisable.includes(value)){
+                    this.gtmPotentialProfile[objIndex].estimateChannel = null;
+                    this.gtmPotentialProfile[objIndex].estimateSalesRepRole = null;
+                    this.gtmPotentialProfile[objIndex].storiesChannelHas = null;
+                }
                 this.gtmPotentialProfile[objIndex].confirmCustomerType = comboboxValue;
+                
+                let calculation = (value && this.gtmPotentialProfile[objIndex].estimateChannel)?((Number(value) * Number(this.gtmPotentialProfile[objIndex].estimateChannel))/100)+Number(value):0;
+                this.gtmPotentialProfile[objIndex].confirmEstimatedRevenue = `${this.labels.The_total_farm_gate_revenues_are_USD} ${Number(calculation).toFixed(2)} ${this.labels.USD_Million}`
                 updateClassificationDependent({detailId:detailId}).then(data=>console.log(data)).catch(err=>console.log(err));
+            }else{
+                this.gtmPotentialProfile[objIndex].disableFields = this.optionsToDisable.includes(this.gtmPotentialProfile[objIndex].customerType);
+                if(this.optionsToDisable.includes(this.gtmPotentialProfile[objIndex].customerType)){
+                    this.gtmPotentialProfile[objIndex].estimateChannel = null;
+                    this.gtmPotentialProfile[objIndex].estimateSalesRepRole = null;
+                    this.gtmPotentialProfile[objIndex].storiesChannelHas = null;
+                }
+                this.gtmPotentialProfile[objIndex].confirmCustomerType = comboboxValue;
             }
         }else if(fieldName=='Total_Purchase_of_Crop_Protection_PY__c'){
-            
             this.gtmPotentialProfile[objIndex].totalPurcahseCrop = value;
             let calculation = (value && this.gtmPotentialProfile[objIndex].estimateChannel)?((Number(value) * Number(this.gtmPotentialProfile[objIndex].estimateChannel))/100)+Number(value):0;
-            
-            this.gtmPotentialProfile[objIndex].confirmEstimatedRevenue = `${this.labels.The_total_farm_gate_revenues_are_USD} ${calculation} ${this.labels.USD_Million}	
+            this.gtmPotentialProfile[objIndex].confirmEstimatedRevenue = `${this.labels.The_total_farm_gate_revenues_are_USD} ${Number(calculation).toFixed(2)} ${this.labels.USD_Million}	
             `
         }else if(fieldName=='Estimated_Markup_of_Channel__c'){
             this.gtmPotentialProfile[objIndex].estimateChannel = value;
+            let calculation = (value && this.gtmPotentialProfile[objIndex].estimateChannel)?((Number(value) * Number(this.gtmPotentialProfile[objIndex].estimateChannel))/100)+Number(value):0;
+            
+            this.gtmPotentialProfile[objIndex].confirmEstimatedRevenue = `${this.labels.The_total_farm_gate_revenues_are_USD} ${Number(calculation).toFixed(2)} ${this.labels.USD_Million}`;
         }else if(fieldName=='Estimated_Number_of_Sales_Rep_on_Role__c'){
             this.gtmPotentialProfile[objIndex].estimateSalesRepRole = value;
         }else if(fieldName=='Number_of_Stores_That_the_Channel_Has__c'){
-            this.gtmPotentialProfile[objIndex].storiesChannelHas = value;
+            if(Number.isInteger(Number(value))){
+                this.gtmPotentialProfile[objIndex].storiesChannelHas = value;
+            }else{
+                this.gtmPotentialProfile[objIndex].storiesChannelHas = null;
+            }
         }
         
         setTimeout(() => {
             let tempData = JSON.parse(JSON.stringify(this.gtmPotentialProfile));
             this.gtmPotentialProfile = tempData;
+            this.gtmPotentialProfileVirtual = tempData; // line Added on 26-1-2022
             this.paginatedGtmPotentialProfile = this.gtmPotentialProfile;
             this.handleChangeStatusOnLoad(detailId);
             this.updateStatusLabel();
@@ -235,7 +258,9 @@ export default class GtmPotentialAndProfile extends LightningElement {
     }
    
     handleChangeStatusOnLoad(detailId){
-            this.gtmPotentialProfile.forEach(ele=>{
+        let tempPotentialProfile = JSON.parse(JSON.stringify(this.gtmPotentialProfile));
+        let index  = tempPotentialProfile.findIndex(ele1=>ele1.id==detailId);
+        let ele = this.gtmPotentialProfile[index];
                 let NumberOfFilled=0;
                 if(ele.confirmCustomerType){
                     if(this.optionsToDisable.includes(ele.confirmCustomerType)){
@@ -243,7 +268,12 @@ export default class GtmPotentialAndProfile extends LightningElement {
                     }else{
                         NumberOfFilled++;
                     }
+                }else if(this.optionsToDisable.includes(ele.customerType)){
+                        NumberOfFilled = NumberOfFilled + 4;
+                }else if(ele.customerType){
+                        NumberOfFilled++;
                 }
+                    
                 if(ele.totalPurcahseCrop && Number(ele.totalPurcahseCrop)!=0){
                     NumberOfFilled++;
                 }
@@ -266,7 +296,6 @@ export default class GtmPotentialAndProfile extends LightningElement {
                 if(NumberOfFilled==0){
                     ele.status = 'NotFilled';
                 }
-            })
     }
 
     handleChangeCustomerTypeOptions(event){
@@ -408,7 +437,7 @@ export default class GtmPotentialAndProfile extends LightningElement {
             return isReverse * ((x > y) - (y > x));
         });
         this.gtmPotentialProfile = parseData;
+        this.gtmPotentialProfileVirtual = parseData;
         }
-
     }
 }

@@ -10,6 +10,8 @@ import Remaining from '@salesforce/label/c.Remaining';
 import Check_If_Distribution_Is_Correct from '@salesforce/label/c.Check_If_Distribution_Is_Correct';
 import Please_check_the_values_Not_matching_100 from '@salesforce/label/c.Please_check_the_values_Not_matching_100';
 import Distribution_completed from '@salesforce/label/c.Distribution_completed';
+import Combined_Total_Value from '@salesforce/label/c.Combined_Total_Value';
+import Combined_total_value_more_than_100_is_not_allowed from '@salesforce/label/c.Combined_total_value_more_than_100_is_not_allowed';
 import Instructions from '@salesforce/label/c.Instructions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
@@ -38,7 +40,10 @@ export default class GtmCategoryAllocation extends LightningElement {
         Check_If_Distribution_Is_Correct:Check_If_Distribution_Is_Correct,
         Please_check_the_values_Not_matching_100:Please_check_the_values_Not_matching_100,
         Distribution_completed:Distribution_completed,
-        Instructions:Instructions
+        Instructions:Instructions,
+        Combined_total_value_more_than_100_is_not_allowed,
+        Combined_Total_Value
+        
     }
 
     @wire(getInstructions) getInstrustion({error,data}){
@@ -129,13 +134,13 @@ export default class GtmCategoryAllocation extends LightningElement {
             })
             row[0].productCategory.forEach(e=>{
                 console.log('e.allocation ',e.allocation);
-                let tempAllocation = isNaN(Number(e.allocation))?0:Number(e.allocation);
-                remainigPercentage = Number(remainigPercentage) + tempAllocation;
-                console.log('remainigPercentage ',remainigPercentage);
+                let tempAllocation = isNaN(Number(e.allocation))?0:Number(e.allocation).toFixed(2);
+                remainigPercentage = Number(Number(remainigPercentage).toFixed(2)) + Number(tempAllocation);
+                console.log('TotalPercentage ',remainigPercentage);
             })
         
             if(remainigPercentage<0 || remainigPercentage>100){
-                this.showToast('Total Remaining Allocation','Total remaining allocations value must be positive','error');
+                this.showToast(this.labels.Combined_Total_Value,this.labels.Combined_total_value_more_than_100_is_not_allowed,'error');
                 remainigPercentage =0;
                 value = '';
                 row[0].productCategory.forEach(e=>{
@@ -155,7 +160,7 @@ export default class GtmCategoryAllocation extends LightningElement {
         if(Number(value)>=0 && Number(value)<=100){// when inputs are valid
         if(accid && value){
             this.updateGTMDetail(detailId,value);
-            this.updateStatus(accid);
+            this.updateStatus(accid);// TODO:
             this.onChangeLabelOption(value,accid,detailId);
             setTimeout(() => {
                 this.updateStatusLabel();
@@ -172,12 +177,12 @@ export default class GtmCategoryAllocation extends LightningElement {
                 let tempValue = value;
                 let tempAllocation = 0;
                 ele.productCategory.forEach(e=>{
-                    tempAllocation = isNaN(e.allocation)?0:e.allocation;
+                    tempAllocation = isNaN(e.allocation)?0:Number(Number(e.allocation).toFixed(2));
                     if(e.GTMDetail!=detailId){
-                        tempValue = Number(tempAllocation)+Number(tempValue);
+                        tempValue = Number(Number(tempAllocation).toFixed(2)) + Number(Number(tempValue).toFixed(2));
                     }
                 })
-                percent = Number(percent) - Number(tempValue);
+                percent = Number(Number(percent).toFixed(2)) - Number(Number(tempValue).toFixed(2));
                 let percentageLabel = '';
                 if(percent==0){
                     percentageLabel = 'Completed';
@@ -212,8 +217,8 @@ export default class GtmCategoryAllocation extends LightningElement {
         productAllocation.forEach(ele=>{
             let tempAllocation = 0;
             if(ele.GTM_Customer__c == customerid){
-                tempAllocation = isNaN(ele.Product_Category_Allocation__c)?0:ele.Product_Category_Allocation__c;
-            percentage = Number(percentage)-Number(tempAllocation);
+                tempAllocation = isNaN(ele.Product_Category_Allocation__c)?0:Number(Number(ele.Product_Category_Allocation__c).toFixed(2));
+            percentage = Number(Number(percentage).toFixed(2)) -Number(Number(tempAllocation).toFixed(2));
             let percentageLabel = '';
             if(percentage==0){
                 percentageLabel = 'Completed';
@@ -332,8 +337,8 @@ export default class GtmCategoryAllocation extends LightningElement {
             let percentage = 100;
             let tempAllocation = 0; 
             ele.productCategory.forEach(e=>{
-                tempAllocation = isNaN(e.allocation)?0:e.allocation;
-                percentage = Number(percentage) - Number(tempAllocation); 
+                tempAllocation = isNaN(e.allocation)?0:Number(Number(e.allocation).toFixed(2));
+                percentage = Number(Number(percentage).toFixed(2)) - Number(Number(tempAllocation).toFixed(2)); 
                 console.log('cal percenatge ',percentage);
             })
             let percentageLabel = '';
@@ -359,8 +364,7 @@ export default class GtmCategoryAllocation extends LightningElement {
             //console.log('classes ',col.classList.value);
             if(col.classList.value.includes('inputDetails')){
                 if(col.value){
-                    inputCompleted = Number(inputCompleted) - Number(col.value);
-                    // console.log('value ',col.value);
+                    inputCompleted = Number(Number(inputCompleted).toFixed(2)) - Number(Number(col.value).toFixed(2));
                 }
             }
             if(col.classList.value.includes('percentage')){

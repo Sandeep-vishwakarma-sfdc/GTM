@@ -210,6 +210,9 @@ export default class GtmCompetition extends LightningElement {
         if (value == '') {
             value = 0;
         }
+        if (value <=0) {
+            value = '';
+        }
         let gtmIndex = this.gtmcompetitor.findIndex((obj => obj.id == id));
         let tempOptions = this.statusOptions.filter(op=>String(op.value)==String(value))[0];
         let optionValue = tempOptions?tempOptions.label:'';

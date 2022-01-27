@@ -1,4 +1,4 @@
-import { LightningElement, track } from 'lwc';
+import { LightningElement, track,api } from 'lwc';
 import getFiscalYear from '@salesforce/apex/GTMPathFinder.getFiscalYear'
 import Submit from '@salesforce/label/c.Submit'
 import Cancel from '@salesforce/label/c.Cancel'
@@ -23,10 +23,15 @@ import createNewCustomerDetails from '@salesforce/apex/GTMPathFinder.createNewCu
 import getNewlyAddedCrop from '@salesforce/apex/GTMPathFinder.getNewlyAddedCrop';
 import createGTMAndDetailsCropAllocation from '@salesforce/apex/GTMPathFinder.createGTMAndDetailsCropAllocation';
 import submitGTMDetails from '@salesforce/apex/GTMPathFinder.submitGTMDetails';
+import getGTM from '@salesforce/apex/GTMPathFinder.getGTM';
+import setFiscalYear from '@salesforce/apex/GTMPathFinder.setFiscalYear';
 
 export default class GtmPathFinder extends LightningElement {
     @track isShowModal = false;
-    title = '';
+    @track title = '';
+    @api gtmid = '';
+    fiscalyear = '';
+    loadedPerviousData = false;
 
     labels = {
         Submit,
@@ -44,15 +49,40 @@ export default class GtmPathFinder extends LightningElement {
         POTENTIAL_AND_PROFILE
     }
 
+    @api getFiredFromAura(){
+        console.log('connectedCallback 1',this.gtmid);
+        // this.connectedCallback();
+    }
 
     connectedCallback(){
+        if(!this.loadedPerviousData){
+            console.log('connectedCallback 2',this.gtmid);
+            if(this.gtmid){
+                getGTM({id:this.gtmid}).then(gtm=>{
+                    if(gtm){
+                        setFiscalYear({financialYear:gtm.Fiscal_Year__c}).then(fiscalyear=>{
+                            this.fiscalyear = fiscalyear;
+                            this.title = `${this.labels.GTM_FY} ${fiscalyear}`;
+                            console.log('GTM Title ',this.title);
+                        }).catch(err=>{
+                            console.log('setFiscalYear ',err);
+                        });
+                    }
+                })
+            }else{
+                this.loadCurrentYearGTM();
+            }
+            this.loadedPerviousData = true;
+        }
+    }
+
+    loadCurrentYearGTM(){
         getFiscalYear().then(year=>{
             let title = year.replace('/','-');
+            this.fiscalyear = title;
             this.title = `${this.labels.GTM_FY} ${title}`;
         })
-
         this.init();
-
         getNewGTMCustomers().then(newAccounts=>{
             if(newAccounts.length>0){
                 console.log('new Accounts',newAccounts);
@@ -60,14 +90,12 @@ export default class GtmPathFinder extends LightningElement {
                 });
             }
         });
-
         getNewlyAddedCrop().then(listCrop=>{
             console.log('New Crops ',listCrop);
             if(listCrop.length>0){
                 createGTMAndDetailsCropAllocation({activeCrops:listCrop}).then(data=>{}).catch(err=>{console.log('createGTMAndDetailsCropAllocation ',err)})
             }
-        }).catch(err=>console.log('getNewlyAddedCrop ',getNewlyAddedCrop))
-       
+        }).catch(err=>console.log('getNewlyAddedCrop ',getNewlyAddedCrop));
     }
 
     async init() {

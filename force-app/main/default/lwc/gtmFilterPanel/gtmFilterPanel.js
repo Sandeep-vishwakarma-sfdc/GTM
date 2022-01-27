@@ -76,17 +76,17 @@ export default class GtmFilterPanel extends LightningElement {
     }
     get options2() {
         return [
+            { label: this.labels.None, value: 'None' },
             { label: this.labels.Not_Fill, value: 'Not Fill' },
             { label: this.labels.In_Progress, value: 'In Progress' },
             { label: this.labels.Completed, value: 'Completed' },
-            { label: this.labels.None, value: 'None' },
         ];
     }
     get options3() {
         return [
-            { label: this.labels.Both, value: 'Both' },
             { label: this.labels.Yes, value: 'true' },
-            { label: this.labels.No, value: 'false' }
+            { label: this.labels.No, value: 'false' },
+            { label: this.labels.Both, value: 'Both' },
         ];
     }
 
