@@ -1,28 +1,22 @@
 public without sharing class GTMOutlook {
 
       @AuraEnabled
-      public static List<GTM_Details__c> getGTMOutlook(){
+    public static List<GTM_Details__c> getGTMOutlook(){
       //Get GTM Details Record Type
       Id gtmOutlookRecordType = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Outlook').getRecordTypeId();
-
        //Get Accounts List
        List<Account> accList = GTMPathFinder.getGTMCustomers();
        System.debug('List Of Accounts---->' +accList.size());
-
        //Get Sales Org
        Sales_Org__c salesorg = GTMPathFinder.getSalesOrg();
-
        //Get Fiscal Year
        String fiscalYear = GTMPathFinder.getFiscalYear();
-
        //Get GTM List
        List<GTM__c> gtmList = [Select Id, Sales_Org__c, Fiscal_Year__c, Sales_Rep__c From GTM__c 
                                WHERE Sales_Org__r.Sales_Org_Code__c=:salesorg.Sales_Org_Code__c AND Fiscal_Year__c=:fiscalYear];
-
        System.debug('List Of gtm--->' +gtmList); 
        GTM__c gtm;
        if(gtmList.size()==0){
-
         // Creating GTM
         gtm = new GTM__c();
         gtm.Fiscal_Year__c = fiscalYear;
@@ -30,8 +24,6 @@ public without sharing class GTMOutlook {
         gtm.Sales_Org__c = salesorg.Id;
         gtm.Sales_Rep__c = userInfo.getUserId();
         gtm.Sales_Rep_Name__c = userInfo.getName();
-      
-   
         if(Schema.sObjectType.GTM__c.isCreateable()){
             System.debug('insert Details ');
             insert gtm;
@@ -42,7 +34,6 @@ public without sharing class GTMOutlook {
        }else{
            gtm = gtmList[0];
        }
-
        List<GTM_Details__c> gtmPotentialProfile = new List<GTM_Details__c>();
            if(GTMPathFinder.isGTMProfileAndPotentialCreated(fiscalyear)==false){
                  GTMPathFinder.createGTMPotentialAndProfile(gtm);
@@ -95,15 +86,16 @@ public without sharing class GTMOutlook {
 
       if(apiName=='Estimated_Growth_PY_to_CY__c')
       {
-       updateGtmDetails.Estimated_Growth_PY_to_CY__c = decimal.valueof(value);
+       updateGtmDetails.Estimated_Growth_PY_to_CY__c = value!=null?decimal.valueof(value):null;
+
       }
       else if(apiName=='Estimated_Growth_PY_to_NY__c')
       {
-        updateGtmDetails.Estimated_Growth_PY_to_NY__c = decimal.valueof(value);
+        updateGtmDetails.Estimated_Growth_PY_to_NY__c = value!=null?decimal.valueof(value):null;
       }
       else if(apiName=='Estimated_Growth_NY_to_2NY__c')
       {
-        updateGtmDetails.Estimated_Growth_NY_to_2NY__c = decimal.valueof(value);
+        updateGtmDetails.Estimated_Growth_NY_to_2NY__c = value!=null?decimal.valueof(value):null;
       }
        update updateGtmDetails;
        
@@ -123,6 +115,9 @@ public without sharing class GTMOutlook {
         }
         return null;
     }
+
+    
+    
     @AuraEnabled(cacheable=true)
     public static GTM_Country_Configuration__c getFaq(){
 
@@ -138,5 +133,6 @@ public without sharing class GTMOutlook {
         
       }
       return null;
+      
     }
  }

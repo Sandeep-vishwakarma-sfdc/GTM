@@ -4,7 +4,7 @@
     <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
     <aura:attribute name="isView" type="boolean" default="false" />
     <aura:handler name="change" value="{!v.pageReference}" action="{!c.handlePageChange}" />
-    <aura:if isTrue="{!v.isView}">
+    <!-- <aura:if isTrue="{!v.isView}">
         <c:gtmPathFinder aura:id="pathfinder" gtmid="{!v.recordId}"></c:gtmPathFinder>
-    </aura:if>
+    </aura:if> -->
 </aura:component>

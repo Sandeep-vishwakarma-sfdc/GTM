@@ -30,6 +30,7 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import updateshare from '@salesforce/apex/GTMCompetition.updateshare';
 import Share_wallet_already_reached_100 from '@salesforce/label/c.Share_wallet_already_reached_100';
 import isWindowPeriodClosed from '@salesforce/apex/GTMPathFinder.isWindowPeriodClosed';
+import getUser from '@salesforce/apex/GTMPathFinder.getUser';
 
 export default class GtmCompetition extends LightningElement {
     
@@ -79,13 +80,46 @@ export default class GtmCompetition extends LightningElement {
         completed: '0'
     }
     instrustions = '';
+    hasRendered = false;
     @track hasOptionsAdded = false;
+    fiscalYear = '';
+
+    set gtmFiscalYear(value) {
+        this.fiscalYear = value;
+    }
+
+    @api get gtmFiscalYear() {
+        return this.fiscalYear;
+    }
 
     @wire(getInstructions1) getInstruction({ error, data }) {
         if (data) {
             this.instrustions = data.Instruction_Competitor__c ;
         }
     }
+   countryLocale = 'es-AR'
+   constructor(){
+    super()
+    getUser().then(user=>{
+        console.log('Country user ',user);
+        if(user){
+            if(user.Country=='Argentina'){
+                this.countryLocale = 'es-AR';
+            }
+            if(user.Country=='Mexico'){
+                this.countryLocale = 'es-MX';
+            }
+            if(user.Country=='Italy'){
+                this.countryLocale = 'it-IT';
+            }
+        }
+    }).catch(error=>{
+        console.log(error);
+    })
+}
+
+
+
 
     @track sortDirection = true;
 
@@ -100,22 +134,58 @@ export default class GtmCompetition extends LightningElement {
         }, 500);
     }
 
+
+    checkDataYear(){
+        let month = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        let d = new Date();
+        let monthName = month[d.getMonth()];
+        let currentYear = d.getFullYear();
+        let year = (monthName=='Jan' || monthName=='Feb' || monthName=='Mar')?this.fiscalYear.split('-')[1]:this.fiscalYear.split('-')[0];
+        if(currentYear!=year){
+            this.disableAll = true;
+        }else{
+            isWindowPeriodClosed().then(isDisable=>{
+                this.disableAll = isDisable
+            });
+        }
+    }
+
+       renderedCallback(){
+        if(!this.hasRendered && this.gtmcompetitorVirtual.length>0){
+            setTimeout(() => {
+                this.gtmcompetitorVirtual.forEach(row=>{
+                  if(row.isSubmitted__c){
+                       this.template.querySelectorAll('[data-id="' + row.id + '"]').forEach(cell=>{
+                         console.log('cell ',cell);
+                         cell.disabled = true;
+                      })
+                    }
+               })
+               this.hasRendered = true;
+           }, 500);
+       }
+      }
+
+
     connectedCallback() {
 
-        Promise.all([getCompetitorDetails(), getGTMCompetition()]).then(result => {
+        Promise.all([getCompetitorDetails(), getGTMCompetition({year:this.fiscalYear})]).then(result => {
             let data = [];
+            if (!this.hasOptionsAdded) {
+                let objNone = { label: 'None', value: "none" };
+                this.statusOptions.push(objNone);
+            }
+
             if (result.length == 2) {
+                result[0]=this.sortCompetitor('competitiorname','asc',result[0])
                 result[0].forEach(element => {
                     console.log('element', element);
-                    let obj = { label: element.Name, value: element.Id };
+                    let obj = { label: element.competitiorname , value: element.competitiorId};
                     if (!this.hasOptionsAdded) {
                         this.statusOptions.push(obj);
                     }
                 });
-                if (!this.hasOptionsAdded) {
-                    let objNone = { label: 'None', value: "none" };
-                    this.statusOptions.push(objNone);
-                }
+                
                 data = result[1];
             }
             let tempData = [];
@@ -152,6 +222,7 @@ export default class GtmCompetition extends LightningElement {
                         uplshare: ele.UPLs_share_of_wallet__c ? ele.UPLs_share_of_wallet__c : '',
                         status: '',
                         numberOfFieldsFilled: '',
+                        isSubmitted__c:ele.isSubmitted__c,
                         isLeadCustomer: ele.GTM_Customer__r.Lead_Customer__c ? true : false,
                         
                         pathFinder: ele.GTM_Customer__r.Path_Finder__c,
@@ -182,19 +253,15 @@ export default class GtmCompetition extends LightningElement {
                     this.gtmcompetitor1 = this.gtmcompetitor;
 
                     this.gtmcompetitor.forEach(ele => {
-                        this.handleChangeStatusOnLoad(ele.id);
+                        
                         this.updateStatusLabel();
                     })
                 }, 200);
                 console.log('Competitior  data ', this.gtmcompetitor);
             }
         })
-        isWindowPeriodClosed().then(isDisable=>{
-            this.disableAll = isDisable
-        })
+       this.checkDataYear();
     }
-
-
 
 
     handleInputChange(event) {
@@ -207,83 +274,139 @@ export default class GtmCompetition extends LightningElement {
         console.log(event.target.value);
         console.log('The id is', id);
         console.log('the name is', name);
-        if (value == '') {
-            value = 0;
+
+        if(value=='')
+        {
+            value=null;
         }
-        if (value <=0) {
-            value = '';
+
+      if(name=='UPL_Position__c' && value<9 )
+       {
+           value=null;
+       }
+        if ((value <0 || value>100)  && name!='UPL_Position__c') {
+            value = null;
         }
+       
+        
+        
+        
+        
         let gtmIndex = this.gtmcompetitor.findIndex((obj => obj.id == id));
         let tempOptions = this.statusOptions.filter(op=>String(op.value)==String(value))[0];
         let optionValue = tempOptions?tempOptions.label:'';
+
         if(optionValue=='UPL'){
             updateshare({ recordId: id}).then(data => {
                 console.log('The new data is',data);
+                updateGTMDetails({ recordId: id, name: name, value: value!='none'?value:null }).then(data => {
+                    console.log('data updated', data);
+                });
+                
             });
         }else{
             updateGTMDetails({ recordId: id, name: name, value: value!='none'?value:null }).then(data => {
                 console.log('data updated', data);
             });
         }
+        updateGTMDetails({ recordId: id, name: name }).then(data => {
+            console.log('data updated', data);
+        });
 
         if (name == 'Competitor_Name_1__c') {
             this.gtmcompetitor[gtmIndex].Competitor1 = value!='none'?value:'';
             this.gtmcompetitor[gtmIndex].Competitor1Name = this.statusOptions.filter(op=>String(op.value)==String(value))[0].label;
+            console.log('the comp1 is', this.gtmcompetitor[gtmIndex].Competitor1)
             
+        if ((name =='Indicate_share_wallet_of_competitor_1__c')&&( this.gtmcompetitor[gtmIndex].Competitor1Name)) {
+            console.log('the comp2 is', this.gtmcompetitor[gtmIndex].Competitor1)
+                this.gtmcompetitor[gtmIndex].Indicate1 = value;
+            }
+            else
+            {
+                this.gtmcompetitor[gtmIndex].Indicate1=null;
+            }
         }
-        else if (name == 'Indicate_share_wallet_of_competitor_1__c') {
-            this.gtmcompetitor[gtmIndex].Indicate1 = value;
-        }
-        else if (name == 'Competitor_Name_2__c') {
+            
+         if (name == 'Competitor_Name_2__c') {
             this.gtmcompetitor[gtmIndex].Competitor2 = value!='none'?value:''
             this.gtmcompetitor[gtmIndex].Competitor2Name = this.statusOptions.filter(op=>String(op.value)==String(value))[0].label;
-        } else if (name == 'Indicate_share_wallet_of_competitor_2__c') {
-            this.gtmcompetitor[gtmIndex].Indicate2 = value;
-        } else if (name == 'Competitor_Name_3__c') {
+        }  if (name == 'Indicate_share_wallet_of_competitor_2__c') {
+            let temp=value;
+            if(this.gtmcompetitor[gtmIndex].Indicate1>temp)
+
+            {
+               this.gtmcompetitor[gtmIndex].Indicate2=value;
+            }
+            else
+            {
+                this.gtmcompetitor[gtmIndex].Indicate2 =null;
+            }
+            
+        }  if (name == 'Competitor_Name_3__c') {
             this.gtmcompetitor[gtmIndex].Competitor3 = value!='none'?value:''
             this.gtmcompetitor[gtmIndex].Competitor3Name = this.statusOptions.filter(op=>String(op.value)==String(value))[0].label;
-        } else if (name == 'Indicate_share_wallet_of_competitor_3__c') {
-            this.gtmcompetitor[gtmIndex].Indicate3 = value;
-        } else if (name == 'Competitor_Name_4__c') {
+        }  if (name == 'Indicate_share_wallet_of_competitor_3__c') 
+        {
+            
+            let temp=value;
+            if(((this.gtmcompetitor[gtmIndex].Indicate1)&&(this.gtmcompetitor[gtmIndex].Indicate2))>temp)
+
+            {
+                this.gtmcompetitor[gtmIndex].Indicate3 = value;
+            }
+            else
+            {
+                this.gtmcompetitor[gtmIndex].Indicate3 =null;
+            }
+
+
+        }  if (name == 'Competitor_Name_4__c') {
             this.gtmcompetitor[gtmIndex].Competitor4 = value!='none'?value:''
             this.gtmcompetitor[gtmIndex].Competitor4Name = this.statusOptions.filter(op=>String(op.value)==String(value))[0].label;
-        } else if (name == 'Indicate_share_wallet_of_competitor_4__c') {
+        }  if (name == 'Indicate_share_wallet_of_competitor_4__c') {
             this.gtmcompetitor[gtmIndex].Indicate4 = value;
             
-        } else if (name == 'Competitor_Name_5__c') {
+        }  if (name == 'Competitor_Name_5__c') {
             this.gtmcompetitor[gtmIndex].Competitor5 = value!='none'?value:''
             this.gtmcompetitor[gtmIndex].Competitor5Name = this.statusOptions.filter(op=>String(op.value)==String(value))[0].label;
-        } else if (name == 'Indicate_share_wallet_of_competitor_5__c') {
+        }  if (name == 'Indicate_share_wallet_of_competitor_5__c') {
             this.gtmcompetitor[gtmIndex].Indicate5 = value;
         }
-        else if (name == 'Competitor_Name_6__c') {
+         if (name == 'Competitor_Name_6__c') {
             this.gtmcompetitor[gtmIndex].Competitor6 = value!='none'?value:''
             this.gtmcompetitor[gtmIndex].Competitor6Name = this.statusOptions.filter(op=>String(op.value)==String(value))[0].label;
-        } else if (name == 'Indicate_share_wallet_of_competitor_6__c') {
+        }  if (name == 'Indicate_share_wallet_of_competitor_6__c') {
             this.gtmcompetitor[gtmIndex].Indicate6 = value;
-        } else if (name == 'Competitor_Name_7__c') {
+        }  if (name == 'Competitor_Name_7__c') {
             this.gtmcompetitor[gtmIndex].Competitor7 = value!='none'?value:''
             this.gtmcompetitor[gtmIndex].Competitor7Name = this.statusOptions.filter(op=>String(op.value)==String(value))[0].label;
-        } else if (name == 'Indicate_share_wallet_of_competitor_7__c') {
+        }  if (name == 'Indicate_share_wallet_of_competitor_7__c') {
             this.gtmcompetitor[gtmIndex].Indicate7 = value;
-        } else if (name == 'Competitor_Name_8__c') {
+        }  if (name == 'Competitor_Name_8__c') {
             console.log('Competitor_Name_8__c');
             this.gtmcompetitor[gtmIndex].Competitor8 = value!='none'?value:''
             this.gtmcompetitor[gtmIndex].Competitor8Name = this.statusOptions.filter(op=>String(op.value)==String(value))[0].label;
-        } else if (name == 'Indicate_share_wallet_of_competitor_8__c') {
+        }  if (name == 'Indicate_share_wallet_of_competitor_8__c') {
             this.gtmcompetitor[gtmIndex].Indicate8 = value;
-        } else if (name == 'UPL_Position__c') {
-            this.gtmcompetitor[gtmIndex].uplposition = value;
-        } else if (name == 'UPLs_share_of_wallet__c') {
+        }
+        
+         if (name == 'UPL_Position__c') {
+            
+                this.gtmcompetitor[gtmIndex].uplposition = value;
+            
+        }  if (name == 'UPLs_share_of_wallet__c') {
             this.gtmcompetitor[gtmIndex].uplshare = value;
         }
+        
         
         this.updatePicklistOptions(this.gtmcompetitor[gtmIndex])
         setTimeout(() => {
             let tempData = JSON.parse(JSON.stringify(this.gtmcompetitor));
             this.gtmcompetitor = tempData;
+            this.gtmcompetitorVirtual=tempData;
             this.gtmcompetitor1 = this.gtmcompetitor;
-            this.handleChangeStatusOnLoad(id);
+            
             this.updateStatusLabel();
         }, 200);
     }
@@ -315,42 +438,11 @@ export default class GtmCompetition extends LightningElement {
         }
     }
 
-    handleChangeStatusOnLoad(id, value) {
-        console.log('id ', id);
-    }
-
-
-    mapCustomerCategory(gtmcompetitor, id) {
-        let masterObj = {};
-        let arr = [];
-        let remainingPercentage = 100
-        productAllocation.forEach(ele => {
-            if (ele.GTM_Customer__c == id) {
-                remainingPercentage = Number(remainingPercentage) - Number(ele.Competitor__c);
-                let percentageLabel = '';
-                if (remainingPercentage == 0) {
-                    percentageLabel = 'Completed';
-                } else if (remainingPercentage > 0 && remainingPercentage< 100) {
-                    percentageLabel = 'In Progress';
-                } else if (remainingPercentage == 100) {
-                    percentageLabel = 'Not Fill';
-                }
-                console.log('percenatge ', remainingPercentage);
-                //let obj = {'pId':ele.Product_Category__r.Id,'pName':ele.Product_Category__r.Name,'GTMDetail':ele.Id,'allocation':ele.Product_Category_Allocation__c};
-                //rr.push(obj)
-                masterObj = { id: ele.GTM_Customer__c, 'isLeadCustomer': ele.GTM_Customer__r.Lead_Customer__c ? true : false, remainingPercentage: percentageLabel, percentageValue: remainingPercentage };
-            }
-        })
-        console.log('Master obj ', masterObj)
-        return masterObj;
-    }
+  
     getCalculatedPercentage() {
         this.gtmcompetitorVirtual.forEach((ele) => {
             let remainingPercentage = 100;
-            ele.productCategory.forEach(e => {
-                remainingPercentage = Number(remainingPercentage) - Number(e.allocation);
-                // console.log('cal percenatge ',percentage);
-            })
+            
             let percentageLabel = '';
             if (remainingPercentage == 0) {
                 percentageLabel = 'Completed';
@@ -380,7 +472,7 @@ export default class GtmCompetition extends LightningElement {
                 }
                 if (col.classList.value.includes('percentage')) {
                     // console.log('percentage ',col);
-                    col.firstChild.data = `${Number(inputCompleted).toFixed(2)} %`;
+                    col.firstChild.data = `${Number(Number(inputCompleted).toFixed(2)).toLocaleString(this.countryLocale)} %`;
                 }
                 if (col.classList.value.includes('distribution')) {
                     col.style.backgroundColor = 'green';
@@ -421,6 +513,24 @@ export default class GtmCompetition extends LightningElement {
         console.log('The Sorting data', this.gtmcompetitor1)
     }
 
+    sortCompetitor(fieldname, direction,wrapperdata) {
+       
+        console.log("Field Name ", fieldname, " direction ", direction);
+        let parseData = JSON.parse(JSON.stringify(wrapperdata));
+        let keyValue = (a) => {
+            return a[fieldname];
+        };
+        let isReverse = direction === "asc" ? 1 : -1;
+        parseData.sort((x, y) => {
+            x = keyValue(x) ? keyValue(x) : "";
+            y = keyValue(y) ? keyValue(y) : "";
+            return isReverse * ((x > y) - (y > x));
+        });
+        wrapperdata = parseData;
+        
+        console.log('competitior sorted', wrapperdata)
+        return wrapperdata;
+    }
 
 
     handlePaginationAction(event) {
@@ -430,11 +540,6 @@ export default class GtmCompetition extends LightningElement {
         }, 200);
 
     }
-
-
-
-
-
 
 
     handleFiltersAction(event) {
@@ -517,9 +622,7 @@ export default class GtmCompetition extends LightningElement {
                 return true;
             }
         })
-        this.gtmcompetitorVirtual.forEach(ele => {
-            this.handleChangeStatusOnLoad(ele.id);
-        })
+        
         this.gtmcompetitor1 = JSON.parse(JSON.stringify(this.gtmcompetitor));
         setTimeout(() => {
             this.updateStatusLabel();
@@ -529,12 +632,6 @@ export default class GtmCompetition extends LightningElement {
     updatePicklistOptions(obj) {
         console.log('The value of obj is',obj)
         console.log('the id of obj is',obj.Indicate1);
-        
-
-        
-        
-        
-
         
 
         obj.remainingOptions1 = obj.options.filter(ele => {
@@ -589,15 +686,12 @@ export default class GtmCompetition extends LightningElement {
         }
         if(String(obj.Competitor1Name).toLowerCase()=='UPL'.toLowerCase() || String(obj.Competitor2Name).toLowerCase()=='UPL'.toLowerCase() || String(obj.Competitor3Name).toLowerCase()=='UPL'.toLowerCase() || String(obj.Competitor4Name).toLowerCase()=='UPL'.toLowerCase() || String(obj.Competitor5Name).toLowerCase()=='UPL'.toLowerCase() || String(obj.Competitor6Name).toLowerCase()=='UPL'.toLowerCase() || String(obj.Competitor7Name).toLowerCase()=='UPL'.toLowerCase() || String(obj.Competitor8Name).toLowerCase()=='UPL'.toLowerCase()){
             obj.isUPLSelected=true
-            obj.uplposition=0;
-            obj.uplshare=0;
+            obj.uplposition='';
+            obj.uplshare='';
             updateshare({ recordId: obj.id}).then(data => {
 
                 console.log('The new data is',data);
                });
-
-              
-
         }
         else{
             obj.isUPLSelected=false
@@ -613,58 +707,61 @@ export default class GtmCompetition extends LightningElement {
 
             if(tempinitialPercentage<0)
             {
-                obj.Indicate1=0;
+                obj.Indicate1=null;
              updateGTMDetails({ recordId: obj.id, name:'Indicate_share_wallet_of_competitor_1__c', value: obj.Indicate1 }).then(data => {
 
                console.log('The new data is',data);
               });
-              this.showToast('','Share wallet already reached 100% ','error','dismissable');
+              this.showToast('','Combined Total value more than 100% is not allowed','error','dismissable');
             }
+            else{
             initialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate1;
-
-
-           
-        }
+            }
+       }
          
         if (obj.Indicate2 && obj.Competitor2) {
             
             let  tempinitialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate2;
             if(tempinitialPercentage<0)
             {
-                obj.Indicate2=0;
+                obj.Indicate2=null;
                updateGTMDetails({ recordId: obj.id, name:'Indicate_share_wallet_of_competitor_2__c', value: obj.Indicate2 }).then(data => {
 
                console.log('The new data is',data);
               });
-              this.showToast('','Share wallet already reached 100% ','error','dismissable');
+              this.showToast('','Combined Total value more than 100% is not allowed','error','dismissable');
           }
+          
           initialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate2;
+          
         }
         
         if (obj.Indicate3 && obj.Competitor3) {
             let  tempinitialPercentage= Number(initialPercentage).toFixed(2) - obj.Indicate3;
             if(tempinitialPercentage<0)
             {
-                obj.Indicate3=0;
+                obj.Indicate3=null;
                updateGTMDetails({ recordId: obj.id, name:'Indicate_share_wallet_of_competitor_3__c', value: obj.Indicate3 }).then(data => {
 
                console.log('The new data is',data);
               });
-              this.showToast('','Share wallet already reached 100% ','error','dismissable');
+              this.showToast('','Combined Total value more than 100% is not allowed','error','dismissable');
           }
+          else{
           initialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate3;
+          }
         }
         
         if (obj.Indicate4 && obj.Competitor4) {
             let  tempinitialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate4;
             if(tempinitialPercentage<0)
             {
-                obj.Indicate4=0;
+                obj.Indicate4=null;
                updateGTMDetails({ recordId: obj.id, name:'Indicate_share_wallet_of_competitor_4__c', value: obj.Indicate4 }).then(data => {
 
                console.log('The new data is',data);
               });
-              this.showToast('','Share wallet already reached 100% ','error','dismissable');
+              this.showToast('','Combined Total value more than 100% is not allowed','error','dismissable');
           }
           initialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate4;
         }
@@ -673,12 +770,12 @@ export default class GtmCompetition extends LightningElement {
             let  tempinitialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate5;
             if(tempinitialPercentage<0)
             {
-                obj.Indicate5=0;
+                obj.Indicate5=null;
                updateGTMDetails({ recordId: obj.id, name:'Indicate_share_wallet_of_competitor_5__c', value: obj.Indicate5 }).then(data => {
 
                console.log('The new data is',data);
               });
-              this.showToast('','Share wallet already reached 100% ','error','dismissable');
+              this.showToast('','Combined Total value more than 100% is not allowed','error','dismissable');
             }
             initialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate5;
         }
@@ -687,12 +784,12 @@ export default class GtmCompetition extends LightningElement {
             let  tempinitialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate6;
             if(tempinitialPercentage<0)
             {
-                obj.Indicate6=0;
+                obj.Indicate6=null;
                updateGTMDetails({ recordId: obj.id, name:'Indicate_share_wallet_of_competitor_6__c', value: obj.Indicate6 }).then(data => {
 
                console.log('The new data is',data);
               });
-              this.showToast('','Share wallet already reached 100% ','error','dismissable');
+              this.showToast('','Combined Total value more than 100% is not allowed','error','dismissable');
             }
             initialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate6;
         }
@@ -701,12 +798,12 @@ export default class GtmCompetition extends LightningElement {
             let  tempinitialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate7;
             if(tempinitialPercentage<0)
             {
-                obj.Indicate7=0;
+                obj.Indicate7=null;
                updateGTMDetails({ recordId: obj.id, name:'Indicate_share_wallet_of_competitor_7__c', value: obj.Indicate7 }).then(data => {
 
                console.log('The new data is',data);
               });
-              this.showToast('','Share wallet already reached 100% ','error','dismissable');
+              this.showToast('','Combined Total value more than 100% is not allowed','error','dismissable');
             }
             initialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate7;
         }
@@ -716,12 +813,12 @@ export default class GtmCompetition extends LightningElement {
             let  tempinitialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate8;
             if(tempinitialPercentage<0)
             {
-                obj.Indicate8=0;
+                obj.Indicate8=null;
                updateGTMDetails({ recordId: obj.id, name:'Indicate_share_wallet_of_competitor_8__c', value: obj.Indicate8 }).then(data => {
 
                console.log('The new data is',data);
               });
-              this.showToast('','Share wallet already reached 100% ','error','dismissable');
+              this.showToast('','Combined Total value more than 100% is not allowed','error','dismissable');
             }
             initialPercentage = Number(initialPercentage).toFixed(2) - obj.Indicate8;
         }
@@ -730,24 +827,19 @@ export default class GtmCompetition extends LightningElement {
             let  tempinitialPercentage = Number(initialPercentage).toFixed(2) - obj.uplshare;
             if(tempinitialPercentage<0)
             {
-                obj.uplshare=0;
+                obj.uplshare=null;
                updateGTMDetails({ recordId: obj.id, name:'UPLs_share_of_wallet__c', value: obj.uplshare }).then(data => {
 
                console.log('The new data is',data);
               });
-              this.showToast('','Share wallet already reached 100% ','error','dismissable');
+              this.showToast('','Combined Total value more than 100% is not allowed','error','dismissable');
             }
             initialPercentage = Number(initialPercentage).toFixed(2) - obj.uplshare;
             //console.log('initialPercentage ',initialPercentage);
         }
-       // if(initialPercentage.toFixed(1)<0)
-        //{
-        //    this.showToast('','Share wallet already reached 100% ','error','dismissable');
-
-        //}
+      
         
-
-        obj.remainingPercentage = Number(initialPercentage).toFixed(1);
+        obj.remainingPercentage =Number(Number(initialPercentage).toFixed(2)).toLocaleString(this.countryLocale);
         console.log('obj ', obj);
         if (obj.remainingPercentage > 0) {
             obj.isDistributionCompleted = false;

@@ -4,6 +4,7 @@ import getFiscalYear from '@salesforce/apex/GTMPathFinder.getFiscalYear'
 import updateGTMDetail from '@salesforce/apex/GTMPathFinder.updateGTMDetailCropAllocation';
 import getInstructions from '@salesforce/apex/GTMPathFinder.getInstructions';
 import isWindowPeriodClosed from '@salesforce/apex/GTMPathFinder.isWindowPeriodClosed';
+import getUser from '@salesforce/apex/GTMPathFinder.getUser';
 import All_Companies_Purchase_to_Customer from '@salesforce/label/c.All_Companies_Purchase_to_Customer';
 import Customer_Lead_Customer from '@salesforce/label/c.Customer_Lead_Customer';
 import Remaining from '@salesforce/label/c.Remaining';
@@ -15,12 +16,14 @@ import Combined_total_value_more_than_100_is_not_allowed from '@salesforce/label
 import Instructions from '@salesforce/label/c.Instructions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 export default class GtmCropAllocation extends LightningElement {
+    filtersOnPage = '';
     instrustions = '';
     hasRendered = false;
     @track cropAllocations = [];
     copyCropAllocationsVirtual = [];
     showLoading = false;
     disableAll = false;
+    countryLocale = 'es-AR'
     @track options = {
         notFilled:'0',
         inProgress:'0',
@@ -31,12 +34,20 @@ export default class GtmCropAllocation extends LightningElement {
     columns = [];
     fiscalYear = '';
     columnfiscalYear = '';
+    set gtmFiscalYear(value) {
+        this.fiscalYear = value;
+    }
+
+    @api get gtmFiscalYear() {
+        return this.fiscalYear;
+    }
 
     @wire(getInstructions) getInstrustion({error,data}){
         if(data){
             this.instrustions = data.Instruction_Crop_Allocation__c;
         }
     }
+   
 
     @api onTabRefresh(){
         setTimeout(() => {
@@ -54,8 +65,28 @@ export default class GtmCropAllocation extends LightningElement {
         Combined_total_value_more_than_100_is_not_allowed,
         Combined_Total_Value
     }
+    constructor(){
+        super()
+        getUser().then(user=>{
+            console.log('Country user ',user);
+            if(user){
+                if(user.Country=='Argentina'){
+                    this.countryLocale = 'es-AR';
+                }
+                if(user.Country=='Mexico'){
+                    this.countryLocale = 'es-MX';
+                }
+                if(user.Country=='Italy'){
+                    this.countryLocale = 'it-IT';
+                }
+            }
+        }).catch(error=>{
+            console.log(error);
+        })
+    }
 
     renderedCallback(){
+        
         if(!this.hasRendered && this.copyCropAllocationsVirtual.length>0){
             setTimeout(() => {
                 this.copyCropAllocationsVirtual.forEach(row=>{
@@ -73,13 +104,12 @@ export default class GtmCropAllocation extends LightningElement {
     }
 
     connectedCallback(){
-        Promise.all([getFiscalYear(),getCropAllocation()]).then(result=>{
+        Promise.all([getCropAllocation({year:this.fiscalYear})]).then(result=>{
             let data = [];
             let tempCropAllocation=[];
             let tempAllCropAllocations = [];
-            if(result.length==2){
-                this.fiscalYear = result[0];
-                data = result[1]
+            if(result.length>0){
+                data = result[0]
             }
             for(let key in data){
                 tempCropAllocation.push({key:key,value:data[key]})
@@ -105,9 +135,8 @@ export default class GtmCropAllocation extends LightningElement {
             this.showLoading = false;
             console.log(err)
         });
-        isWindowPeriodClosed().then(isDisable=>{
-            this.disableAll = isDisable
-        })
+      
+        this.checkDataYear();
     }
 
     getTableData(data){
@@ -124,18 +153,18 @@ export default class GtmCropAllocation extends LightningElement {
        
 
         let remainigPercentage = 0;
-        let row = this.copyCropAllocationsVirtual.filter(ele=>ele.customerId==accid);
-        if(row[0].crops){
-            row[0].crops.forEach(e=>{
+        let rowIndex = this.copyCropAllocationsVirtual.findIndex(ele=>ele.customerId==accid);
+        if(this.copyCropAllocationsVirtual[rowIndex].crops){
+            this.copyCropAllocationsVirtual[rowIndex].crops.forEach(e=>{
                 if(e.GTMDetail==event.currentTarget.dataset.detail){
                     e.allocation = value;
                     this.updateStatus(event.currentTarget.dataset.accountid);
                 }
             })
-            row[0].crops.forEach(e=>{
+            this.copyCropAllocationsVirtual[rowIndex].crops.forEach(e=>{
                 console.log('e.allocation ',e.allocation);
                 let tempAllocation = isNaN(Number(e.allocation))?0:Number(e.allocation).toFixed(2);
-                remainigPercentage = Number(remainigPercentage).toFixed(2) + tempAllocation;
+                remainigPercentage = Number(Number(remainigPercentage).toFixed(2)) + Number(tempAllocation);
                 console.log('total Percentage ',remainigPercentage);
             })
         
@@ -143,19 +172,24 @@ export default class GtmCropAllocation extends LightningElement {
                 this.showToast(this.labels.Combined_Total_Value,this.labels.Combined_total_value_more_than_100_is_not_allowed,'error');
                 remainigPercentage =0;
                 value = '';
-                row[0].crops.forEach(e=>{
+                this.copyCropAllocationsVirtual[rowIndex].crops.forEach(e=>{
                 if(e.GTMDetail==event.currentTarget.dataset.detail){
                     e.allocation = null;
                     this.updateStatus(event.currentTarget.dataset.accountid);
                 }
                 })
             }
+            this.cropAllocations = JSON.parse(JSON.stringify(this.copyCropAllocationsVirtual));
+            this.applyFiltersOnCustomer(this.filtersOnPage);
         }
 
         if(!value || (Number(value)<0 && Number(value)>=100)){
             this.template.querySelector('[data-detail="' + detailId + '"]').value = '';
             value = null;
             this.updateGTMDetail(detailId,value);
+            this.updateStatus(accid);
+            this.onChangeLabelOption(value,accid,detailId);
+            this.updateStatusLabel();
         }
         if(Number(value)>=0 && Number(value)<=100){
         if(accid && value){
@@ -164,16 +198,17 @@ export default class GtmCropAllocation extends LightningElement {
             this.onChangeLabelOption(value,accid,detailId);
             setTimeout(() => {
                 this.updateStatusLabel();
+                // this.cropAllocations = JSON.parse(JSON.stringify(this.copyCropAllocationsVirtual));//Added in 1-31-2022
             }, 200);
         }
-        this.copyCropAllocationsVirtual.forEach(ele=>{
-            ele.crops.forEach(e=>{
-                if(e.GTMDetail==event.currentTarget.dataset.detail){
-                    e.allocation = value;
-                    this.updateStatus(event.currentTarget.dataset.accountid);
-                }
-            })
-        })
+        // this.copyCropAllocationsVirtual.forEach(ele=>{
+        //     ele.crops.forEach(e=>{
+        //         if(e.GTMDetail==event.currentTarget.dataset.detail){
+        //             e.allocation = value;
+        //             this.updateStatus(event.currentTarget.dataset.accountid);
+        //         }
+        //     })
+        // })
         }
     }
     onChangeLabelOption(value,accid,detailId){
@@ -185,10 +220,10 @@ export default class GtmCropAllocation extends LightningElement {
                     let tempAllocation = 0;
                     if(e.GTMDetail!=detailId){
                         tempAllocation = isNaN(e.allocation)?0:e.allocation;
-                        tempValue = Number(tempAllocation)+Number(tempValue);
+                        tempValue = Number(Number(tempAllocation).toFixed(2)) + Number(Number(tempValue).toFixed(2));
                     }
                 })
-                percent = Number(percent) - Number(tempValue);
+                percent = Number(Number(percent).toFixed(2)) - Number(Number(tempValue).toFixed(2));
                 let percentageLabel = '';
                 if(percent==0){
                     percentageLabel = 'Completed';
@@ -213,8 +248,8 @@ export default class GtmCropAllocation extends LightningElement {
         cropAllocation.forEach(ele=>{
             let tempAllocation = 0;
             if(ele.GTM_Customer__c == customerid){
-                tempAllocation = isNaN(ele.Crop_Allocation__c)?0:ele.Crop_Allocation__c;
-            percentage = Number(percentage)-Number(tempAllocation);
+            tempAllocation = isNaN(ele.Crop_Allocation__c)?0:ele.Crop_Allocation__c;
+            percentage = Number(Number(percentage).toFixed(2)) - Number(Number(tempAllocation).toFixed(2));
             let percentageLabel = '';
             if(percentage==0){
                 percentageLabel = 'Completed';
@@ -236,11 +271,11 @@ export default class GtmCropAllocation extends LightningElement {
         this.template.querySelectorAll('[data-accountid="' + customerId + '"]').forEach(col=>{
             if(col.classList.value.includes('inputDetails')){
                 if(col.value){
-                    inputCompleted = Number(inputCompleted) - Number(col.value);
+                    inputCompleted = Number(Number(inputCompleted).toFixed(2)) - Number(Number(col.value).toFixed(2));
                 }
             }
             if(col.classList.value.includes('percentage')){
-                col.firstChild.data = `${Number(inputCompleted).toFixed(2)} %`;
+                col.firstChild.data = `${Number(Number(inputCompleted).toFixed(2)).toLocaleString(this.countryLocale)} %`;
             }
             if(col.classList.value.includes('distribution')){
                 col.style.backgroundColor = 'green';
@@ -252,7 +287,6 @@ export default class GtmCropAllocation extends LightningElement {
                 col.style.color = '#fff';
                 col.firstChild.data = this.labels.Please_check_the_values_Not_matching_100;
             }
-            console.log('inputCompleted ',inputCompleted);
         })
     }, 200);
     }
@@ -281,22 +315,26 @@ export default class GtmCropAllocation extends LightningElement {
     }
     handlePaginationAction(event){
         this.paginatedCropAllocation = event.detail.values;
-        let copyCropAllocations = this.cropAllocations;
+        let copyCropAllocations = this.copyCropAllocationsVirtual;
         this.getTableData(copyCropAllocations);
-            setTimeout(() => {
+        setTimeout(() => {
                 this.paginatedCropAllocation.forEach(ele=>{
-                    this.updateStatus(ele.customerId);
+                this.updateStatus(ele.customerId);
                 })
             }, 200);
         this.updateStatusLabel();
         this.hasRendered = false;
     }
     handleFilterPanelAction(event){
+        this.filtersOnPage = JSON.parse(JSON.stringify(event.detail));
         let filtersValue = JSON.parse(JSON.stringify(event.detail));
-        this.applyFiltersOnCustomer(filtersValue);
+        if(filtersValue){
+            this.applyFiltersOnCustomer(filtersValue);
+        }
     }
 
     applyFiltersOnCustomer(filtersValue){
+        if(filtersValue){
         this.template.querySelector('c-pagination-cmp').pagevalue = 1;
         let search = filtersValue.search.length!=0;
         let filter1 = filtersValue.filter1.length!=0 && filtersValue.filter1!='Both';
@@ -369,7 +407,8 @@ export default class GtmCropAllocation extends LightningElement {
         this.copyCropAllocationsVirtual.forEach(ele=>{
             this.updateStatus(ele.customerId);
         })
-       this.paginatedCropAllocation = JSON.parse(JSON.stringify(this.cropAllocations));
+        this.paginatedCropAllocation = JSON.parse(JSON.stringify(this.cropAllocations));
+        }
     }
 
     getCalculatedPercentage(){
@@ -378,7 +417,7 @@ export default class GtmCropAllocation extends LightningElement {
             let tempAllocation = 0;
             ele.crops.forEach(e=>{
                 tempAllocation = isNaN(e.allocation)?0:e.allocation;
-                percentage = Number(percentage) - Number(tempAllocation); 
+                percentage = Number(Number(percentage).toFixed(2)) - Number(Number(tempAllocation).toFixed(2)); 
                 // console.log('cal percenatge ',percentage);
             })
             let percentageLabel = '';
@@ -423,6 +462,20 @@ export default class GtmCropAllocation extends LightningElement {
             mode: 'dismissable'
         });
         this.dispatchEvent(event);
+    }
+    checkDataYear(){
+        let month = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        let d = new Date();
+        let monthName = month[d.getMonth()];
+        let currentYear = d.getFullYear();
+        let year = (monthName=='Jan' || monthName=='Feb' || monthName=='Mar')?this.fiscalYear.split('-')[1]:this.fiscalYear.split('-')[0];
+        if(currentYear!=year){
+            this.disableAll = true; 
+        }else{
+            isWindowPeriodClosed().then(isDisable=>{
+                this.disableAll = isDisable
+            });
+        }
     }
 
 }

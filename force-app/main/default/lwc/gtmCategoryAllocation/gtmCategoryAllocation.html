@@ -20,25 +20,25 @@
   </c-gtm-filter-panel>
   <div class="table-scroll" style="height:300px; margin-top:15px;">
 
-    <table class="slds-table slds-table_cell-buffer slds-table_bordered"
+    <table class="slds-table_fixed-layout slds-table slds-table_bordered"
       aria-labelledby="element-with-table-label other-element-with-table-label">
       <thead>
         <tr>
-          <th class="fix">{labels.Customer_Lead_Customer}
+          <th class="fix" style="width: 150px;">{labels.Customer_Lead_Customer}
             <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="" class="slds-m-right" title="" name="customerName" onclick={handleSort}>
             </lightning-icon>
           </th>
-          <th>{labels.All_Companies_Purchase_to_Customer1}
-            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="" class="slds-m-right" title="">
+          <th style="width: 120px;" class="slds-cell-wrap">{labels.All_Companies_Purchase_to_Customer1}
+            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="" name="totalCompaniesPurches" class="slds-m-right" title="" onclick={handleSort}>
             </lightning-icon>
           </th>
           <template for:each={columns} for:item="col">
-            <th style="width: 70px;" key={col.pid}>{col.pName}
+            <th style="width: 120px;margin-left: 10px;" class="slds-cell-wrap" key={col.pid}>{col.pName}
             </th>
           </template>
-          <th>{labels.Remaining}
-            <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="" class="slds-m-right" title="" name="percentageValue" onclick={handleSort}>
-            </lightning-icon>
+          <th style="width: 100px;">{labels.Remaining}
+            <!-- <lightning-icon icon-name="utility:sort" style="width: 100px;" size="xx-small" alternative-text="" class="slds-m-right" title="" name="percentageValue" onclick={handleSort}>
+            </lightning-icon> -->
           </th>
           <th>{labels.Check_If_Distribution_Is_Correct}
             
@@ -49,11 +49,11 @@
         <template if:true={paginatedProductCategoryAllocation} for:each={paginatedProductCategoryAllocation}
           for:item="productallocate">
           <tr key={productallocate.customerId}>
-            <td class="fix" data-accountid={productallocate.customerId} title={productallocate.customerName}>{productallocate.customerName}</td>
+            <td class="slds-truncate fix" data-accountid={productallocate.customerId} title={productallocate.customerName}>{productallocate.customerName}</td>
             <td data-accountid={productallocate.customerId}>{productallocate.totalCompaniesPurches}</td>
             <template for:each={productallocate.productCategory} for:item="pc">
               <td key={pc.pid}>
-                <lightning-input disabled={disableAll} type="number" step="0.01" min="0" style="margin-top:-16px;width: 70px;" class="inputDetails"
+                <lightning-input disabled={disableAll} type="number" step="0.01" min="0" style="margin-top:-16px;" class="inputDetails"
                   data-id={pc.pId} data-detail={pc.GTMDetail} data-accountid={productallocate.customerId}
                   value={pc.allocation} message-when-range-underflow="Please enter a correct value"
                   onfocusout={handleProductDetailChange}  max="100" formatter="percent-fixed"></lightning-input>

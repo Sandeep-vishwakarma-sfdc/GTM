@@ -4,6 +4,7 @@ import getFiscalYear from '@salesforce/apex/GTMPathFinder.getFiscalYear'
 import updateGTMDetail from '@salesforce/apex/GTMPathFinder.updateGTMDetailProductAllocation';
 import getInstructions from '@salesforce/apex/GTMPathFinder.getInstructions';
 import isWindowPeriodClosed from '@salesforce/apex/GTMPathFinder.isWindowPeriodClosed';
+import getUser from '@salesforce/apex/GTMPathFinder.getUser';
 import All_Companies_Purchase_to_Customer from '@salesforce/label/c.All_Companies_Purchase_to_Customer';
 import Customer_Lead_Customer from '@salesforce/label/c.Customer_Lead_Customer';
 import Remaining from '@salesforce/label/c.Remaining';
@@ -16,11 +17,13 @@ import Instructions from '@salesforce/label/c.Instructions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 export default class GtmCategoryAllocation extends LightningElement {
+    filtersOnPage = '';
     @track productAllocations = [];
     hasRendered = false;
     copyproductAllocationsVirtual = [];
     showLoading = false;
     disableAll = false;
+    countryLocale = ''
     @track options = {
         notFilled:'0',
         inProgress:'0',
@@ -31,6 +34,14 @@ export default class GtmCategoryAllocation extends LightningElement {
     columns = [];
     fiscalYear = '';
     columnfiscalYear = '';
+
+    set gtmFiscalYear(value) {
+        this.fiscalYear = value;
+    }
+
+    @api get gtmFiscalYear() {
+        return this.fiscalYear;
+    }
 
     labels = {
         All_Companies_Purchase_to_Customer1:All_Companies_Purchase_to_Customer.split('<br />')[0],
@@ -58,6 +69,26 @@ export default class GtmCategoryAllocation extends LightningElement {
         }, 500);
     }
 
+    constructor(){
+        super()
+        getUser().then(user=>{
+            console.log('Country user ',user);
+            if(user){
+                if(user.Country=='Argentina'){
+                    this.countryLocale = 'es-AR';
+                }
+                if(user.Country=='Mexico'){
+                    this.countryLocale = 'es-MX';
+                }
+                if(user.Country=='Italy'){
+                    this.countryLocale = 'it-IT';
+                }
+            }
+        }).catch(error=>{
+            console.log(error);
+        })
+    }
+
     renderedCallback(){
         if(!this.hasRendered && this.copyproductAllocationsVirtual.length>0){
             setTimeout(() => {
@@ -77,14 +108,12 @@ export default class GtmCategoryAllocation extends LightningElement {
 
     connectedCallback(){
         this.showLoading = true;
-        Promise.all([getFiscalYear(),getCatergoryAllocation()]).then(result=>{
-            this.fiscalYear = '';
+        Promise.all([getCatergoryAllocation({year:this.fiscalYear})]).then(result=>{
             let data = [];
             let tempProductAllocation=[];
             let tempAllProductAllocations = [];
-            if(result.length==2){
-                this.fiscalYear = result[0];
-                data = result[1]
+            if(result.length>0){
+                data = result[0]
             }
             for(let key in data){
                 tempProductAllocation.push({key:key,value:data[key]})
@@ -113,9 +142,18 @@ export default class GtmCategoryAllocation extends LightningElement {
             this.showLoading = false;
             console.log(err)
         });
-        isWindowPeriodClosed().then(isDisable=>{
-            this.disableAll = isDisable
-        })
+        getUser().then(user=>{
+            if(user.Country=='Argentina'){
+                this.countryLocale = 'es-AR';
+            }
+            if(user.Country=='Mexico'){
+                this.countryLocale = 'es-MX';
+            }
+            if(user.Country=='Italy'){
+                this.countryLocale = 'it-IT';
+            }
+        });
+        this.checkDataYear();
     }
 
     handleProductDetailChange(event){
@@ -124,15 +162,15 @@ export default class GtmCategoryAllocation extends LightningElement {
         let value = event.target.value;
         
         let remainigPercentage = 0;
-        let row = this.copyproductAllocationsVirtual.filter(ele=>ele.customerId==accid);
-        if(row[0].productCategory){
-            row[0].productCategory.forEach(e=>{
+        let rowIndex = this.copyproductAllocationsVirtual.findIndex(ele=>ele.customerId==accid);
+        if(this.copyproductAllocationsVirtual[rowIndex].productCategory){
+            this.copyproductAllocationsVirtual[rowIndex].productCategory.forEach(e=>{
                 if(e.GTMDetail==event.currentTarget.dataset.detail){
                     e.allocation = value;
                     this.updateStatus(event.currentTarget.dataset.accountid);
                 }
             })
-            row[0].productCategory.forEach(e=>{
+            this.copyproductAllocationsVirtual[rowIndex].productCategory.forEach(e=>{
                 console.log('e.allocation ',e.allocation);
                 let tempAllocation = isNaN(Number(e.allocation))?0:Number(e.allocation).toFixed(2);
                 remainigPercentage = Number(Number(remainigPercentage).toFixed(2)) + Number(tempAllocation);
@@ -143,24 +181,28 @@ export default class GtmCategoryAllocation extends LightningElement {
                 this.showToast(this.labels.Combined_Total_Value,this.labels.Combined_total_value_more_than_100_is_not_allowed,'error');
                 remainigPercentage =0;
                 value = '';
-                row[0].productCategory.forEach(e=>{
+                this.copyproductAllocationsVirtual[rowIndex].productCategory.forEach(e=>{
                 if(e.GTMDetail==event.currentTarget.dataset.detail){
                     e.allocation = null;
                     this.updateStatus(event.currentTarget.dataset.accountid);
                 }
                 })
             }
+            this.productAllocations = JSON.parse(JSON.stringify(this.copyproductAllocationsVirtual));
+            this.applyFiltersOnCustomer(this.filtersOnPage);
         }
-        
         if(!value || (Number(value)<0 && Number(value)>=100)){// when inputs are Invalid
             this.template.querySelector('[data-detail="' + detailId + '"]').value = '';
             value = null;
             this.updateGTMDetail(detailId,value);
+            this.updateStatus(accid);
+            this.onChangeLabelOption(value,accid,detailId);
+            this.updateStatusLabel();
         }
         if(Number(value)>=0 && Number(value)<=100){// when inputs are valid
         if(accid && value){
             this.updateGTMDetail(detailId,value);
-            this.updateStatus(accid);// TODO:
+            this.updateStatus(accid);
             this.onChangeLabelOption(value,accid,detailId);
             setTimeout(() => {
                 this.updateStatusLabel();
@@ -251,11 +293,13 @@ export default class GtmCategoryAllocation extends LightningElement {
     }
    
     handleFilterPanelAction(event){
+        this.filtersOnPage = JSON.parse(JSON.stringify(event.detail));
         let filtersValue = JSON.parse(JSON.stringify(event.detail));
         this.applyFiltersOnCustomer(filtersValue);
     }
 //searchStr,isLead,percentage
     applyFiltersOnCustomer(filtersValue){
+        if(filtersValue){
         this.template.querySelector('c-pagination-cmp').pagevalue = 1;
         let search = filtersValue.search.length!=0;
         let filter1 = filtersValue.filter1.length!=0 && filtersValue.filter1!='Both';
@@ -330,6 +374,7 @@ export default class GtmCategoryAllocation extends LightningElement {
         })
     //    console.log('search ', this.productAllocations.length);
        this.paginatedProductCategoryAllocation = JSON.parse(JSON.stringify(this.productAllocations));
+        }
     }
 
     getCalculatedPercentage(){
@@ -369,7 +414,7 @@ export default class GtmCategoryAllocation extends LightningElement {
             }
             if(col.classList.value.includes('percentage')){
                 // console.log('percentage ',col);
-                col.firstChild.data = `${Number(inputCompleted).toFixed(2)} %`;
+                col.firstChild.data = `${Number(Number(inputCompleted).toFixed(2)).toLocaleString(this.countryLocale)} %`;
             }
             if(col.classList.value.includes('distribution')){
                 col.style.backgroundColor = 'green';
@@ -439,5 +484,19 @@ export default class GtmCategoryAllocation extends LightningElement {
             mode: 'dismissable'
         });
         this.dispatchEvent(event);
+    }
+    checkDataYear(){
+        let month = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        let d = new Date();
+        let monthName = month[d.getMonth()];
+        let currentYear = d.getFullYear();
+        let year = (monthName=='Jan' || monthName=='Feb' || monthName=='Mar')?this.fiscalYear.split('-')[1]:this.fiscalYear.split('-')[0];
+        if(currentYear!=year){
+            this.disableAll = true; 
+        }else{
+            isWindowPeriodClosed().then(isDisable=>{
+                this.disableAll = isDisable
+            })
+        }
     }
 }

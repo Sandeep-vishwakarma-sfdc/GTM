@@ -25,11 +25,27 @@ import createGTMAndDetailsCropAllocation from '@salesforce/apex/GTMPathFinder.cr
 import submitGTMDetails from '@salesforce/apex/GTMPathFinder.submitGTMDetails';
 import getGTM from '@salesforce/apex/GTMPathFinder.getGTM';
 import setFiscalYear from '@salesforce/apex/GTMPathFinder.setFiscalYear';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import Unable_to_Submit_GTM from '@salesforce/label/c.Unable_to_Submit_GTM';
+import GTM_Submitted_Successfully from '@salesforce/label/c.GTM_Submitted_Successfully';
+import SUCCESS from '@salesforce/label/c.SUCCESS'
+import ERROR from '@salesforce/label/c.ERROR';
+import { NavigationMixin } from 'lightning/navigation';
 
-export default class GtmPathFinder extends LightningElement {
+export default class GtmPathFinder extends NavigationMixin(LightningElement) {
     @track isShowModal = false;
     @track title = '';
-    @api gtmid = '';
+    gtmRecordId = '';
+    disableSubmit = false;
+
+    set gtmid(value){
+        this.gtmRecordId = value;
+    }
+
+    @api get gtmid(){
+        return this.gtmRecordId;
+    }
+
     fiscalyear = '';
     loadedPerviousData = false;
 
@@ -46,7 +62,11 @@ export default class GtmPathFinder extends LightningElement {
         FAQ,
         CATEGORY_ALLOCATION,
         CROP_ALLOCATION,
-        POTENTIAL_AND_PROFILE
+        POTENTIAL_AND_PROFILE,
+        Unable_to_Submit_GTM,
+        GTM_Submitted_Successfully,
+        SUCCESS,
+        ERROR
     }
 
     @api getFiredFromAura(){
@@ -56,13 +76,15 @@ export default class GtmPathFinder extends LightningElement {
 
     connectedCallback(){
         if(!this.loadedPerviousData){
-            console.log('connectedCallback 2',this.gtmid);
+            console.log('connectedCallback 2',this.gtmRecordId,'this.gtmid ',this.gtmid);
             if(this.gtmid){
                 getGTM({id:this.gtmid}).then(gtm=>{
                     if(gtm){
+                        console.log('financialYear ',gtm.Fiscal_Year__c);
                         setFiscalYear({financialYear:gtm.Fiscal_Year__c}).then(fiscalyear=>{
                             this.fiscalyear = fiscalyear;
                             this.title = `${this.labels.GTM_FY} ${fiscalyear}`;
+                            this.checkDataYear();
                             console.log('GTM Title ',this.title);
                         }).catch(err=>{
                             console.log('setFiscalYear ',err);
@@ -81,8 +103,11 @@ export default class GtmPathFinder extends LightningElement {
             let title = year.replace('/','-');
             this.fiscalyear = title;
             this.title = `${this.labels.GTM_FY} ${title}`;
+            if(this.fiscalyear){
+                console.log('init');
+                this.init();
+            }
         })
-        this.init();
         getNewGTMCustomers().then(newAccounts=>{
             if(newAccounts.length>0){
                 console.log('new Accounts',newAccounts);
@@ -92,19 +117,19 @@ export default class GtmPathFinder extends LightningElement {
         });
         getNewlyAddedCrop().then(listCrop=>{
             console.log('New Crops ',listCrop);
-            if(listCrop.length>0){
-                createGTMAndDetailsCropAllocation({activeCrops:listCrop}).then(data=>{}).catch(err=>{console.log('createGTMAndDetailsCropAllocation ',err)})
+            if(listCrop.length>0 && this.fiscalyear){
+                createGTMAndDetailsCropAllocation({activeCrops:listCrop,year:this.fiscalyear}).then(data=>{}).catch(err=>{console.log('createGTMAndDetailsCropAllocation ',err)})
             }
         }).catch(err=>console.log('getNewlyAddedCrop ',getNewlyAddedCrop));
     }
 
     async init() {
         try {
-            await getPotentialAndProfile().catch(err=>console.log(err));
-            await getCatergoryAllocation().catch(err=>console.log(err));
-            await getCropAllocation().catch(err=>console.log(err));
-            await getGTMCompetition().catch(err=>console.log(err));
-            await getGTMOutlook().catch(err=>console.log(err));
+            await getPotentialAndProfile({year:this.fiscalyear}).catch(err=>console.log(err));
+            await getCatergoryAllocation({year:this.fiscalyear}).catch(err=>console.log(err));
+            await getCropAllocation({year:this.fiscalyear}).catch(err=>console.log(err));
+            await getGTMCompetition({year:this.fiscalyear}).catch(err=>console.log(err));
+            await getGTMOutlook({year:this.fiscalyear}).catch(err=>console.log(err));
         } catch (error) {
                 console.log('error ',error);
         } finally {
@@ -125,6 +150,9 @@ export default class GtmPathFinder extends LightningElement {
         let ml = this.template.querySelector(".sidebar");
         ml.toggleClass("active");
     }
+    handleCancel(){
+        this.handleListViewNavigation();
+    }
     showModalBox() {
         this.isShowModal = true;
     }
@@ -142,8 +170,56 @@ export default class GtmPathFinder extends LightningElement {
 
     submitDetails(){
         submitGTMDetails().then(isSubmitted=>{
-            console.log('isSubmitted ',isSubmitted);
+            this.showToast(this.labels.SUCCESS,this.labels.GTM_Submitted_Successfully,'success');
+            if(isSubmitted){
+                setTimeout(() => {
+                    location.reload();
+                }, 200);
+            }
+        }).catch(err=>{
+            this.showToast(this.labels.ERROR,this.labels.Unable_to_Submit_GTM,'error');
         })
+    }
+
+    showToast(title,message,variant) {
+        const event = new ShowToastEvent({
+            title: title,
+            message: message,
+            variant: variant,
+            mode: 'dismissable'
+        });
+        this.dispatchEvent(event);
+    }
+
+    checkDataYear(){
+        let month = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        let d = new Date();
+        let monthName = month[d.getMonth()];
+        let currentYear = d.getFullYear();
+        if(this.fiscalyear){
+            let year = (monthName=='Jan' || monthName=='Feb' || monthName=='Mar')?this.fiscalyear.split('-')[1]:this.fiscalyear.split('-')[0];
+            if(currentYear!=year){
+                this.disableSubmit = true; 
+            }
+        }
+    }
+
+    handleListViewNavigation() {
+        // Navigate to the Accounts object's Recent list view.
+        this[NavigationMixin.Navigate]({
+            type: 'standard__objectPage',
+            attributes: {
+                objectApiName: 'GTM__c',
+                actionName: 'list'
+            },
+            state: {
+                // 'filterName' is a property on 'state'
+                // and identifies the target list view.
+                // It may also be an 18 character list view id.
+                // or by 18 char '00BT0000002TONQMA4'
+                filterName: 'Recent' 
+            }
+        });
     }
 
 }

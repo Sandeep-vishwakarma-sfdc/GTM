@@ -12,34 +12,34 @@
             </div>
   
             <div class="slds-col slds-size_1-of-1 slds-large-size_3-of-12">
-              <lightning-button variant="brand" label={labels.Submit} onclick={showModalBox}
+              <lightning-button variant="brand" disabled={disableSubmit} label={labels.Submit} onclick={showModalBox}
                 style="margin:0 10px 0 0;"></lightning-button>
-              <lightning-button label={labels.Cancel} title={labels.Cancel} onclick={handleClick}></lightning-button>
+              <lightning-button label={labels.Cancel} title={labels.Cancel} onclick={handleCancel}></lightning-button>
             </div>
   
             <div class="slds-col slds-size_1-of-1 slds-large-size_4-of-12">
-              <h3 style="float:left; font-weight:500; color:#333;">{labels.Currency_in_USD_Amount_in_Million}</h3><br/>
-              <h3 style="float:left; font-weight:500; color:#333;">{labels.Entered_data_auto_save_into_the_system}</h3>
+              <h3 style="float:left; font-weight:700; color:green;">{labels.Currency_in_USD_Amount_in_Million}</h3><br/>
+              <h3 style="float:left; font-weight:700; color:green;">{labels.Entered_data_auto_save_into_the_system}</h3>
             </div>
           </div>
           <lightning-tabset>
             <lightning-tab label={labels.IDENTIFICATION}>
-                <c-gtm-identification fiscal-year={fiscalyear}></c-gtm-identification>
+                <c-gtm-identification gtm-fiscal-year={fiscalyear}></c-gtm-identification>
             </lightning-tab>
             <lightning-tab name="c-gtm-potential-and-profile" onactive={onTabChange} label={labels.POTENTIAL_AND_PROFILE} title={labels.POTENTIAL_AND_PROFILE}>
-                <c-gtm-potential-and-profile></c-gtm-potential-and-profile>
+                <c-gtm-potential-and-profile gtm-fiscal-year={fiscalyear}></c-gtm-potential-and-profile>
            </lightning-tab>
             <lightning-tab name="c-gtm-category-allocation" onactive={onTabChange} label={labels.CATEGORY_ALLOCATION}>
-                <c-gtm-category-allocation></c-gtm-category-allocation>
+                <c-gtm-category-allocation gtm-fiscal-year={fiscalyear}></c-gtm-category-allocation>
             </lightning-tab>
             <lightning-tab name="c-gtm-crop-allocation" onactive={onTabChange} label={labels.CROP_ALLOCATION}>
-              <c-gtm-crop-allocation></c-gtm-crop-allocation>
+              <c-gtm-crop-allocation gtm-fiscal-year={fiscalyear}></c-gtm-crop-allocation>
             </lightning-tab>
             <lightning-tab name="c-gtm-competition" onactive={onTabChange} label={labels.COMPETITION}>
-              <c-gtm-competition></c-gtm-competition>
+              <c-gtm-competition gtm-fiscal-year={fiscalyear}></c-gtm-competition>
             </lightning-tab>
             <lightning-tab name="c-gtm-outlook" onactive={onTabChange} label={labels.OUTLOOK}>
-              <c-gtm-outlook></c-gtm-outlook>
+              <c-gtm-outlook gtm-fiscal-year={fiscalyear}></c-gtm-outlook>
             </lightning-tab>
 
             <lightning-tab label={labels.FAQ}>

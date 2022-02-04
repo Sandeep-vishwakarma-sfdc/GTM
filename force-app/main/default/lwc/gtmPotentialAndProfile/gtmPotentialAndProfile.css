@@ -19,7 +19,8 @@
   }
   
   .sidebarMenu2 {
-    height: 100%;
+    height: 420px;
+    overflow-y: scroll;
     position: fixed;
     z-index:1;
     right: 0;

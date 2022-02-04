@@ -9,7 +9,7 @@ select Id,Name from Account where Sales_Org_Code__c='5631'  and recordType.Id='0
 
 select id,Name, from Product_Category_Sales_Org_Mapping__c where Status__c='Active' and Sales_Org__r.Sales_Org_Code__c='5631'
 
-delete [Select Id,Name from GTM_Details__c];
+delete [Select Id,Name from GTM_Details__c ];
 
 GTMPathFinder.getCatergoryAllocation();
 
@@ -30,7 +30,8 @@ GTMPathFinder.updateGTMDetail('a4k0k0000002RFtAAM','50');
 List<Account> ac = GTMPathFinder.getGTMCustomers();
 System.debug(ac.size());
 
-List<GTM_Details__c> details = [SELECT ID,Name,GTM__c from GTM_Details__c where GTM__c='a8Z1m00000002t5'];
+List<GTM_Details__c> details = [SELECT ID,Name,GTM__c from GTM_Details__c where GTM__c='a8Z1m0000000QH3'];
+System.debug('size '+details.size());
 delete details;
 System.debug(details[0].get('Name'));
 delete details;
@@ -47,7 +48,7 @@ System.debug('Crops '+crops.size());
 GTM__c gtm = [select Id,Name from GTM__c];
 GTMPathFinder.createGTMPotentialAndProfile(gtm);
 
-delete [select Id,Name from GTM__c where id='a8Z1m00000002t5'];
+delete [select Id,Name,Fiscal_Year__c from GTM__c];
 
 Decimal val = Decimal.valueOf(null);
 
@@ -56,7 +57,7 @@ Decimal val = Decimal.valueOf(null);
 
 Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Outlook').getRecordTypeId();
 
-List<GTM_Details__c> gtmDetailsList = [Select Id, GTM_Customer__r.Name, GTM_Customer__c, Estimated_Growth_NY_to_2NY__c, Estimated_Growth_PY_to_CY__c, Estimated_Growth_PY_to_NY__c, Sales_Org__c from GTM_Details__c];
+List<GTM_Details__c> gtmDetailsList = [Select Id, GTM_Customer__r.Name, GTM_Customer__c, Estimated_Growth_NY_to_2NY__c, Estimated_Growth_PY_to_CY__c, Estimated_Growth_PY_to_NY__c, Sales_Org__c from GTM_Details__c where GTM__c='a8Z1m00000002v5'];
 
 delete gtmDetailsList;
 
@@ -84,56 +85,8 @@ GTMPathFinder.getCatergoryAllocation();
         Id recordTypeCompetition = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Competitor').getRecordTypeId();
         Id recordTypeOutlook = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Outlook').getRecordTypeId();
 
-        List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        //Create Potential Profile for newly added customers
-        for(Account acc:newCustomers){
-            GTM_Details__c gtmd = new GTM_Details__c();
-            gtmd.GTM_Customer__c = acc.Id;
-            gtmd.recordTypeId = recordTypePotentialProfile;
-            gtmd.GTM_Customer_Type__c = acc.Lead_Customer_Type__c;
-            gtmd.GTM__c = gtm.Id;
-            gtmd.Sales_Org__c = salesorg.Id;
-            gtmDetails.add(gtmd);
-        }
-        insert gtmDetails;
-        
-        for(GTM_Details__c gtm1:gtmDetails){
-            mapPotentialProfile.put(gtm1.GTM_Customer__c,gtm1);
-        }
-        // Create Crop Allocation for newly added Customers
-        gtmDetails.clear();
-        for(Account acc:newCustomers){
-            for(Crop__c crop:GTMPathFinder.getActiveCrop()){
-                System.debug('For loop Crop__c '+crop);
-                GTM_Details__c gtmDetail = new GTM_Details__c();
-                gtmDetail.recordTypeId = recordTypeCropAllocation;
-                gtmDetail.Crop__c = crop.Id;
-                gtmDetail.GTM_Customer__c = acc.Id;
-                gtmDetail.Sales_Org__c = salesOrg.Id;
-                gtmDetail.GTM__c = gtm.Id;
-                gtmDetail.GTM_Details__c = mapPotentialProfile.get(acc.Id).Id;
-                gtmDetails.add(gtmDetail);
-            }
-        }
-        insert gtmDetails;
-
-        // Create Product Allocation for newly added Customers
-        gtmDetails.clear();
-        for(Account acc:newCustomers){
-            for(Product_Category__c pc:GTMPathFinder.getActiveProductCategory()){
-                System.debug('For loop Product_Category__c '+pc);
-                GTM_Details__c gtmDetail = new GTM_Details__c();
-                gtmDetail.recordTypeId = recordTypeProductCategory;
-                gtmDetail.Product_Category__c = pc.Id;
-                gtmDetail.GTM_Customer__c = acc.Id;
-                gtmDetail.Sales_Org__c = salesOrg.Id;
-                gtmDetail.GTM__c = gtm.Id;
-                gtmDetail.GTM_Details__c = mapPotentialProfile.get(acc.Id).Id;
-                gtmDetails.add(gtmDetail);
-            }
-        }
-        insert gtmDetails;
-
+      
+  List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
         // Create Competition for newly added Customers
         gtmDetails.clear();
         for(Account acc:newCustomers){
@@ -159,3 +112,22 @@ GTMPathFinder.getCatergoryAllocation();
             gtmDetails.add(gtmDetailsTemp);
          }
          insert gtmDetails;
+
+
+         System.debug('New Accounts '+GTMPathFinder.getNewGTMCustomers());
+-------------------------------------------------------------------------
+GTMPathFinder.setFiscalYear('2020-2021');
+List<GTM_Details__c> pp = GTMPathFinder.getPotentialAndProfile();
+System.debug('pps'+pp);
+
+
+List<GTM_Details__c> gtmdetails = [Select id,Name,isSubmitted__c,GTM__c from GTM_Details__c];
+
+            for(GTM_Details__c gtmd:gtmdetails){
+                gtmd.isSubmitted__c = false;
+            }
+            update gtmdetails;
+
+
+            User C = GTMPathFinder.getUser();
+            System.debug('Country '+C.Country);
