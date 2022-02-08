@@ -210,6 +210,7 @@ export default class GtmCategoryAllocation extends LightningElement {
         }
        
     }
+    console.log('actual obj',this.productAllocations);
     }
 
     onChangeLabelOption(value,accid,detailId){
@@ -235,8 +236,10 @@ export default class GtmCategoryAllocation extends LightningElement {
                 }
                 ele.percentage = percentageLabel;
                 ele.percentageValue = percent;
+                console.log('actual obj percentage ',percent);
             }
-        })
+        });
+        this.copyproductAllocationsVirtual = JSON.parse(JSON.stringify(this.productAllocations));
     }
     
     updateGTMDetail(tempGtmId,tempValue){
@@ -434,6 +437,7 @@ export default class GtmCategoryAllocation extends LightningElement {
         let green= 0;
         let red=0;
         let yellow=0;
+        console.log('status labels options ',this.productAllocations);
         this.productAllocations.forEach(ele=>{
             if(ele.percentage=='Completed'){
                 green++;

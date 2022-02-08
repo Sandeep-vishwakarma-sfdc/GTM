@@ -1,28 +1,31 @@
 public without sharing class GTMCompetition {
     private static sales_org__c salesorg= GTMPathFinder.getSalesOrg();
     private static String  fiscalyear= GTMPathFinder.getFiscalYear();
+    
 @AuraEnabled
-public static List<GTM_Details__c> getGTMCompetition(){
+public static List<GTM_Details__c> getGTMCompetition(String year){
+    Id userId = userInfo.getUserId();
     Id competitorRecordType = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Competitor').getRecordTypeId();
-    List<GTM_Details__c> gtmDetails = [select GTM_Customer__c, GTM_Customer__r.Name,GTM_Customer__r.Lead_Customer__c,Competitor_Name_1__c,Competitor_Name_1__r.Name,Indicate_share_wallet_of_competitor_1__c,Competitor_Name_2__c,Indicate_share_wallet_of_competitor_2__c,Competitor_Name_3__c,Indicate_share_wallet_of_competitor_3__c,Competitor_Name_4__c,Indicate_share_wallet_of_competitor_4__c,Competitor_Name_5__c,Indicate_share_wallet_of_competitor_5__c,Competitor_Name_6__c,Indicate_share_wallet_of_competitor_6__c,Competitor_Name_7__c,Indicate_share_wallet_of_competitor_7__c,Competitor_Name_8__c,Indicate_share_wallet_of_competitor_8__c,UPL_Position__c,UPLs_share_of_wallet__c,Competitor_Name_2__r.Name,Competitor_Name_3__r.Name,Competitor_Name_4__r.Name,Competitor_Name_5__r.Name,Competitor_Name_6__r.Name,Competitor_Name_7__r.Name,Competitor_Name_8__r.Name,GTM_Customer__r.Path_Finder__c from GTM_Details__c where recordTypeId=:competitorRecordType and Sales_Org__r.Sales_Org_Code__c=:salesorg.Sales_Org_Code__c];
+    List<GTM_Details__c> gtmDetails = [select id,GTM_Customer__c, GTM_Customer__r.Name,GTM_Customer__r.Lead_Customer__c,Competitor_Name_1__c,Competitor_Name_1__r.Name,Indicate_share_wallet_of_competitor_1__c,Competitor_Name_2__c,Indicate_share_wallet_of_competitor_2__c,Competitor_Name_3__c,Indicate_share_wallet_of_competitor_3__c,Competitor_Name_4__c,Indicate_share_wallet_of_competitor_4__c,Competitor_Name_5__c,Indicate_share_wallet_of_competitor_5__c,Competitor_Name_6__c,Indicate_share_wallet_of_competitor_6__c,Competitor_Name_7__c,Indicate_share_wallet_of_competitor_7__c,Competitor_Name_8__c,Indicate_share_wallet_of_competitor_8__c,UPL_Position__c,UPLs_share_of_wallet__c,Competitor_Name_2__r.Name,Competitor_Name_3__r.Name,Competitor_Name_4__r.Name,Competitor_Name_5__r.Name,Competitor_Name_6__r.Name,Competitor_Name_7__r.Name,Competitor_Name_8__r.Name,GTM_Customer__r.Path_Finder__c,isSubmitted__c from GTM_Details__c where recordTypeId=:competitorRecordType and Sales_Org__r.Sales_Org_Code__c=:salesorg.Sales_Org_Code__c  AND 
+    GTM__r.Sales_Rep__c=:userInfo.getUserId() AND GTM__r.Fiscal_Year__c=:year  order by  GTM_Customer__r.Name ASC];
     if(gtmDetails.size()==0){
-        return createGTMDetail();
+        return createGTMDetail(year);
     }
         return gtmDetails;
 }
     
-public static List<GTM_Details__c> createGTMDetail(){
+public static List<GTM_Details__c> createGTMDetail(String year){
     List<Account> gtmCustomers = GTMPathFinder.getGTMCustomers();
     System.debug('The Gtm Customer size' +gtmCustomers.size());
     List<GTM_Details__c> gtmDetailstToInsert = new List<GTM_Details__c>();
     Id competitorRecordType = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Competitor').getRecordTypeId();
     List<GTM__c> gtms = new  List<GTM__c>();
     Id userId = userInfo.getUserId();
-        gtms = [SELECT ID,Name,Fiscal_Year__c,Email__c from GTM__c where Fiscal_Year__c=:fiscalyear and Sales_Org__c=:salesOrg.Id and Sales_Rep__c=:userId];
+        gtms = [SELECT ID,Name,Fiscal_Year__c,Email__c from GTM__c where Fiscal_Year__c=:year and Sales_Org__c=:salesOrg.Id and Sales_Rep__c=:userId];
         User userDetails =[SELECT Id, Name, Email, Profile.Name, UserRole.Id,UserRole.Name FROM User where Id=:userId ];
         GTM__c gtm = new GTM__c();
         if(gtms.size()==0){
-            gtm.Fiscal_Year__c = fiscalyear;
+            gtm.Fiscal_Year__c = year;
             gtm.GTM_Status__c = 'Draft';
             gtm.Sales_Org__c = salesOrg.Id;
             gtm.Sales_Rep__c = userInfo.getUserId();
@@ -38,16 +41,15 @@ public static List<GTM_Details__c> createGTMDetail(){
             }
         }
         List<GTM_Details__c> gtmPotentialProfile = new List<GTM_Details__c>();
-        if(GTMPathFinder.isGTMProfileAndPotentialCreated(fiscalyear)==false){
+        if(GTMPathFinder.isGTMProfileAndPotentialCreated(year)==false){
             GTMPathFinder.createGTMPotentialAndProfile(gtms[0]);
         }
-        gtmPotentialProfile = GTMPathFinder.getGTMPotentialProfile(fiscalyear);
+        gtmPotentialProfile = GTMPathFinder.getGTMPotentialProfile(year);
 
         Map<String,GTM_Details__c> mapPotentialProfile = new  Map<String,GTM_Details__c>();
         for(GTM_Details__c gtm1:gtmPotentialProfile){
             mapPotentialProfile.put(gtm1.GTM_Customer__c,gtm1);
         }
-
 
 
 
@@ -66,99 +68,25 @@ public static List<GTM_Details__c> createGTMDetail(){
     if(gtms.size()>0){
     insert gtmDetailstToInsert;
     }
-    List<GTM_Details__c> gtmDetails =[select GTM_Customer__c, GTM_Customer__r.Name,GTM_Customer__r.Lead_Customer__c,Competitor_Name_1__c,Competitor_Name_1__r.Name,Indicate_share_wallet_of_competitor_1__c,Competitor_Name_2__c,Indicate_share_wallet_of_competitor_2__c,Competitor_Name_3__c,Indicate_share_wallet_of_competitor_3__c,Competitor_Name_4__c,Indicate_share_wallet_of_competitor_4__c,Competitor_Name_5__c,Indicate_share_wallet_of_competitor_5__c,Competitor_Name_6__c,Indicate_share_wallet_of_competitor_6__c,Competitor_Name_7__c,Indicate_share_wallet_of_competitor_7__c,Competitor_Name_8__c,Indicate_share_wallet_of_competitor_8__c,UPL_Position__c,UPLs_share_of_wallet__c,Competitor_Name_2__r.Name,Competitor_Name_3__r.Name,Competitor_Name_4__r.Name,Competitor_Name_5__r.Name,Competitor_Name_6__r.Name,Competitor_Name_7__r.Name,Competitor_Name_8__r.Name,GTM_Customer__r.Path_Finder__c  from GTM_Details__c where recordTypeId=:competitorRecordType and  Sales_Org__r.Sales_Org_Code__c=:salesorg.Sales_Org_Code__c];
+    List<GTM_Details__c> gtmDetails =[select GTM_Customer__c, GTM_Customer__r.Name,GTM_Customer__r.Lead_Customer__c,Competitor_Name_1__c,Competitor_Name_1__r.Name,Indicate_share_wallet_of_competitor_1__c,Competitor_Name_2__c,Indicate_share_wallet_of_competitor_2__c,Competitor_Name_3__c,Indicate_share_wallet_of_competitor_3__c,Competitor_Name_4__c,Indicate_share_wallet_of_competitor_4__c,Competitor_Name_5__c,Indicate_share_wallet_of_competitor_5__c,Competitor_Name_6__c,Indicate_share_wallet_of_competitor_6__c,Competitor_Name_7__c,Indicate_share_wallet_of_competitor_7__c,Competitor_Name_8__c,Indicate_share_wallet_of_competitor_8__c,UPL_Position__c,UPLs_share_of_wallet__c,Competitor_Name_2__r.Name,Competitor_Name_3__r.Name,Competitor_Name_4__r.Name,Competitor_Name_5__r.Name,Competitor_Name_6__r.Name,Competitor_Name_7__r.Name,Competitor_Name_8__r.Name,GTM_Customer__r.Path_Finder__c,isSubmitted__c from GTM_Details__c where recordTypeId=:competitorRecordType and  Sales_Org__r.Sales_Org_Code__c=:salesorg.Sales_Org_Code__c AND 
+    GTM__r.Sales_Rep__c=:userInfo.getUserId() AND GTM__r.Fiscal_Year__c=:year order by  GTM_Customer__r.Name ASC];
     System.debug('Gtm details size' +gtmDetails.size());
     return gtmDetails;
   
   }
   @AuraEnabled
-  public static GTM_Details__c  updateGTMDetails(String recordId,String name,String value)
+  public static GTM_Details__c  updateGTMDetails(GTM_Details__c upgtm)
   {
-    
-    GTM_Details__c upgtm=[select Id,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Lead_Customer__c,Indicate_share_wallet_of_competitor_1__c,Competitor_Name_1__c,Competitor_Name_1__r.Name,Indicate_share_wallet_of_competitor_2__c,Indicate_share_wallet_of_competitor_3__c,Indicate_share_wallet_of_competitor_4__c,Indicate_share_wallet_of_competitor_5__c,Indicate_share_wallet_of_competitor_6__c,Indicate_share_wallet_of_competitor_7__c,Indicate_share_wallet_of_competitor_8__c,UPL_Position__c,UPLs_share_of_wallet__c,Competitor_Name_2__c,Competitor_Name_3__c,Competitor_Name_4__c,Competitor_Name_5__c,Competitor_Name_6__c,Competitor_Name_7__c,Competitor_Name_8__c,Competitor_Name_2__r.Name,Competitor_Name_3__r.Name,Competitor_Name_4__r.Name,Competitor_Name_5__r.Name,Competitor_Name_6__r.Name,Competitor_Name_7__r.Name,Competitor_Name_8__r.Name,GTM_Customer__r.Path_Finder__c from GTM_Details__c where Id=:recordId];
-    if(name=='Indicate_share_wallet_of_competitor_1__c')
-    {
-        upgtm.Indicate_share_wallet_of_competitor_1__c=decimal.valueOf(value);
-    }
-    else if(name=='Indicate_share_wallet_of_competitor_2__c')
-    {
-        upgtm.Indicate_share_wallet_of_competitor_2__c=decimal.valueOf(value);
-    }
-    else if(name=='Indicate_share_wallet_of_competitor_3__c')
-    {
-        upgtm.Indicate_share_wallet_of_competitor_3__c=decimal.valueOf(value);
-    }
-    else if(name=='Indicate_share_wallet_of_competitor_4__c')
-    {
-        upgtm.Indicate_share_wallet_of_competitor_4__c=decimal.valueOf(value);
-    }
-    else if(name=='Indicate_share_wallet_of_competitor_5__c')
-    {
-        upgtm.Indicate_share_wallet_of_competitor_5__c=decimal.valueOf(value);
-    }
-    else if(name=='Indicate_share_wallet_of_competitor_6__c')
-    {
-        upgtm.Indicate_share_wallet_of_competitor_6__c=decimal.valueOf(value);
-    }
-    else if(name=='Indicate_share_wallet_of_competitor_7__c')
-    {
-        upgtm.Indicate_share_wallet_of_competitor_7__c=decimal.valueOf(value);
-    }
-    else if(name=='Indicate_share_wallet_of_competitor_8__c')
-    {
-        upgtm.Indicate_share_wallet_of_competitor_8__c =decimal.valueOf(value);
-    }
-   
-    else if(name=='UPL_Position__c')
-    {
-        upgtm.UPL_Position__c =decimal.valueOf(value);
-    }
-    else if(name=='UPLs_share_of_wallet__c')
-    {
-        upgtm.UPLs_share_of_wallet__c =decimal.valueOf(value);
-    }
-    else if(name=='Competitor_Name_1__c')
-    {
-        upgtm.Competitor_Name_1__c =value;
-    }
-    else if(name=='Competitor_Name_2__c')
-    {
-        upgtm.Competitor_Name_2__c =value;
-    }
-    else if(name=='Competitor_Name_3__c')
-    {
-        upgtm.Competitor_Name_3__c =value;
-    }
-    else if(name=='Competitor_Name_4__c')
-    {
-        upgtm.Competitor_Name_4__c =value;
-    }
-    else if(name=='Competitor_Name_5__c')
-    {
-        upgtm.Competitor_Name_5__c =value;
-    }
-    else if(name=='Competitor_Name_6__c')
-    {
-        upgtm.Competitor_Name_6__c =value;
-    }
-    else if(name=='Competitor_Name_7__c')
-    {
-        upgtm.Competitor_Name_7__c =value;
-    }
-    else if(name=='Competitor_Name_8__c')
-    {
-        upgtm.Competitor_Name_8__c =value;
-    }
-     
     update upgtm;
     return upgtm;
  }
  @AuraEnabled
  public static GTM_Details__c  updateshare(String recordId)
  {
+
     GTM_Details__c upshare=[select Id,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Lead_Customer__c,UPL_Position__c,UPLs_share_of_wallet__c,GTM_Customer__r.Path_Finder__c from GTM_Details__c where Id=:recordId];
-    upshare.UPL_Position__c=0;
-    upshare.UPLs_share_of_wallet__c=0;
+    upshare.UPL_Position__c=null;
+    upshare.UPLs_share_of_wallet__c=null;
     
     update upshare;
     return upshare;
@@ -167,26 +95,44 @@ public static List<GTM_Details__c> createGTMDetail(){
 
 
   @AuraEnabled
- public static List<Competitor__c> getCompetitorDetails()
+ public static List<CompetitorWrapper> getCompetitorDetails()
  {
-     List<Competitor__c> comp= [Select Id, Name ,Status__c from Competitor__c where Status__c ='Active' order by Name ASC];
-     return comp;
+     List<Competitior_Sales_Org_Mapping__c> comp= [Select Id, Competitor__r.Name ,Display_Name__c,Status__c,Competitor__c from Competitior_Sales_Org_Mapping__c where Status__c ='Active' and Sales_Org__r.Sales_Org_Code__c=:salesorg.Sales_Org_Code__c  order by Display_Name__c ASC,Competitor__r.Name ASC];
+     
+     List<CompetitorWrapper> wrap=new List <CompetitorWrapper>();
+     for(Competitior_Sales_Org_Mapping__c  a:comp)
+     {
+        CompetitorWrapper wrapper =new CompetitorWrapper();   
+         if(!String.isEmpty(a.Display_Name__c))
+         {
+             wrapper.competitiorId=a.Competitor__c;
+             wrapper.competitiorname=a.Display_Name__c;
+
+         }
+         else
+         {
+            wrapper.competitiorId=a.Competitor__c;
+            wrapper.competitiorname=a.Competitor__r.Name;
+        
+        }
+        
+        wrap.add(wrapper);
+        
+     }
+     return wrap;
      
  }
 
-
-
  @AuraEnabled
- public static List<GTM__c> getGtm()
+ public static List<GTM__c> getGtm(String year)
  {
     List<GTM__c> gtmp = new  List<GTM__c>();
     Id userId = userInfo.getUserId();
-        gtmp = [Select Id,Name,Fiscal_Year__c,Email__c,Role__c,Sales_Rep_Name__c,Sales_org__r.name from GTM__c where Fiscal_Year__c=:fiscalyear and Sales_Org__r.Sales_Org_Code__c=:salesorg.Sales_Org_Code__c and Sales_Rep__c=:userId];
+        gtmp = [Select Id,Name,Fiscal_Year__c,Email__c,Role__c,Sales_Rep_Name__c,Sales_org__r.name from GTM__c where  Fiscal_Year__c=:year and Sales_Org__r.Sales_Org_Code__c=:salesorg.Sales_Org_Code__c and Sales_Rep__c=:userId];
        
-       
-             return gtmp;  
+       return gtmp;  
      
-    }
+ }
 
     @AuraEnabled
   public static GTM__c  updateGTM(String recordId,String name,String value)
@@ -228,6 +174,23 @@ public static List<GTM_Details__c> createGTMDetail(){
        }
        return null;
    }
-    
+   class CompetitorWrapper
+   {
+       @AuraEnabled
+       public  String competitiorname;
+       @AuraEnabled
+       public  String competitiorId ;
 
+       public CompetitorWrapper(String competitiorId,String competitiorname)
+       {
+          this.competitiorname=competitiorname;
+          this.competitiorId=competitiorId;
+       }
+       public CompetitorWrapper()
+       {
+
+       }
+
+   }
+    
  }

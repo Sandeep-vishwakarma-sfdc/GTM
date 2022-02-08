@@ -235,7 +235,8 @@ export default class GtmCropAllocation extends LightningElement {
                 ele.percentage = percentageLabel;
                 ele.percentageValue = percent;
             }
-        })
+        });
+        this.copyCropAllocationsVirtual = JSON.parse(JSON.stringify(this.cropAllocations));
     }
     updateGTMDetail(tempGtmId,tempValue){
         updateGTMDetail({gtmId:tempGtmId,value:tempValue}).then(value=>{

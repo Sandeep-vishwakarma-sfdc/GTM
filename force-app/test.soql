@@ -30,7 +30,7 @@ GTMPathFinder.updateGTMDetail('a4k0k0000002RFtAAM','50');
 List<Account> ac = GTMPathFinder.getGTMCustomers();
 System.debug(ac.size());
 
-List<GTM_Details__c> details = [SELECT ID,Name,GTM__c from GTM_Details__c where GTM__c='a8Z1m0000000QH3'];
+List<GTM_Details__c> details = [SELECT ID,Name,GTM__c from GTM_Details__c where GTM__c='a8G5D0000000JuWUAU'];
 System.debug('size '+details.size());
 delete details;
 System.debug(details[0].get('Name'));
