@@ -119,6 +119,7 @@ export default class GtmCropAllocation extends LightningElement {
                 tempAllCropAllocations.push(cropObj);
             });
             setTimeout(() => {
+                console.log('tempAllCropAllocations ',tempAllCropAllocations);
                 this.cropAllocations = tempAllCropAllocations;
                 this.copyCropAllocationsVirtual = tempAllCropAllocations;
                 this.paginatedCropAllocation = this.cropAllocations;
@@ -263,7 +264,15 @@ export default class GtmCropAllocation extends LightningElement {
             arr.push(obj)
             masterObj = {customerId:ele.GTM_Customer__c,customerName:ele.GTM_Customer__r.Name,totalCompaniesPurches:ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,crops:arr,'isLeadCustomer':ele.GTM_Customer__r.Lead_Customer__c?true:false,percentage:percentageLabel,percentageValue:percentage,pathFinder:ele.GTM_Customer__r.Path_Finder__c};
             }
-        })
+        });
+        let other = masterObj.crops.filter(ele=>ele.cName.includes('Other'));
+            let othersIndex = masterObj.crops.findIndex(ele=>ele.cName.includes('Other'));
+            console.log('other ',other,'index ',othersIndex);
+            if(othersIndex!=-1 && other.length>0){
+                masterObj.crops.splice(othersIndex,1);
+                masterObj.crops.push(other[0]);
+                masterObj.crops = masterObj.crops;
+            }
         return masterObj;
     }
     updateStatus(customerId){

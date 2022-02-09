@@ -9,7 +9,7 @@ select Id,Name from Account where Sales_Org_Code__c='5631'  and recordType.Id='0
 
 select id,Name, from Product_Category_Sales_Org_Mapping__c where Status__c='Active' and Sales_Org__r.Sales_Org_Code__c='5631'
 
-delete [Select Id,Name from GTM_Details__c ];
+delete [Select Id,Name from GTM_Details__c];
 
 GTMPathFinder.getCatergoryAllocation();
 
@@ -30,7 +30,7 @@ GTMPathFinder.updateGTMDetail('a4k0k0000002RFtAAM','50');
 List<Account> ac = GTMPathFinder.getGTMCustomers();
 System.debug(ac.size());
 
-List<GTM_Details__c> details = [SELECT ID,Name,GTM__c from GTM_Details__c where GTM__c='a8G5D0000000JuWUAU'];
+List<GTM_Details__c> details = [SELECT ID,Name,GTM__c from GTM_Details__c where GTM__r.Fiscal_Year__c='2021-2022'];
 System.debug('size '+details.size());
 delete details;
 System.debug(details[0].get('Name'));
@@ -48,7 +48,7 @@ System.debug('Crops '+crops.size());
 GTM__c gtm = [select Id,Name from GTM__c];
 GTMPathFinder.createGTMPotentialAndProfile(gtm);
 
-delete [select Id,Name,Fiscal_Year__c from GTM__c];
+delete [select Id,Name,Fiscal_Year__c from GTM__c where Fiscal_Year__c='2021-2022'];
 
 Decimal val = Decimal.valueOf(null);
 

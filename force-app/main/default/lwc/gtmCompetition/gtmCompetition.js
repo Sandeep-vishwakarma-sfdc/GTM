@@ -314,6 +314,7 @@ export default class GtmCompetition extends LightningElement {
         let gtmIndex = this.gtmcompetitor.findIndex((obj => obj.id == id));
         let tempOptions = this.statusOptions.filter(op => String(op.value) == String(value))[0];
         let optionValue = tempOptions ? tempOptions.label : '';
+        
         let tempIndicate1=this.gtmcompetitor[gtmIndex].Indicate1;
         let tempIndicate2=this.gtmcompetitor[gtmIndex].Indicate2;
         let tempIndicate3=this.gtmcompetitor[gtmIndex].Indicate3;
@@ -344,11 +345,11 @@ export default class GtmCompetition extends LightningElement {
             console.log('the comp1 is', this.gtmcompetitor[gtmIndex].Competitor1,'value ',value);
             if(value=='none'){
                 this.gtmcompetitor[gtmIndex].Indicate1 = null;
-               
+                this.gtmcompetitor[gtmIndex].validateIndicator1 = false;
             }
         }
         if (name == 'Indicate_share_wallet_of_competitor_1__c') {
-            if((Number(tempIndicate2))<=Number(value)|| this.isEmpty((tempcompetitor2))){
+            if(this.isValidate(name,value,gtmIndex)){
                 this.gtmcompetitor[gtmIndex].Indicate1 = this.gtmcompetitor[gtmIndex].Competitor1?value:value=null;
                 this.gtmcompetitor[gtmIndex].validateIndicator1 = value?false:value==null?false:true;
             }else{
@@ -363,6 +364,7 @@ export default class GtmCompetition extends LightningElement {
             this.gtmcompetitor[gtmIndex].Competitor2Name = this.statusOptions.filter(op => String(op.value) == String(value))[0].label;
             if(value=='none'){
                 this.gtmcompetitor[gtmIndex].Indicate2 = null;
+                this.gtmcompetitor[gtmIndex].validateIndicator2 = false;
             }
         } 
         if (name == 'Indicate_share_wallet_of_competitor_2__c') {
@@ -381,6 +383,7 @@ export default class GtmCompetition extends LightningElement {
            
             if(value=='none'){
                 this.gtmcompetitor[gtmIndex].Indicate3 = null;
+                this.gtmcompetitor[gtmIndex].validateIndicator3 = false;
             }
         } 
         if (name == 'Indicate_share_wallet_of_competitor_3__c') {
@@ -398,6 +401,7 @@ export default class GtmCompetition extends LightningElement {
             this.gtmcompetitor[gtmIndex].Competitor4Name = this.statusOptions.filter(op => String(op.value) == String(value))[0].label;
             if(value=='none'){
                 this.gtmcompetitor[gtmIndex].Indicate4 = null;
+                this.gtmcompetitor[gtmIndex].validateIndicator4 = false;
             }
         } 
         if (name == 'Indicate_share_wallet_of_competitor_4__c') {
@@ -416,6 +420,7 @@ export default class GtmCompetition extends LightningElement {
             this.gtmcompetitor[gtmIndex].Competitor5Name = this.statusOptions.filter(op => String(op.value) == String(value))[0].label;
             if(value=='none'){
                 this.gtmcompetitor[gtmIndex].Indicate5 = null;
+                this.gtmcompetitor[gtmIndex].validateIndicator5 = false;
             }
         } 
         if (name == 'Indicate_share_wallet_of_competitor_5__c') {
@@ -433,6 +438,7 @@ export default class GtmCompetition extends LightningElement {
             this.gtmcompetitor[gtmIndex].Competitor6Name = this.statusOptions.filter(op => String(op.value) == String(value))[0].label;
             if(value=='none'){
                 this.gtmcompetitor[gtmIndex].Indicate6 = null;
+                this.gtmcompetitor[gtmIndex].validateIndicator6 = false;
             }
         } if (name == 'Indicate_share_wallet_of_competitor_6__c') {
             if(Number((tempIndicate5)>=Number(value))&&((tempIndicate7)<=Number(value))||((this.isEmpty((tempcompetitor7)))&&(Number((tempIndicate5)>=Number(value)))||(this.isEmpty(tempcompetitor5)))){
@@ -448,6 +454,7 @@ export default class GtmCompetition extends LightningElement {
             this.gtmcompetitor[gtmIndex].Competitor7Name = this.statusOptions.filter(op => String(op.value) == String(value))[0].label;
             if(value=='none'){
                 this.gtmcompetitor[gtmIndex].Indicate7 = null;
+                this.gtmcompetitor[gtmIndex].validateIndicator7 = false;
             }
         } if (name == 'Indicate_share_wallet_of_competitor_7__c') {
             if(Number((tempIndicate6)>=Number(value))&&((tempIndicate8)<=Number(value))||((this.isEmpty((tempcompetitor8)))&&(Number((tempIndicate6)>=Number(value)))||(this.isEmpty(tempcompetitor6)))){
@@ -464,6 +471,7 @@ export default class GtmCompetition extends LightningElement {
             this.gtmcompetitor[gtmIndex].Competitor8Name = this.statusOptions.filter(op => String(op.value) == String(value))[0].label;
             if(value=='none'){
                 this.gtmcompetitor[gtmIndex].Indicate8 = null;
+                this.gtmcompetitor[gtmIndex].validateIndicator8 = false;
             }
         } if (name == 'Indicate_share_wallet_of_competitor_8__c') {
             if(Number(tempIndicate7)>=Number(value) ||(this.isEmpty(tempcompetitor7))){
@@ -520,7 +528,9 @@ export default class GtmCompetition extends LightningElement {
             this.gtmcompetitor1 = this.gtmcompetitor;
             this.updateStatusLabel();
             console.log( 'value -->',value);
-            this.clearCell(accountId,name)
+            if(!value){
+                this.clearCell(accountId,name)
+            }
         }, 200);
     }
 
@@ -952,5 +962,37 @@ export default class GtmCompetition extends LightningElement {
         this.dispatchEvent(event);
     }
 
+
+    isValidate(name,value,gtmIndex){
+        console.log('isValid',this.gtmcompetitor[gtmIndex]);
+        let tempIndicate1=this.gtmcompetitor[gtmIndex].Indicate1;
+        let tempIndicate2=this.gtmcompetitor[gtmIndex].Indicate2;
+        let tempIndicate3=this.gtmcompetitor[gtmIndex].Indicate3;
+        let tempIndicate4=this.gtmcompetitor[gtmIndex].Indicate4;
+        let tempIndicate5=this.gtmcompetitor[gtmIndex].Indicate5;
+        let tempIndicate6=this.gtmcompetitor[gtmIndex].Indicate6;
+        let tempIndicate7=this.gtmcompetitor[gtmIndex].Indicate7;
+        let tempIndicate8=this.gtmcompetitor[gtmIndex].Indicate8;
+        let tempcompetitor1=this.gtmcompetitor[gtmIndex].Competitor1;
+        let tempcompetitor2=this.gtmcompetitor[gtmIndex].Competitor2;
+        let tempcompetitor3=this.gtmcompetitor[gtmIndex].Competitor3;
+        let tempcompetitor4=this.gtmcompetitor[gtmIndex].Competitor4;
+        let tempcompetitor5=this.gtmcompetitor[gtmIndex].Competitor5;
+        let tempcompetitor6=this.gtmcompetitor[gtmIndex].Competitor6;
+        let tempcompetitor7=this.gtmcompetitor[gtmIndex].Competitor7;
+        let tempcompetitor8=this.gtmcompetitor[gtmIndex].Competitor8;
+
+        if(name=='Indicate_share_wallet_of_competitor_1__c'){
+            let isValid1 = (Number(tempIndicate2)<Number(value) && !this.isEmpty(tempIndicate2)); if(isValid1) {console.log('isValid1'); return true};
+            let isValid2 = (Number(tempIndicate3)<Number(value) && !this.isEmpty(tempIndicate3)); if(isValid2) {console.log('isValid2'); return true};
+            let isValid3 = (Number(tempIndicate4)<Number(value) && !this.isEmpty(tempIndicate4)); if(isValid3) {console.log('isValid3'); return true};
+            let isValid4 = (Number(tempIndicate5)<Number(value) && !this.isEmpty(tempIndicate5)); if(isValid4) {console.log('isValid4'); return true};
+            let isValid5 = (Number(tempIndicate6)<Number(value) && !this.isEmpty(tempIndicate6)); if(isValid5) {console.log('isValid5'); return true};
+            let isValid6 = (Number(tempIndicate7)<Number(value) && !this.isEmpty(tempIndicate7)); if(isValid6) {console.log('isValid6'); return true};
+            let isValid7 = (Number(tempIndicate8)<Number(value) && !this.isEmpty(tempIndicate8)); if(isValid7) {console.log('isValid7'); return true};
+            return false;
+        }
+
+    }
 
 }
