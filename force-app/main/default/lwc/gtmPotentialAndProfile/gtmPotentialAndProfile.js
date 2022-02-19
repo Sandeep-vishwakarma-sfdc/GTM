@@ -149,7 +149,7 @@ export default class GtmPotentialAndProfile extends LightningElement {
             let tempData = [];
             if (data) {
                 data.forEach(ele => {
-                    let calculation = ele.Total_Purchase_of_Crop_Protection_PY__c && ele.Estimated_Markup_of_Channel__c ? ((Number(ele.Total_Purchase_of_Crop_Protection_PY__c) * Number(ele.Estimated_Markup_of_Channel__c)) / 100) + ele.Total_Purchase_of_Crop_Protection_PY__c : 0;
+                    let calculation = String(ele.Total_Purchase_of_Crop_Protection_PY__c) && String(ele.Estimated_Markup_of_Channel__c) ? ((Number(ele.Total_Purchase_of_Crop_Protection_PY__c) * Number(ele.Estimated_Markup_of_Channel__c)) / 100) + ele.Total_Purchase_of_Crop_Protection_PY__c : 0;
                     let tempValue = calculation ? calculation : 0;
                     let obj = {
                         id: ele.Id,

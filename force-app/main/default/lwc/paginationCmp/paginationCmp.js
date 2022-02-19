@@ -10,12 +10,25 @@ import Last from '@salesforce/label/c.Last'
 export default class PaginationCmp extends LightningElement {
 
     page = 1;
+    options = [{'value':10,default:false},{'value':20,default:false},{'value':50,default:false},{'value':100,default:false}];
+
     set pagevalue(value){
         this.page = value;
     }
     @api get pagevalue(){
         return this.page;
     }
+
+    set pageSizeValue(value){
+        this.pageSize = Number(value);
+        let opt = this.options.findIndex(op=>op.value==String(value));
+        this.options[opt].default = true;
+        console.log('options ',this.options);
+    }
+    @api get pageSizeValue(){
+        return this.pageSize;
+    }
+
     startingRecord = 1;
     endingRecord = 0;
     pageSize = 10;
@@ -53,7 +66,8 @@ export default class PaginationCmp extends LightningElement {
     }
     
     get pageSizeOptions(){
-        return [10,20,50,100];
+        // return [10,20,50,100];
+        return this.options;
     }
 
     handleRecordsPerPage(event){

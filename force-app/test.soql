@@ -72,7 +72,7 @@ GTMPathFinder.getCatergoryAllocation();
 
 ---------------------------------------GTM CUSTOMERS ----------------------------------
         Id userId = userInfo.getUserId();
-        GTM__c gtm = [SELECT ID,Name,Fiscal_Year__c from GTM__c where Fiscal_Year__c='2020-2021' and Sales_Org__c='a1F5D000001aUJo' and Sales_Rep__c=:userId limit 1];
+        GTM__c gtm = [SELECT ID,Name,Fiscal_Year__c from GTM__c where Fiscal_Year__c='2020-2021' and Sales_Org__c='a8G5D0000000K1dUAE' and Sales_Rep__c=:userId limit 1];
         
         Sales_Org__c  salesorg = [select Id,Name from Sales_Org__c where Id='a1F5D000001aUJo']; 
 
@@ -121,7 +121,7 @@ List<GTM_Details__c> pp = GTMPathFinder.getPotentialAndProfile();
 System.debug('pps'+pp);
 
 
-List<GTM_Details__c> gtmdetails = [Select id,Name,isSubmitted__c,GTM__c from GTM_Details__c];
+List<GTM_Details__c> gtmdetails = [Select id,Name,isSubmitted__c,GTM__c from GTM_Details__c where GTM__c='a8Z1m0000000RHE'];
 
             for(GTM_Details__c gtmd:gtmdetails){
                 gtmd.isSubmitted__c = false;
@@ -131,3 +131,6 @@ List<GTM_Details__c> gtmdetails = [Select id,Name,isSubmitted__c,GTM__c from GTM
 
             User C = GTMPathFinder.getUser();
             System.debug('Country '+C.Country);
+
+
+List<Account> acc = [select Id,Name,Lead_Customer_Ownership__c from Account where Lead_Customer_Ownership__c='0050K000009wufh'];

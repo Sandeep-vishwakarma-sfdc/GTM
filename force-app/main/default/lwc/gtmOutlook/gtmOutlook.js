@@ -12,12 +12,12 @@ import Estimated_Sales_in_NY from '@salesforce/label/c.Estimated_Sales_in_NY';
 import Estimated_Growth_in_NNY from '@salesforce/label/c.Estimated_Growth_in_NNY';
 import Estimated_Sales_in_NNY from '@salesforce/label/c.Estimated_Sales_in_NNY';
 import isWindowPeriodClosed from '@salesforce/apex/GTMPathFinder.isWindowPeriodClosed';
-
-
+import getUser from '@salesforce/apex/GTMPathFinder.getUser';
 
 
 export default class GtmOutlook extends LightningElement {
   instrustions = '';
+  countryLocale = 'es-Ar';
   hasRendered = false;
   disableAll = false;
   @track GTMOutlookDetails = [];
@@ -33,6 +33,15 @@ export default class GtmOutlook extends LightningElement {
   @track sortDirection = true; 
   @track currentPage = 1;
     defaultSelectedOption = '';
+  fiscalYear='';
+
+    set gtmFiscalYear(value) {
+      this.fiscalYear = value;
+  }
+
+  @api get gtmFiscalYear() {
+      return this.fiscalYear;
+  }
 
    label = {
       Instructions:Instructions,
@@ -53,7 +62,26 @@ export default class GtmOutlook extends LightningElement {
           this.instrustions = data.Instruction_Outlook__c;
       }
   }
-  
+
+  constructor(){
+    super()
+    getUser().then(user=>{
+        console.log('Country user ',user);
+        if(user){
+            if(user.Country=='Argentina'){
+                this.countryLocale = 'es-AR';
+            }
+            if(user.Country=='Mexico'){
+                this.countryLocale = 'es-MX';
+            }
+            if(user.Country=='Italy'){
+                this.countryLocale = 'it-IT';
+            }
+        }
+    }).catch(error=>{
+        console.log(error);
+    })
+}
 
   @api onTabRefresh(){
     setTimeout(() => {
@@ -66,7 +94,7 @@ renderedCallback(){
       setTimeout(() => {
           this.GTMOutlookDetailsCopy.forEach(row=>{
               if(row.isSubmitted__c){
-                  this.template.querySelectorAll('[data-id="' + row.id + '"]').forEach(cell=>{
+                  this.template.querySelectorAll('[data-id="' + row.Id + '"]').forEach(cell=>{
                       console.log('cell ',cell);
                       cell.disabled = true;
                   })
@@ -77,7 +105,8 @@ renderedCallback(){
   }
 }
   connectedCallback() {
-    getGTMOutlook().then((result) => {
+    getGTMOutlook({year:this.fiscalYear}
+      ).then((result) => {
         let tempData = [];
         result.forEach((ele) => {
           let confirmtotalSalesChannelCYFormula = Number((Number(ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c)*Number(ele.Estimated_Growth_PY_to_CY__c)/100)+Number(ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c)).toFixed(2)
@@ -90,13 +119,12 @@ renderedCallback(){
             Id: ele.Id,
             customerName: ele.GTM_Customer__r ? ele.GTM_Customer__r.Name : "",
             totalCompaniesPurches:ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,
-
             EstimatedGrowthCY: ele.Estimated_Growth_PY_to_CY__c?ele.Estimated_Growth_PY_to_CY__c:'',
             EstimatedGrowthNY: ele.Estimated_Growth_PY_to_NY__c?ele.Estimated_Growth_PY_to_NY__c:'',
             EstimatedGrowth2NY: ele.Estimated_Growth_NY_to_2NY__c?ele.Estimated_Growth_NY_to_2NY__c:'',
-            confirmtotalSalesChannelCY:isNaN(confirmtotalSalesChannelCYFormula)?'':confirmtotalSalesChannelCYFormula,
-            confirmtotalSalesChannelNY:isNaN(confirmtotalSalesChannelNYFormula)?'':confirmtotalSalesChannelNYFormula,
-            confirmtotalSalesChanneN2Y:isNaN(confirmtotalSalesChanneN2YFormula)?'':confirmtotalSalesChanneN2YFormula,
+            confirmtotalSalesChannelCY:isNaN(confirmtotalSalesChannelCYFormula)?'':Number(confirmtotalSalesChannelCYFormula).toLocaleString(this.countryLocale),
+            confirmtotalSalesChannelNY:isNaN(confirmtotalSalesChannelNYFormula)?'':Number(confirmtotalSalesChannelNYFormula).toLocaleString(this.countryLocale),
+            confirmtotalSalesChanneN2Y:isNaN(confirmtotalSalesChanneN2YFormula)?'':Number(confirmtotalSalesChanneN2YFormula).toLocaleString(this.countryLocale),
             status:'',
             numberOfFieldsFilled:'',
             isLeadCustomer:ele.GTM_Customer__r.Lead_Customer__c?true:false,
@@ -107,6 +135,7 @@ renderedCallback(){
         });
 
         setTimeout(() => {
+
           this.GTMOutlookDetails = tempData;
           console.log('GTMOutlook String', JSON.stringify(this.GTMOutlookDetails));
           this.GTMOutlookDetailsCopy = tempData;
@@ -125,10 +154,9 @@ renderedCallback(){
       .finally(() => {
         this.pending = false;
       });
-      isWindowPeriodClosed().then(isDisable=>{
-        this.disableAll = isDisable
-    })
-  }
+    this.checkDataYear();
+    
+    }
 
   handleFieldChange(event) {
     console.log(event.target.value);
@@ -137,40 +165,34 @@ renderedCallback(){
     let recordId = event.currentTarget.dataset.id;
     console.log("Value", value, "ApiName", apiName, "Id", recordId);
   
+      if(value>100){
+        value=null;
+      }
       updateGtmDetails({apiName:apiName,value:value?value:null,recordId:recordId}).then((res) => {
         console.log("Response-->", res);
       }).catch(error=>console.log('Update GTMDetails',error))
 
       let objIndex = this.GTMOutlookDetails.findIndex(obj=>obj.Id==recordId);
 
-      let confirmtotalSalesChannelCYFormula = 0;
-      let confirmtotalSalesChannelNYFormula = 0;
-      let confirmtotalSalesChanneN2YFormula = 0;
-
+     
       
        if(apiName == 'Estimated_Growth_PY_to_CY__c'){
-         this.GTMOutlookDetails[objIndex].EstimatedGrowthCY = value;
-         confirmtotalSalesChannelCYFormula = Number((Number(this.GTMOutlookDetails[objIndex].totalCompaniesPurches)*Number(this.GTMOutlookDetails[objIndex].EstimatedGrowthCY)/100)+Number(this.GTMOutlookDetails[objIndex].totalCompaniesPurches)).toFixed(2)
-         this.GTMOutlookDetails[objIndex].confirmtotalSalesChannelCY =isNaN(confirmtotalSalesChannelCYFormula)?'':confirmtotalSalesChannelCYFormula;
-
+        this.GTMOutlookDetails[objIndex].EstimatedGrowthCY = value;
+        this.refreshValue(objIndex,value,apiName);
+       
          
        }
-       else if(apiName == 'Estimated_Growth_PY_to_NY__c'){
-        this.GTMOutlookDetails[objIndex].EstimatedGrowthNY = value;
-        confirmtotalSalesChannelCYFormula = Number((Number(this.GTMOutlookDetails[objIndex].totalCompaniesPurches)*Number(this.GTMOutlookDetails[objIndex].EstimatedGrowthCY)/100)+Number(this.GTMOutlookDetails[objIndex].totalCompaniesPurches)).toFixed(2)
-        confirmtotalSalesChannelNYFormula = Number((Number(confirmtotalSalesChannelCYFormula)*Number(this.GTMOutlookDetails[objIndex].EstimatedGrowthNY)/100)+Number(confirmtotalSalesChannelCYFormula)).toFixed(2)
-        this.GTMOutlookDetails[objIndex].confirmtotalSalesChannelNY =isNaN(confirmtotalSalesChannelNYFormula)?'':confirmtotalSalesChannelNYFormula;
+        if(apiName == 'Estimated_Growth_PY_to_NY__c'){
+          this.GTMOutlookDetails[objIndex].EstimatedGrowthNY = value;
+        this.refreshValue(objIndex,value,apiName)
       }
-      else if(apiName == 'Estimated_Growth_NY_to_2NY__c'){
+       if(apiName == 'Estimated_Growth_NY_to_2NY__c'){
         this.GTMOutlookDetails[objIndex].EstimatedGrowth2NY = value;
-        confirmtotalSalesChannelCYFormula = Number((Number(this.GTMOutlookDetails[objIndex].totalCompaniesPurches)*Number(this.GTMOutlookDetails[objIndex].EstimatedGrowthCY)/100)+Number(this.GTMOutlookDetails[objIndex].totalCompaniesPurches)).toFixed(2)
-        confirmtotalSalesChannelNYFormula = Number((Number(confirmtotalSalesChannelCYFormula)*Number(this.GTMOutlookDetails[objIndex].EstimatedGrowthNY)/100)+Number(confirmtotalSalesChannelCYFormula)).toFixed(2)
-        confirmtotalSalesChanneN2YFormula =Number((Number(confirmtotalSalesChannelNYFormula)*Number(this.GTMOutlookDetails[objIndex].EstimatedGrowth2NY)/100)+Number(confirmtotalSalesChannelNYFormula)).toFixed(2)
-        this.GTMOutlookDetails[objIndex].confirmtotalSalesChanneN2Y = isNaN(confirmtotalSalesChanneN2YFormula)?
-        '':confirmtotalSalesChanneN2YFormula;
+        this.refreshValue(objIndex,value,apiName);
+         
       }
 
-      
+ 
       setTimeout(() => {
         let tempData = JSON.parse(JSON.stringify(this.GTMOutlookDetails));
         this.GTMOutlookDetails = tempData;
@@ -180,6 +202,61 @@ renderedCallback(){
         this.updateStatusLabel();
     }, 200);
   
+  }
+
+  refreshValue(objIndex,value,apiName){
+    let confirmtotalSalesChannelCYFormula = 0;
+    let confirmtotalSalesChannelNYFormula = 0;
+    let confirmtotalSalesChanneN2YFormula = 0;
+
+    if (value) {
+      confirmtotalSalesChannelCYFormula = Number((Number(this.GTMOutlookDetails[objIndex].totalCompaniesPurches)*Number(this.GTMOutlookDetails[objIndex].EstimatedGrowthCY)/100)+Number(this.GTMOutlookDetails[objIndex].totalCompaniesPurches)).toFixed(2)
+     
+      if (this.GTMOutlookDetails[objIndex].EstimatedGrowthCY) {
+        this.GTMOutlookDetails[objIndex].confirmtotalSalesChannelCY =isNaN(confirmtotalSalesChannelCYFormula)?'':Number(confirmtotalSalesChannelCYFormula).toLocaleString(this.countryLocale);
+      }
+     
+
+      confirmtotalSalesChannelCYFormula = Number((Number(this.GTMOutlookDetails[objIndex].totalCompaniesPurches)*Number(this.GTMOutlookDetails[objIndex].EstimatedGrowthCY)/100)+Number(this.GTMOutlookDetails[objIndex].totalCompaniesPurches)).toFixed(2)
+      confirmtotalSalesChannelNYFormula = Number((Number(confirmtotalSalesChannelCYFormula)*Number(this.GTMOutlookDetails[objIndex].EstimatedGrowthNY)/100)+Number(confirmtotalSalesChannelCYFormula)).toFixed(2)
+       
+      if (this.GTMOutlookDetails[objIndex].EstimatedGrowthNY && this.GTMOutlookDetails[objIndex].EstimatedGrowthCY) {
+        this.GTMOutlookDetails[objIndex].confirmtotalSalesChannelNY =isNaN(confirmtotalSalesChannelNYFormula)?'':Number(confirmtotalSalesChannelNYFormula).toLocaleString(this.countryLocale);
+       }
+       
+
+        confirmtotalSalesChannelCYFormula = Number((Number(this.GTMOutlookDetails[objIndex].totalCompaniesPurches)*Number(this.GTMOutlookDetails[objIndex].EstimatedGrowthCY)/100)+Number(this.GTMOutlookDetails[objIndex].totalCompaniesPurches)).toFixed(2)
+        confirmtotalSalesChannelNYFormula = Number((Number(confirmtotalSalesChannelCYFormula)*Number(this.GTMOutlookDetails[objIndex].EstimatedGrowthNY)/100)+Number(confirmtotalSalesChannelCYFormula)).toFixed(2)
+        confirmtotalSalesChanneN2YFormula =Number((Number(confirmtotalSalesChannelNYFormula)*Number(this.GTMOutlookDetails[objIndex].EstimatedGrowth2NY)/100)+Number(confirmtotalSalesChannelNYFormula)).toFixed(2)
+       
+        if (this.GTMOutlookDetails[objIndex].EstimatedGrowth2NY && this.GTMOutlookDetails[objIndex].EstimatedGrowthNY && this.GTMOutlookDetails[objIndex].EstimatedGrowthCY) {
+        this.GTMOutlookDetails[objIndex].confirmtotalSalesChanneN2Y = isNaN(confirmtotalSalesChanneN2YFormula)?
+        '':Number(confirmtotalSalesChanneN2YFormula).toLocaleString(this.countryLocale);
+       }
+        
+
+
+    }
+    else{
+      if (apiName == 'Estimated_Growth_PY_to_CY__c') {
+        this.GTMOutlookDetails[objIndex].confirmtotalSalesChannelCY=null;
+        this.GTMOutlookDetails[objIndex].confirmtotalSalesChannelNY=null;
+        this.GTMOutlookDetails[objIndex].confirmtotalSalesChanneN2Y=null;
+        this.GTMOutlookDetails[objIndex].EstimatedGrowthNY=null;
+        this.GTMOutlookDetails[objIndex].EstimatedGrowth2NY=null;
+
+        
+      }
+      else if (apiName=='Estimated_Growth_PY_to_NY__c') {
+        this.GTMOutlookDetails[objIndex].confirmtotalSalesChannelNY=null;
+        this.GTMOutlookDetails[objIndex].confirmtotalSalesChanneN2Y=null;
+        this.GTMOutlookDetails[objIndex].EstimatedGrowth2NY=null;
+      }
+      else if (apiName=='Estimated_Growth_NY_to_2NY__c') {
+        this.GTMOutlookDetails[objIndex].confirmtotalSalesChanneN2Y=null;
+      }
+    }
+
   }
 
   updateStatusLabel(){
@@ -248,7 +325,7 @@ renderedCallback(){
   sortData(fieldname, direction) {
     direction = direction == true ? "asc" : "des";
     console.log("Field Name ", fieldname, " direction ", direction);
-    let parseData = JSON.parse(JSON.stringify(this.paginatedGTMOutlookDetails));
+    let parseData = JSON.parse(JSON.stringify(this.GTMOutlookDetailsCopy));
     let keyValue = (a) => {
       return a[fieldname];
     };
@@ -258,7 +335,8 @@ renderedCallback(){
       y = keyValue(y) ? keyValue(y) : "";
       return isReverse * ((x > y) - (y > x));
     });
-    this.paginatedGTMOutlookDetails = parseData;
+    this.GTMOutlookDetails = parseData;
+    this.GTMOutlookDetailsCopy = parseData;
   }
 
   handleFiltersAction(event){
@@ -355,6 +433,22 @@ handlePaginationAction(event){
   setTimeout(() => {
    console.log('curret Page ',event.detail.currentPage);
    this.paginatedGTMOutlookDetails = event.detail.values;
+   this.hasRendered = false;
 }, 200);
 }
+checkDataYear(){
+  let month = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  let d = new Date();
+  let monthName = month[d.getMonth()];
+  let currentYear = d.getFullYear();
+  let year = (monthName=='Jan' || monthName=='Feb' || monthName=='Mar')?this.fiscalYear.split('-')[1]:this.fiscalYear.split('-')[0];
+  if(currentYear!=year){
+      this.disableAll = true;
+  }else{
+      isWindowPeriodClosed().then(isDisable=>{
+          this.disableAll = isDisable
+      });
+  }
+}
+
 }

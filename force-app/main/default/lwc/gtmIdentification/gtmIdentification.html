@@ -11,8 +11,7 @@
                 <div class="slds-col slds-size_1-of-1 slds-large-size_6-of-12" style="float:right; padding:10px;">
                   <h1 style="font-size:36px; font-weight:700; color:orange;">{country}</h1>
   
-                  <p style="font-style:italic; margin:10px 0;">{labels.Please_fill_in_the_information_below_and_click_Next_to_start}
-                  </p>
+               
                   <template for:each={gtm} for:item="accItem" for:index="index" >
                   
                   <lightning-input type="text" label={labels.Name} style="font-weight:700;"  key={accItem.Id}  value={accItem.Sales_Rep_Name__c}  data-id={accItem.Id} data-name="Sales_Rep_Name__c" onchange={handleInputChange} disabled="true"></lightning-input>

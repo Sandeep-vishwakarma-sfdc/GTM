@@ -18,7 +18,8 @@
   }
   
   .sidebarMenu6 {
-    height: 100%;
+    height: 420px;
+    overflow-y: scroll;
     position: fixed;
     z-index:1;
     right: 0;
@@ -133,3 +134,9 @@
     z-index: 3;
     background: #f8f8f8;
  }
+ .fixHeader{
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f8f8f8;
+}

@@ -260,13 +260,14 @@ export default class GtmCropAllocation extends LightningElement {
             }else if(percentage==100){
                 percentageLabel = 'Not Fill';
             }
-            let obj = {'cId':ele.Crop__r.Id,'cName':ele.Crop__r.Name,'GTMDetail':ele.Id,'allocation':ele.Crop_Allocation__c,isSubmitted__c:ele.isSubmitted__c};
+            let helptext = ele.Crop__r.Help_Text__c?ele.Crop__r.Help_Text__c:'';
+            let obj = {'cId':ele.Crop__r.Id,'cName':ele.Crop__r.Name,'GTMDetail':ele.Id,'allocation':ele.Crop_Allocation__c,isSubmitted__c:ele.isSubmitted__c,helpText:helptext};
             arr.push(obj)
             masterObj = {customerId:ele.GTM_Customer__c,customerName:ele.GTM_Customer__r.Name,totalCompaniesPurches:ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,crops:arr,'isLeadCustomer':ele.GTM_Customer__r.Lead_Customer__c?true:false,percentage:percentageLabel,percentageValue:percentage,pathFinder:ele.GTM_Customer__r.Path_Finder__c};
             }
         });
-        let other = masterObj.crops.filter(ele=>ele.cName.includes('Other'));
-            let othersIndex = masterObj.crops.findIndex(ele=>ele.cName.includes('Other'));
+        let other = masterObj.crops.filter(ele=>String(ele.cName).toLowerCase().includes('other'));
+            let othersIndex = masterObj.crops.findIndex(ele=>String(ele.cName).toLowerCase().includes('other'));
             console.log('other ',other,'index ',othersIndex);
             if(othersIndex!=-1 && other.length>0){
                 masterObj.crops.splice(othersIndex,1);

@@ -24,23 +24,23 @@
       aria-labelledby="element-with-table-label other-element-with-table-label">
       <thead>
         <tr>
-          <th class="fix" style="width: 150px;">{labels.Customer_Lead_Customer}
+          <th class="fix fixHeader" style="width: 250px;">{labels.Customer_Lead_Customer}
             <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="" class="slds-m-right" title="" name="customerName" onclick={handleSort}>
             </lightning-icon>
           </th>
-          <th style="width: 120px;" class="slds-cell-wrap">{labels.All_Companies_Purchase_to_Customer1}
+          <th style="width: 120px;" class="slds-cell-wrap fixHeader">{labels.All_Companies_Purchase_to_Customer1}
             <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="" name="totalCompaniesPurches" class="slds-m-right" title="" onclick={handleSort}>
             </lightning-icon>
           </th>
           <template for:each={columns} for:item="col">
-            <th style="width: 120px;margin-left: 10px;" class="slds-cell-wrap" key={col.pid}>{col.pName}
+            <th title={col.helpText} style="width: 120px;margin-left: 10px;cursor: pointer;" class="slds-cell-wrap fixHeader" key={col.pid}>{col.pName}(%)
             </th>
           </template>
-          <th style="width: 100px;">{labels.Remaining}
+          <th style="width: 100px;" class="fixHeader">{labels.Remaining}(%)
             <!-- <lightning-icon icon-name="utility:sort" style="width: 100px;" size="xx-small" alternative-text="" class="slds-m-right" title="" name="percentageValue" onclick={handleSort}>
             </lightning-icon> -->
           </th>
-          <th>{labels.Check_If_Distribution_Is_Correct}
+          <th class="fixHeader">{labels.Check_If_Distribution_Is_Correct}
             
           </th>
         </tr>
@@ -79,7 +79,7 @@
 
   </div>
 
-  <c-pagination-cmp tabledata={productAllocations} onaction={handlePaginationAction}>
+  <c-pagination-cmp page-size-value="100" tabledata={productAllocations} onaction={handlePaginationAction}>
     <div class="slds-float_right" style="margin-right: 20rem;" slot="pageNumber"><b class="pagenumber">Page:1 of 10</b>
     </div>
   </c-pagination-cmp>

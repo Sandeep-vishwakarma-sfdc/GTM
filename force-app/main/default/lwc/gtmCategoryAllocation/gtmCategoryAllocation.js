@@ -273,13 +273,14 @@ export default class GtmCategoryAllocation extends LightningElement {
                 percentageLabel = 'Not Fill';
             }
             // console.log('percenatge ',percentage);
-            let obj = {'pId':ele.Product_Category__r.Id,'pName':ele.Product_Category__r.Name,'GTMDetail':ele.Id,'allocation':ele.Product_Category_Allocation__c,isSubmitted__c:ele.isSubmitted__c};
+            let helptext = ele.Product_Category__r.Help_Text__c?ele.Product_Category__r.Help_Text__c:'';
+            let obj = {'pId':ele.Product_Category__r.Id,'pName':ele.Product_Category__r.Name,'GTMDetail':ele.Id,'allocation':ele.Product_Category_Allocation__c,isSubmitted__c:ele.isSubmitted__c,helpText:helptext};
             arr.push(obj)
             masterObj = {customerId:ele.GTM_Customer__c,customerName:ele.GTM_Customer__r.Name,totalCompaniesPurches:ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c, productCategory:arr,'isLeadCustomer':ele.GTM_Customer__r.Lead_Customer__c?true:false,percentage:percentageLabel,percentageValue:percentage,pathFinder:ele.GTM_Customer__r.Path_Finder__c};
             }
         })
-        let other = masterObj.productCategory.filter(ele=>ele.pName.includes('Other'));
-            let othersIndex = masterObj.productCategory.findIndex(ele=>ele.pName.includes('Other'));
+        let other = masterObj.productCategory.filter(ele=>String(ele.pName).toLowerCase().includes('other'));
+            let othersIndex = masterObj.productCategory.findIndex(ele=>String(ele.pName).toLowerCase().includes('other'));
             console.log('other ',other,'index ',othersIndex);
             if(othersIndex!=-1 && other.length>0){
                 masterObj.productCategory.splice(othersIndex,1);

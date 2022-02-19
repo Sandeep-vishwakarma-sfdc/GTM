@@ -144,7 +144,7 @@ public without sharing class GTMPathFinder {
         Id leadcustomerRecordType = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Lead Customer').getRecordTypeId();
         Id nonleadcustomerRecordType = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Distributor').getRecordTypeId();
         System.debug('leadcustomerRecordType '+leadcustomerRecordType);
-        System.debug('filter Sales_Org_Code__c'+salesOrg.Sales_Org_Code__c+' leadrecordType '+leadcustomerRecordType+' Lead_Customer_Ownership__c '+userInfo.getUserId());
+        //System.debug('filter Sales_Org_Code__c'+salesOrg.Sales_Org_Code__c+' leadrecordType '+leadcustomerRecordType+' Lead_Customer_Ownership__c '+userInfo.getUserId());
         if(Schema.sObjectType.Account.isAccessible()){
             // Getting Lead Customers by record type
             leadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c and Account_Type__c='Sold To Party' and recordType.Id=:leadcustomerRecordType and Lead_Customer_Ownership__c=:userInfo.getUserId()];
@@ -165,12 +165,13 @@ public without sharing class GTMPathFinder {
         List<Product_Category_Sales_Org_Mapping__c> productCategoryMapping = new List<Product_Category_Sales_Org_Mapping__c>();
         List<Product_Category__c> productCategories = new List<Product_Category__c>();
         if(Schema.sObjectType.Product_Category_Sales_Org_Mapping__c.isAccessible() && Schema.sObjectType.Product_Category__c.isAccessible()){
-            productCategoryMapping = [select id,Name,Category_Index__c,Product_Category__c,Product_Category__r.Name from Product_Category_Sales_Org_Mapping__c where Status__c='Active' and Sales_Org__r.Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c ORDER BY Category_Index__c DESC]; // TODO: To add Order by index
+            productCategoryMapping = [select id,Name,Product_Category__c,Product_Category__r.Name,Product_Category__r.Help_Text__c from Product_Category_Sales_Org_Mapping__c where Status__c='Active' and Sales_Org__r.Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c];
             List<String> productCategoriesId = new List<String>(); 
             for(Product_Category_Sales_Org_Mapping__c pcm:productCategoryMapping){
                 Product_Category__c productCategory = new Product_Category__c();
                 productCategory.Id = pcm.Product_Category__r.Id;
                 productCategory.Name = pcm.Product_Category__r.Name;
+                productCategory.Help_Text__c = pcm.Product_Category__r.Help_Text__c;
                 productCategories.add(productCategory);
             }
         }
@@ -320,7 +321,7 @@ public without sharing class GTMPathFinder {
     public static List<Crop__c> getActiveCrop(){
     List<Crop__c> listCrop = new List<Crop__c>();
         if(Schema.sObjectType.Crop__c.isAccessible()){
-            listCrop = [select Id,Name,Category_Index__c from Crop__c where GTM_Status__c='Active' and Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c ORDER BY Category_Index__c DESC];// TODO: To add Order by index
+            listCrop = [select Id,Name,Help_Text__c from Crop__c where GTM_Status__c='Active' and Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c];
         }
         return listCrop;
     }
@@ -353,7 +354,7 @@ public without sharing class GTMPathFinder {
     private static List<GTM_Details__c> getGTMDetailsProduct(String fiscalyear){
         Id recordTypeProductCategory = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Product Category Allocation').getRecordTypeId();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Product_Category__c,Product_Category__r.Name,Product_Category_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory order by GTM_Customer__r.Name ASC]; 
+        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Product_Category__c,Product_Category__r.Name,Product_Category__r.Help_Text__c,Product_Category_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory order by GTM_Customer__r.Name ASC]; 
 
         System.debug('gtmDetails '+gtmDetails.size());
         if(gtmDetails.size()>0){
@@ -365,7 +366,7 @@ public without sharing class GTMPathFinder {
     private static List<GTM_Details__c> getGTMDetailsCrop(String fiscalyear){
         Id recordTypeProductCategory = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Crop Allocation').getRecordTypeId();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Crop__c,Crop__r.Name,Crop_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory order by GTM_Customer__r.Name ASC];
+        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Crop__c,Crop__r.Name,Crop__r.Help_Text__c,Crop_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory order by GTM_Customer__r.Name ASC];
 
         System.debug('gtmDetails '+gtmDetails.size());
         if(gtmDetails.size()>0){

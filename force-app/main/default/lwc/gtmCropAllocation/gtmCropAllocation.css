@@ -31,6 +31,7 @@
     color:#fff;
     top:0;
     padding:10px;
+    z-index: 6;
   }
   .sidebarMenuInner4 {
     margin:0;
@@ -134,4 +135,9 @@
     z-index: 3;
     background: #f8f8f8;
  }
-  
+ .fixHeader{
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f8f8f8;
+}

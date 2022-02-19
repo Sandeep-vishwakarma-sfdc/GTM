@@ -22,32 +22,32 @@
 
       <thead>
         <tr>
-          <th class="fix slds-cell-wrap" style="width: 150px;" >{labels.Customer_Lead_Customer}
+          <th class="fix fixHeader slds-cell-wrap" style="width: 250px;" >{labels.Customer_Lead_Customer}
             <lightning-icon icon-name="utility:sort" onclick={handleSort} name="client" size="xx-small" alternative-text="sort" class="slds-m-right"
               title=""></lightning-icon>
           </th>
-          <th style="text-align:center;width: 130px;" class="slds-cell-wrap">{labels.Customer_Type}
+          <th style="text-align:center;width: 130px;" class="slds-cell-wrap fixHeader">{labels.Customer_Type}
             <lightning-icon icon-name="utility:sort" onclick={handleSort} name="customerType" size="xx-small" alternative-text="sort" class="slds-m-right"
               title=""></lightning-icon>
           </th>
-          <th style="text-align:center;width: 130px;" class="slds-cell-wrap">{labels.Confirm_Customer_Type_Indicated_on_the_Left_Adjacent_Cell1}
+          <th style="text-align:center;width: 130px;" class="slds-cell-wrap fixHeader">{labels.Confirm_Customer_Type_Indicated_on_the_Left_Adjacent_Cell1}
           </th>
-          <th style="text-align:center;width: 130px;" class="slds-cell-wrap">{labels.Total_Purcahse_of_Crop_Protection_Industry_Price1}
+          <th style="text-align:center;width: 100px;" class="slds-cell-wrap fixHeader">{labels.Total_Purcahse_of_Crop_Protection_Industry_Price1}
             <lightning-icon icon-name="utility:sort" size="xx-small" onclick={handleSort} name="totalPurcahseCrop" alternative-text="sort" class="slds-m-right"
               title=""></lightning-icon>
           </th>
-          <th style="text-align:center;width: 130px;" class="slds-cell-wrap">{labels.Estimated_Markup_of_Channel_In_of_Sales1}
+          <th style="text-align:center;width: 130px;" class="slds-cell-wrap fixHeader">{labels.Estimated_Markup_of_Channel_In_of_Sales1}
             <lightning-icon icon-name="utility:sort" size="xx-small" onclick={handleSort} name="estimateChannel" alternative-text="sort" class="slds-m-right"
               title=""></lightning-icon>
           </th>
-          <th style="text-align:center;width: 340px;" class="slds-cell-wrap">{labels.Confirm_the_Estimated_Revenues_of_the_Customer_in1}
+          <th style="text-align:center;width: 330px;" class="slds-cell-wrap fixHeader">{labels.Confirm_the_Estimated_Revenues_of_the_Customer_in1}
             
           </th>
-          <th style="text-align:center;width: 130px;" class="slds-cell-wrap">{labels.Estimated_Number_Of_Sales_REP_on_Role1}
+          <th style="text-align:center;width: 100px;" class="slds-cell-wrap fixHeader">{labels.Estimated_Number_Of_Sales_REP_on_Role1}
             <lightning-icon icon-name="utility:sort" onclick={handleSort} name="estimateSalesRepRole" size="xx-small" alternative-text="sort" class="slds-m-right"
               title=""></lightning-icon>
           </th>
-          <th style="text-align:center;width: 130px;" class="slds-cell-wrap">{labels.Number_of_Stories_That_the_Channel_has1}
+          <th style="text-align:center;width: 100px;" class="slds-cell-wrap fixHeader">{labels.Number_of_Stories_That_the_Channel_has1}
             <lightning-icon icon-name="utility:sort" onclick={handleSort} name="storiesChannelHas" size="xx-small" alternative-text="sort" class="slds-m-right"
               title=""></lightning-icon>
           </th>
@@ -106,7 +106,7 @@
     </div>
   </div>
 
-  <c-pagination-cmp tabledata={gtmPotentialProfile}  onaction={handlePaginationAction}>
+  <c-pagination-cmp page-size-value="100" tabledata={gtmPotentialProfile}  onaction={handlePaginationAction}>
     <div class="slds-float_right" style="margin-right: 20rem;" slot="pageNumber"><b class="pagenumber">{labels.Page}:</b></div>
   </c-pagination-cmp>
 </template>
