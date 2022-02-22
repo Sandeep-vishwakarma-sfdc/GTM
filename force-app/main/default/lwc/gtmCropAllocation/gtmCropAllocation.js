@@ -15,8 +15,11 @@ import Combined_Total_Value from '@salesforce/label/c.Combined_Total_Value';
 import Combined_total_value_more_than_100_is_not_allowed from '@salesforce/label/c.Combined_total_value_more_than_100_is_not_allowed';
 import Instructions from '@salesforce/label/c.Instructions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import getLeadRecordTypeId from '@salesforce/apex/GTMPathFinder.getLeadRecordTypeId';
+import getGTMDetailsToDisable from '@salesforce/apex/GTMPathFinder.getGTMDetailsToDisable';
 export default class GtmCropAllocation extends LightningElement {
     filtersOnPage = '';
+    gtmDetailsToDisable = [];
     instrustions = '';
     hasRendered = false;
     @track cropAllocations = [];
@@ -31,6 +34,7 @@ export default class GtmCropAllocation extends LightningElement {
     }
     sortDirection = true;
     @track paginatedCropAllocation = [];
+    leadRecordTypeId = '';
     columns = [];
     fiscalYear = '';
     columnfiscalYear = '';
@@ -48,6 +52,17 @@ export default class GtmCropAllocation extends LightningElement {
         }
     }
    
+    
+      @wire(getLeadRecordTypeId) getLeadRecordType({err,data}){
+        if(data){
+            this.leadRecordTypeId = data;
+            console.log('leadRecordTypeId ',this.leadRecordTypeId);
+        }
+        if(err){
+            console.log('Error while getting Lead Record Type ',err);
+        }
+    }
+
 
     @api onTabRefresh(){
         setTimeout(() => {
@@ -98,6 +113,12 @@ export default class GtmCropAllocation extends LightningElement {
                         }
                     })
                 })
+                this.gtmDetailsToDisable.forEach(row => {
+                    console.log('row ',row);
+                    this.template.querySelectorAll('[data-detail="' + row.Id + '"]').forEach(cell => {
+                        cell.disabled = true;
+                    })
+                })
                 this.hasRendered = true;
             }, 500);
         }
@@ -137,6 +158,10 @@ export default class GtmCropAllocation extends LightningElement {
             console.log(err)
         });
       
+        getGTMDetailsToDisable({recordTypeName:'Crop Allocation'}).then(gtmDetailsToDisable=>{
+            this.gtmDetailsToDisable = gtmDetailsToDisable;
+            console.log('gtmDetailsToDisable ',gtmDetailsToDisable);
+        }).catch(err=>console.log('gtmDetailsToDisable ',err));
         this.checkDataYear();
     }
 
@@ -263,7 +288,7 @@ export default class GtmCropAllocation extends LightningElement {
             let helptext = ele.Crop__r.Help_Text__c?ele.Crop__r.Help_Text__c:'';
             let obj = {'cId':ele.Crop__r.Id,'cName':ele.Crop__r.Name,'GTMDetail':ele.Id,'allocation':ele.Crop_Allocation__c,isSubmitted__c:ele.isSubmitted__c,helpText:helptext};
             arr.push(obj)
-            masterObj = {customerId:ele.GTM_Customer__c,customerName:ele.GTM_Customer__r.Name,totalCompaniesPurches:ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,crops:arr,'isLeadCustomer':ele.GTM_Customer__r.Lead_Customer__c?true:false,percentage:percentageLabel,percentageValue:percentage,pathFinder:ele.GTM_Customer__r.Path_Finder__c};
+            masterObj = {customerId:ele.GTM_Customer__c,customerName:ele.GTM_Customer__r.Name,totalCompaniesPurches:ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,crops:arr,'isLeadCustomer':ele.GTM_Customer__r.RecordTypeId == this.leadRecordTypeId?true:false,percentage:percentageLabel,percentageValue:percentage,pathFinder:ele.GTM_Customer__r.Path_Finder__c};
             }
         });
         let other = masterObj.crops.filter(ele=>String(ele.cName).toLowerCase().includes('other'));

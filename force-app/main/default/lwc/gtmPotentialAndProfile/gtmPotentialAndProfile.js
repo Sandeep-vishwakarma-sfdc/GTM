@@ -21,7 +21,8 @@ import Estimated_Markup_of_Channel_In_of_Sales from '@salesforce/label/c.Estimat
 import USD_Million from '@salesforce/label/c.USD_Million';
 import The_total_farm_gate_revenues_are_USD from '@salesforce/label/c.The_total_farm_gate_revenues_are_USD';
 import Page from '@salesforce/label/c.Page';
-import setFiscalYear from '@salesforce/apex/GTMPathFinder.setFiscalYear';
+import getLeadRecordTypeId from '@salesforce/apex/GTMPathFinder.getLeadRecordTypeId';
+import getGTMDetailsToDisable from '@salesforce/apex/GTMPathFinder.getGTMDetailsToDisable';
 
 export default class GtmPotentialAndProfile extends LightningElement {
     filterOnPage = '';
@@ -36,6 +37,8 @@ export default class GtmPotentialAndProfile extends LightningElement {
     optionsToDisable = ['Farmer', 'B2B'];
     sortDirection = true;
     disableAll = false;
+    leadRecordTypeId = '';
+    gtmDetailsToDisable = [];
     @track recordTypeId;
     @track panelStatus = {
         notFilled: '0',
@@ -74,6 +77,16 @@ export default class GtmPotentialAndProfile extends LightningElement {
             this.instrustions = data.Instruction_Profile_Potential__c;
         }
     }
+
+    // @wire(getLeadRecordTypeId) getLeadRecordType({err,data}){
+    //     if(data){
+    //         this.leadRecordTypeId = data;
+    //         console.log('leadRecordTypeId ',this.leadRecordTypeId);
+    //     }
+    //     if(err){
+    //         console.log('Error while getting Lead Record Type ',err);
+    //     }
+    // }
 
     
 
@@ -116,6 +129,12 @@ export default class GtmPotentialAndProfile extends LightningElement {
                             cell.disabled = true;
                         })
                     }
+                });
+                this.gtmDetailsToDisable.forEach(row => {
+                    console.log('row ',row);
+                    this.template.querySelectorAll('[data-id="' + row.Id + '"]').forEach(cell => {
+                        cell.disabled = true;
+                    })
                 })
                 this.hasRendered = true;
             }, 500);
@@ -144,11 +163,14 @@ export default class GtmPotentialAndProfile extends LightningElement {
     connectedCallback() {
         console.log('GTM fiscal year', this.fiscalYear);
         this.showLoading = true;
+        getLeadRecordTypeId().then(leadRecordType=>{
+            this.leadRecordTypeId = leadRecordType;
         getPotentialAndProfile({ year: this.fiscalYear }).then(data => {
             console.log('Data ', data);
             let tempData = [];
             if (data) {
                 data.forEach(ele => {
+                    
                     let calculation = String(ele.Total_Purchase_of_Crop_Protection_PY__c) && String(ele.Estimated_Markup_of_Channel__c) ? ((Number(ele.Total_Purchase_of_Crop_Protection_PY__c) * Number(ele.Estimated_Markup_of_Channel__c)) / 100) + ele.Total_Purchase_of_Crop_Protection_PY__c : 0;
                     let tempValue = calculation ? calculation : 0;
                     let obj = {
@@ -164,7 +186,7 @@ export default class GtmPotentialAndProfile extends LightningElement {
                         storiesChannelHas: ele.Number_of_Stores_That_the_Channel_Has__c,
                         status: '',
                         numberOfFieldsFilled: '',
-                        isLeadCustomer: ele.GTM_Customer__r.Lead_Customer__c ? true : false,
+                        isLeadCustomer: ele.GTM_Customer__r.RecordTypeId==this.leadRecordTypeId ? true : false,
                         confirmEstimatedRevenue: `${this.labels.The_total_farm_gate_revenues_are_USD}  ${Number(tempValue).toLocaleString(this.countryLocale)} ${this.labels.USD_Million}	
                         `,
                         pathFinder: ele.GTM_Customer__r.Path_Finder__c,
@@ -174,6 +196,7 @@ export default class GtmPotentialAndProfile extends LightningElement {
                     tempData.push(obj);
                 });
                 setTimeout(() => {
+                    console.log('tempData ',tempData);
                     this.gtmPotentialProfile = tempData;
                     this.gtmPotentialProfileVirtual = tempData;
                     this.paginatedGtmPotentialProfile = this.gtmPotentialProfile;
@@ -186,11 +209,16 @@ export default class GtmPotentialAndProfile extends LightningElement {
                 }, 200);
             }
         });
+    });
         if (!this.fiscalYear) {
             getFiscalYear().then(fiscalyear => {
                 this.fiscalYear = fiscalyear.replace('-20', '/');
             });
         }
+        getGTMDetailsToDisable({recordTypeName:'Profile & Potential'}).then(gtmDetailsToDisable=>{
+            this.gtmDetailsToDisable = gtmDetailsToDisable;
+            console.log('gtmDetailsToDisable ',gtmDetailsToDisable);
+        }).catch(err=>console.log('gtmDetailsToDisable ',err));
         this.checkDataYear();
     }
 

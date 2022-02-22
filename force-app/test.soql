@@ -134,3 +134,5 @@ List<GTM_Details__c> gtmdetails = [Select id,Name,isSubmitted__c,GTM__c from GTM
 
 
 List<Account> acc = [select Id,Name,Lead_Customer_Ownership__c from Account where Lead_Customer_Ownership__c='0050K000009wufh'];
+
+System.debug('Id '+GTMPathFinder.getLeadRecordTypeId());

@@ -15,9 +15,12 @@ import Combined_Total_Value from '@salesforce/label/c.Combined_Total_Value';
 import Combined_total_value_more_than_100_is_not_allowed from '@salesforce/label/c.Combined_total_value_more_than_100_is_not_allowed';
 import Instructions from '@salesforce/label/c.Instructions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import getLeadRecordTypeId from '@salesforce/apex/GTMPathFinder.getLeadRecordTypeId';
+import getGTMDetailsToDisable from '@salesforce/apex/GTMPathFinder.getGTMDetailsToDisable';
 
 export default class GtmCategoryAllocation extends LightningElement {
     filtersOnPage = '';
+    gtmDetailsToDisable = [];
     @track productAllocations = [];
     hasRendered = false;
     copyproductAllocationsVirtual = [];
@@ -34,6 +37,7 @@ export default class GtmCategoryAllocation extends LightningElement {
     columns = [];
     fiscalYear = '';
     columnfiscalYear = '';
+    leadRecordTypeId = '';
 
     set gtmFiscalYear(value) {
         this.fiscalYear = value;
@@ -60,6 +64,16 @@ export default class GtmCategoryAllocation extends LightningElement {
     @wire(getInstructions) getInstrustion({error,data}){
         if(data){
             this.instrustions = data.Instruction_Product_Category_Allocatio__c;
+        }
+    }
+
+     @wire(getLeadRecordTypeId) getLeadRecordType({err,data}){
+        if(data){
+            this.leadRecordTypeId = data;
+            console.log('leadRecordTypeId ',this.leadRecordTypeId);
+        }
+        if(err){
+            console.log('Error while getting Lead Record Type ',err);
         }
     }
 
@@ -100,6 +114,11 @@ export default class GtmCategoryAllocation extends LightningElement {
                             })
                         }
                     })
+                });
+                this.gtmDetailsToDisable.forEach(row => {
+                    this.template.querySelectorAll('[data-detail="' + row.Id + '"]').forEach(cell => {
+                        cell.disabled = true;
+                    });
                 })
                 this.hasRendered = true;
             }, 500);
@@ -138,6 +157,10 @@ export default class GtmCategoryAllocation extends LightningElement {
             setTimeout(() => {
                 this.showLoading = false;
             }, 1500);
+            getGTMDetailsToDisable({recordTypeName:'Product Category Allocation'}).then(gtmDetailsToDisable=>{
+                this.gtmDetailsToDisable = gtmDetailsToDisable;
+                console.log('gtmDetailsToDisable ',gtmDetailsToDisable);
+            }).catch(err=>console.log('gtmDetailsToDisable ',err));
         }).catch(err=>{
             this.showLoading = false;
             console.log(err)
@@ -276,7 +299,7 @@ export default class GtmCategoryAllocation extends LightningElement {
             let helptext = ele.Product_Category__r.Help_Text__c?ele.Product_Category__r.Help_Text__c:'';
             let obj = {'pId':ele.Product_Category__r.Id,'pName':ele.Product_Category__r.Name,'GTMDetail':ele.Id,'allocation':ele.Product_Category_Allocation__c,isSubmitted__c:ele.isSubmitted__c,helpText:helptext};
             arr.push(obj)
-            masterObj = {customerId:ele.GTM_Customer__c,customerName:ele.GTM_Customer__r.Name,totalCompaniesPurches:ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c, productCategory:arr,'isLeadCustomer':ele.GTM_Customer__r.Lead_Customer__c?true:false,percentage:percentageLabel,percentageValue:percentage,pathFinder:ele.GTM_Customer__r.Path_Finder__c};
+            masterObj = {customerId:ele.GTM_Customer__c,customerName:ele.GTM_Customer__r.Name,totalCompaniesPurches:ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c, productCategory:arr,'isLeadCustomer':ele.GTM_Customer__r.RecordTypeId==this.leadRecordTypeId ?true:false,percentage:percentageLabel,percentageValue:percentage,pathFinder:ele.GTM_Customer__r.Path_Finder__c};
             }
         })
         let other = masterObj.productCategory.filter(ele=>String(ele.pName).toLowerCase().includes('other'));

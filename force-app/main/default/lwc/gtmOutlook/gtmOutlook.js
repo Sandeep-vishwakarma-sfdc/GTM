@@ -13,12 +13,13 @@ import Estimated_Growth_in_NNY from '@salesforce/label/c.Estimated_Growth_in_NNY
 import Estimated_Sales_in_NNY from '@salesforce/label/c.Estimated_Sales_in_NNY';
 import isWindowPeriodClosed from '@salesforce/apex/GTMPathFinder.isWindowPeriodClosed';
 import getUser from '@salesforce/apex/GTMPathFinder.getUser';
-
+import getLeadRecordTypeId from '@salesforce/apex/GTMPathFinder.getLeadRecordTypeId';
 
 export default class GtmOutlook extends LightningElement {
   instrustions = '';
   countryLocale = 'es-Ar';
   hasRendered = false;
+  leadRecordTypeId = '';
   disableAll = false;
   @track GTMOutlookDetails = [];
   GTMOutlookDetailsCopy = [];
@@ -105,6 +106,8 @@ renderedCallback(){
   }
 }
   connectedCallback() {
+    getLeadRecordTypeId().then(leadRecordType=>{
+      this.leadRecordTypeId = leadRecordType;
     getGTMOutlook({year:this.fiscalYear}
       ).then((result) => {
         let tempData = [];
@@ -127,7 +130,7 @@ renderedCallback(){
             confirmtotalSalesChanneN2Y:isNaN(confirmtotalSalesChanneN2YFormula)?'':Number(confirmtotalSalesChanneN2YFormula).toLocaleString(this.countryLocale),
             status:'',
             numberOfFieldsFilled:'',
-            isLeadCustomer:ele.GTM_Customer__r.Lead_Customer__c?true:false,
+            isLeadCustomer:ele.GTM_Customer__r.RecordTypeId==this.leadRecordTypeId?true:false,
             pathFinder:ele.GTM_Customer__r.Path_Finder__c,
             isSubmitted__c:ele.isSubmitted__c
           };
@@ -154,6 +157,7 @@ renderedCallback(){
       .finally(() => {
         this.pending = false;
       });
+    })
     this.checkDataYear();
     
     }

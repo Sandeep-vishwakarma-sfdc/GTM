@@ -21,7 +21,7 @@
     height: 420px;
     overflow-y: scroll;
     position: fixed;
-    z-index:1;
+    z-index:6;
     right: 0;
     width:500px;
     margin-top: 194px;
@@ -131,7 +131,7 @@
   .fix{
     position: sticky;
     left: 0;
-    z-index: 3;
+    z-index: 3!important;
     background: #f8f8f8;
  }
  .fixHeader{

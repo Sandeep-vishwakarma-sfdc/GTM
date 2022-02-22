@@ -136,7 +136,7 @@ public without sharing class GTMPathFinder {
             insert gtmDetails;
         }
     }
-
+    @AuraEnabled
     public static List<Account> getGTMCustomers(){ // GTMCustomer = Lead + Non-Lead Customer
         List<Account> gtmCustomers = new List<Account>();
         List<Account> leadCustomerList = new List<Account>();
@@ -239,7 +239,7 @@ public without sharing class GTMPathFinder {
     public static List<GTM_Details__c> getGTMPotentialProfile(String fiscalyear){
         Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Profile & Potential').getRecordTypeId();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer_Type__c ,Total_Purchase_of_Crop_Protection_PY__c,Estimated_Markup_of_Channel__c,Estimated_Number_of_Sales_Rep_on_Role__c,Number_of_Stores_That_the_Channel_Has__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypePotentialProfile ORDER BY GTM_Customer__r.Name ASC];
+        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.recordTypeId,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer_Type__c ,Total_Purchase_of_Crop_Protection_PY__c,Estimated_Markup_of_Channel__c,Estimated_Number_of_Sales_Rep_on_Role__c,Number_of_Stores_That_the_Channel_Has__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypePotentialProfile ORDER BY GTM_Customer__r.Name ASC];
         return gtmDetails;
     }
 
@@ -248,7 +248,7 @@ public without sharing class GTMPathFinder {
     public static boolean isGTMProfileAndPotentialCreated(String fiscalyear){
         Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Profile & Potential').getRecordTypeId();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypePotentialProfile];
+        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypePotentialProfile];
         System.debug('gtmDetails Profile And Potential'+gtmDetails.size());
         if(gtmDetails.size()>0){
             return true;
@@ -354,7 +354,7 @@ public without sharing class GTMPathFinder {
     private static List<GTM_Details__c> getGTMDetailsProduct(String fiscalyear){
         Id recordTypeProductCategory = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Product Category Allocation').getRecordTypeId();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Product_Category__c,Product_Category__r.Name,Product_Category__r.Help_Text__c,Product_Category_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory order by GTM_Customer__r.Name ASC]; 
+        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Product_Category__c,Product_Category__r.Name,Product_Category__r.Help_Text__c,Product_Category_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory order by GTM_Customer__r.Name ASC]; 
 
         System.debug('gtmDetails '+gtmDetails.size());
         if(gtmDetails.size()>0){
@@ -366,7 +366,7 @@ public without sharing class GTMPathFinder {
     private static List<GTM_Details__c> getGTMDetailsCrop(String fiscalyear){
         Id recordTypeProductCategory = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Crop Allocation').getRecordTypeId();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Crop__c,Crop__r.Name,Crop__r.Help_Text__c,Crop_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory order by GTM_Customer__r.Name ASC];
+        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Crop__c,Crop__r.Name,Crop__r.Help_Text__c,Crop_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory order by GTM_Customer__r.Name ASC];
 
         System.debug('gtmDetails '+gtmDetails.size());
         if(gtmDetails.size()>0){
@@ -479,7 +479,7 @@ public without sharing class GTMPathFinder {
             newGTMCustomers.put(customer.Id,customer);
         }
         Map<String,List<String>> maprecordTypeDetails = new Map<String,List<String>>();
-        List<GTM_Details__c> gtmdetailsAccounts = [Select Id,recordTypeId,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId()];
+        List<GTM_Details__c> gtmdetailsAccounts = [Select Id,recordTypeId,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId()];
 
         for(GTM_Details__c detailsAccount:gtmdetailsAccounts){
             List<String> listAccount = new List<String>();
@@ -670,5 +670,29 @@ public without sharing class GTMPathFinder {
     public static User getUser(){
         User usr = [select Id,Name,Country from User where id=:userInfo.getUserId()];
         return usr;
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static string getLeadRecordTypeId(){
+        Id leadcustomerRecordType = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Lead Customer').getRecordTypeId();
+        return String.valueOf(leadcustomerRecordType); 
+    }
+
+    @AuraEnabled
+    public static List<GTM_Details__c> getGTMDetailsToDisable(String recordTypeName){
+        Id detailRecordType = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get(recordTypeName).getRecordTypeId();
+        List<GTM_Details__c> gtmDetailsToDisable = new List<GTM_Details__c>();
+        List<String> allCustomersId = new List<String>();
+        List<GTM_Details__c> allGtmDetails = [Select Id,recordTypeId,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:detailRecordType];
+        List<Account> allCustomers = getGTMCustomers();
+        for(Account a:allCustomers){
+            allCustomersId.add(a.Id);
+        }
+        for(GTM_Details__c g:allGtmDetails){
+            if(!allCustomersId.contains(g.GTM_Customer__c)){
+                gtmDetailsToDisable.add(g);
+            }
+        }
+        return gtmDetailsToDisable;
     }
 }
