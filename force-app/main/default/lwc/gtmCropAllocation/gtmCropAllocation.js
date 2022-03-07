@@ -145,6 +145,7 @@ export default class GtmCropAllocation extends LightningElement {
                 this.copyCropAllocationsVirtual = tempAllCropAllocations;
                 this.paginatedCropAllocation = this.cropAllocations;
                 let copyCropAllocations = this.cropAllocations;
+                this.sortData('customerName',true);
                 this.getTableData(copyCropAllocations);
                 setTimeout(() => {
                     this.paginatedCropAllocation.forEach(ele=>{

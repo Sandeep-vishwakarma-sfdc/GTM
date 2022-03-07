@@ -122,7 +122,8 @@ public without sharing class GTMPathFinder {
     public static void createGTMPotentialAndProfile(GTM__c gtm){
         Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Profile & Potential').getRecordTypeId();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        for(Account acc:getGTMCustomers()){
+        List<Account> listAccounts = getGTMCustomers();
+        for(Account acc:listAccounts){
             GTM_Details__c gtmd = new GTM_Details__c();
             gtmd.GTM_Customer__c = acc.Id;
             gtmd.recordTypeId = recordTypePotentialProfile;
@@ -212,8 +213,10 @@ public without sharing class GTMPathFinder {
         for(GTM_Details__c gtm1:gtmPotentialProfile){
             mapPotentialProfile.put(gtm1.GTM_Customer__c,gtm1);
         }
-        for(Account acc:getGTMCustomers()){
-            for(Product_Category__c pc:getActiveProductCategory()){
+        List<Product_Category__c> listProductCategory = getActiveProductCategory();
+        List<Account> listAccounts = getGTMCustomers();
+        for(Account acc:listAccounts){
+            for(Product_Category__c pc:listProductCategory){
                 System.debug('For loop Product_Category__c '+pc);
                 GTM_Details__c gtmDetail = new GTM_Details__c();
                 gtmDetail.recordTypeId = recordTypeProductCategory;
@@ -292,7 +295,8 @@ public without sharing class GTMPathFinder {
         //Creating GTM_Details__c
         Id recordTypeCropAllocation = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Crop Allocation').getRecordTypeId();
         System.debug('recordTypeCropAllocation '+recordTypeCropAllocation);
-        for(Account acc:getGTMCustomers()){
+        List<Account> listAccount = getGTMCustomers();
+        for(Account acc:listAccount){
             for(Crop__c crop:activeCrops){
                 System.debug('For loop Crop__c '+crop);
                 GTM_Details__c gtmDetail = new GTM_Details__c();
@@ -475,7 +479,8 @@ public without sharing class GTMPathFinder {
         Map<String,Account> newGTMCustomers = new Map<String,Account>();
         Set<String> oldAccounts = new Set<String>();
         List<Account> newAccountsFound = new List<Account>();
-        for(Account customer : getGTMCustomers()){
+        List<Account> listAccounts = getGTMCustomers();
+        for(Account customer : listAccounts){
             newGTMCustomers.put(customer.Id,customer);
         }
         Map<String,List<String>> maprecordTypeDetails = new Map<String,List<String>>();
@@ -500,7 +505,8 @@ public without sharing class GTMPathFinder {
         Id recordTypeOutlook = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Outlook').getRecordTypeId();
 
         System.debug('maprecordTypeDetails '+maprecordTypeDetails);
-        for(Account newCustomer : newGTMCustomers.values()){
+        
+        for(Account newCustomer : listAccounts){
             System.debug('newCustomer '+newCustomer);
             boolean potentialProfileData = maprecordTypeDetails.get(recordTypePotentialProfile)?.contains(newCustomer.id);
             boolean productCatergoryData = maprecordTypeDetails.get(recordTypeCropAllocation)?.contains(newCustomer.id);
@@ -548,9 +554,10 @@ public without sharing class GTMPathFinder {
             mapPotentialProfile.put(gtm1.GTM_Customer__c,gtm1);
         }
         // Create Crop Allocation for newly added Customers
+        List<Crop__c> listCrops = getActiveCrop();
         gtmDetails.clear();
         for(Account acc:newCustomers){
-            for(Crop__c crop:getActiveCrop()){
+            for(Crop__c crop:listCrops){
                 System.debug('For loop Crop__c '+crop);
                 GTM_Details__c gtmDetail = new GTM_Details__c();
                 gtmDetail.recordTypeId = recordTypeCropAllocation;
@@ -565,9 +572,10 @@ public without sharing class GTMPathFinder {
         insert gtmDetails;
 
         // Create Product Allocation for newly added Customers
+        List<Product_Category__c> listProductCategory = getActiveProductCategory();
         gtmDetails.clear();
         for(Account acc:newCustomers){
-            for(Product_Category__c pc:getActiveProductCategory()){
+            for(Product_Category__c pc:listProductCategory){
                 System.debug('For loop Product_Category__c '+pc);
                 GTM_Details__c gtmDetail = new GTM_Details__c();
                 gtmDetail.recordTypeId = recordTypeProductCategory;

@@ -146,6 +146,7 @@ export default class GtmCategoryAllocation extends LightningElement {
                 this.copyproductAllocationsVirtual = tempAllProductAllocations;
                 this.paginatedProductCategoryAllocation = this.productAllocations;
                 let copyProductAllocations = this.productAllocations;
+                this.sortData('customerName',true);
                 this.getTableData(copyProductAllocations);
                 setTimeout(() => {
                     this.paginatedProductCategoryAllocation.forEach(ele=>{
@@ -295,11 +296,12 @@ export default class GtmCategoryAllocation extends LightningElement {
             }else if(percentage==100){
                 percentageLabel = 'Not Fill';
             }
-            // console.log('percenatge ',percentage);
+            let tempCompaniesPY = Number(ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c)?Number(ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c).toLocaleString(this.countryLocale):'';
+
             let helptext = ele.Product_Category__r.Help_Text__c?ele.Product_Category__r.Help_Text__c:'';
             let obj = {'pId':ele.Product_Category__r.Id,'pName':ele.Product_Category__r.Name,'GTMDetail':ele.Id,'allocation':ele.Product_Category_Allocation__c,isSubmitted__c:ele.isSubmitted__c,helpText:helptext};
             arr.push(obj)
-            masterObj = {customerId:ele.GTM_Customer__c,customerName:ele.GTM_Customer__r.Name,totalCompaniesPurches:ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c, productCategory:arr,'isLeadCustomer':ele.GTM_Customer__r.RecordTypeId==this.leadRecordTypeId ?true:false,percentage:percentageLabel,percentageValue:percentage,pathFinder:ele.GTM_Customer__r.Path_Finder__c};
+            masterObj = {customerId:ele.GTM_Customer__c,customerName:ele.GTM_Customer__r.Name,totalCompaniesPurches:tempCompaniesPY, productCategory:arr,'isLeadCustomer':ele.GTM_Customer__r.RecordTypeId==this.leadRecordTypeId ?true:false,percentage:percentageLabel,percentageValue:percentage,pathFinder:ele.GTM_Customer__r.Path_Finder__c};
             }
         })
         let other = masterObj.productCategory.filter(ele=>String(ele.pName).toLowerCase().includes('other'));
