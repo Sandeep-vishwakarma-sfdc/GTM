@@ -1,6 +1,13 @@
 public without sharing class GTMPathFinder {
     private static String fiscalyear = setFiscalYear('');
     private static Sales_Org__c salesOrg = getSalesOrg();
+    private static String profileName = getCurrentProfile();
+
+    private static String getCurrentProfile(){
+    List<Profile> PROFILE = [SELECT Id, Name FROM Profile WHERE Id=:userinfo.getProfileId() LIMIT 1];
+    String profileName = PROFILE[0].Name;
+    return profileName;
+    }
 
     @AuraEnabled
     public static String setFiscalYear(String financialYear){
@@ -32,7 +39,7 @@ public without sharing class GTMPathFinder {
                 gtm.Sales_Rep_Name__c = userInfo.getName();
                 gtm.Role__c = userDetails.UserRole.Name;
                 gtm.Email__c = userDetails.Email;
-                if(Schema.sObjectType.GTM__c.isCreateable()){
+                if(Schema.sObjectType.GTM__c.isCreateable() && profileName!='Admin/KeyUser Mexico'){
                     System.debug('Create GTM');
                     insert gtm;
                     gtms.add(gtm);
@@ -133,7 +140,7 @@ public without sharing class GTMPathFinder {
             gtmDetails.add(gtmd);
         }
         System.debug('PotentialProfile '+gtmDetails.size());
-        if(Schema.sObjectType.GTM_Details__c.isCreateable()){
+        if(Schema.sObjectType.GTM_Details__c.isCreateable() && profileName!='Admin/KeyUser Mexico'){
             insert gtmDetails;
         }
     }
@@ -148,6 +155,7 @@ public without sharing class GTMPathFinder {
         //System.debug('filter Sales_Org_Code__c'+salesOrg.Sales_Org_Code__c+' leadrecordType '+leadcustomerRecordType+' Lead_Customer_Ownership__c '+userInfo.getUserId());
         if(Schema.sObjectType.Account.isAccessible()){
             // Getting Lead Customers by record type
+            if(profileName!='Admin/KeyUser Mexico'){
             leadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c and Account_Type__c='Sold To Party' and recordType.Id=:leadcustomerRecordType and Lead_Customer_Ownership__c=:userInfo.getUserId()];
             System.debug('Lead Customer '+leadCustomerList);
             // Getting non-lead customer when lead customer field is empty
@@ -156,6 +164,16 @@ public without sharing class GTMPathFinder {
             gtmCustomers.addAll(leadCustomerList);
             gtmCustomers.addAll(nonLeadCustomerList);
             System.debug('GTM Customer size'+gtmCustomers.size());
+            }else{
+            leadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c and Account_Type__c='Sold To Party' and recordType.Id=:leadcustomerRecordType and Lead_Customer_Ownership__r.ManagerId=:userInfo.getUserId()];
+            System.debug('Lead Customer '+leadCustomerList);
+            // Getting non-lead customer when lead customer field is empty
+            nonLeadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c and Account_Type__c='Sold To Party' and Lead_Customer__c=null and Lead_Customer_Ownership__r.ManagerId=:userInfo.getUserId() and recordTypeId=:nonleadcustomerRecordType];
+            System.debug('non lead '+nonLeadCustomerList);
+            gtmCustomers.addAll(leadCustomerList);
+            gtmCustomers.addAll(nonLeadCustomerList);
+            System.debug('GTM Customer size'+gtmCustomers.size());
+            }
             return gtmCustomers;
         }
         System.debug(gtmCustomers);
@@ -228,7 +246,7 @@ public without sharing class GTMPathFinder {
                 gtmDetails.add(gtmDetail);
             }
         }
-        if(Schema.sObjectType.GTM_Details__c.isCreateable()){
+        if(Schema.sObjectType.GTM_Details__c.isCreateable() && profileName!='Admin/KeyUser Mexico'){
             System.debug('insert Details ');
             insert gtmDetails;
         }else{
@@ -242,7 +260,11 @@ public without sharing class GTMPathFinder {
     public static List<GTM_Details__c> getGTMPotentialProfile(String fiscalyear){
         Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Profile & Potential').getRecordTypeId();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.recordTypeId,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer_Type__c ,Total_Purchase_of_Crop_Protection_PY__c,Estimated_Markup_of_Channel__c,Estimated_Number_of_Sales_Rep_on_Role__c,Number_of_Stores_That_the_Channel_Has__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypePotentialProfile ORDER BY GTM_Customer__r.Name ASC];
+        if(profileName!='Admin/KeyUser Mexico'){
+            gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.recordTypeId,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer_Type__c ,Total_Purchase_of_Crop_Protection_PY__c,Estimated_Markup_of_Channel__c,Estimated_Number_of_Sales_Rep_on_Role__c,Number_of_Stores_That_the_Channel_Has__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypePotentialProfile ORDER BY GTM_Customer__r.Name ASC];
+        }else{
+            gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.recordTypeId,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer_Type__c ,Total_Purchase_of_Crop_Protection_PY__c,Estimated_Markup_of_Channel__c,Estimated_Number_of_Sales_Rep_on_Role__c,Number_of_Stores_That_the_Channel_Has__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__r.ManagerId=:userInfo.getUserId() and recordTypeId=:recordTypePotentialProfile ORDER BY GTM_Customer__r.Name ASC];
+        }
         return gtmDetails;
     }
 
@@ -309,7 +331,7 @@ public without sharing class GTMPathFinder {
                 gtmDetails.add(gtmDetail);
             }
         }
-        if(Schema.sObjectType.GTM_Details__c.isCreateable()){
+        if(Schema.sObjectType.GTM_Details__c.isCreateable() && profileName!='Admin/KeyUser Mexico'){
             System.debug('insert Details '+gtmDetails.size());
             try {
                 insert gtmDetails;
@@ -548,7 +570,9 @@ public without sharing class GTMPathFinder {
             gtmd.Sales_Org__c = salesorg.Id;
             gtmDetails.add(gtmd);
         }
-        insert gtmDetails;
+        if(profileName!='Admin/KeyUser Mexico'){
+            insert gtmDetails;
+        }
         
         for(GTM_Details__c gtm1:gtmDetails){
             mapPotentialProfile.put(gtm1.GTM_Customer__c,gtm1);
@@ -569,7 +593,9 @@ public without sharing class GTMPathFinder {
                 gtmDetails.add(gtmDetail);
             }
         }
+        if(profileName!='Admin/KeyUser Mexico'){
         insert gtmDetails;
+        }
 
         // Create Product Allocation for newly added Customers
         List<Product_Category__c> listProductCategory = getActiveProductCategory();
@@ -587,7 +613,9 @@ public without sharing class GTMPathFinder {
                 gtmDetails.add(gtmDetail);
             }
         }
+        if(profileName!='Admin/KeyUser Mexico'){
         insert gtmDetails;
+        }
 
         // Create Competition for newly added Customers
         gtmDetails.clear();
@@ -600,7 +628,9 @@ public without sharing class GTMPathFinder {
             gtmd.GTM_Details__c = mapPotentialProfile.get(acc.Id).Id;
             gtmDetails.add(gtmd);
         }
+        if(profileName!='Admin/KeyUser Mexico'){
         insert gtmDetails;
+        }
 
         //Create outlook 
         gtmDetails.clear();
@@ -613,7 +643,9 @@ public without sharing class GTMPathFinder {
             gtmDetailsTemp.GTM_Details__c = mapPotentialProfile.get(acc.Id).Id;
             gtmDetails.add(gtmDetailsTemp);
          }
+         if(profileName!='Admin/KeyUser Mexico'){
          insert gtmDetails;
+         }
          return '';
     }
 

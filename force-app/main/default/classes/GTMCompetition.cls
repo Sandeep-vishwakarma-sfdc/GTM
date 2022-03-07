@@ -97,7 +97,7 @@ public static List<GTM_Details__c> createGTMDetail(String year){
   @AuraEnabled
  public static List<CompetitorWrapper> getCompetitorDetails()
  {
-     List<Competitior_Sales_Org_Mapping__c> comp= [Select Id, Competitor__r.Name ,Display_Name__c,Status__c,Competitor__c from Competitior_Sales_Org_Mapping__c where Status__c ='Active' and Sales_Org__r.Sales_Org_Code__c=:salesorg.Sales_Org_Code__c  order by Display_Name__c ASC,Competitor__r.Name ASC];
+     List<Competitior_Sales_Org_Mapping__c> comp= [Select Id, Competitor__r.Name ,Display_Name__c,Status__c,Competitor__c from Competitior_Sales_Org_Mapping__c where Status__c ='Active' and Sales_Org__r.Sales_Org_Code__c=:salesorg.Sales_Org_Code__c];
      
      List<CompetitorWrapper> wrap=new List <CompetitorWrapper>();
      for(Competitior_Sales_Org_Mapping__c  a:comp)
