@@ -1,10 +1,25 @@
+/*******************************************************************************************
+* @Name         GTM Path Finder 
+* @Author       Sandeep Vishwakarma <sandeep.vishwakarma@skinternational.com>
+* @Date         03/08/2022
+* @Group        SKI
+* @Description  This class contains all service methods related to GTM Path Finder tabs (Potential and Profile,Crop Allocation, Product Category Allocation).
+*******************************************************************************************/
+/* MODIFICATION LOG
+* Version          Developer          Date               Description
+*-------------------------------------------------------------------------------------------
+*  1.0              Sandeep         03/08/2022           Initial Creation                                                      
+*******************************************************************************************/
 public without sharing class GTMPathFinder {
+
     private static String fiscalyear = setFiscalYear('');
     private static Sales_Org__c salesOrg = getSalesOrg();
-    private static String profileName = getCurrentProfile();
+    public static String profileName = getCurrentProfile();
+
 
     private static String getCurrentProfile(){
-    List<Profile> PROFILE = [SELECT Id, Name FROM Profile WHERE Id=:userinfo.getProfileId() LIMIT 1];
+    List<Profile> PROFILE = new List<>()
+    [SELECT Id, Name FROM Profile WHERE Id=:userinfo.getProfileId() LIMIT 1];
     String profileName = PROFILE[0].Name;
     return profileName;
     }
@@ -47,7 +62,7 @@ public without sharing class GTMPathFinder {
                     System.debug('Please provide GTM__c Create Access to the profile');
                 }
             }
-            if(isGTMProfileAndPotentialCreated(year)==false){
+            if(isGTMProfileAndPotentialCreated(year)==false && profileName!='Admin/KeyUser Mexico'){
                 createGTMPotentialAndProfile(gtms[0]);
             }
             gtmPotentialProfile = getGTMPotentialProfile(year);
@@ -223,7 +238,7 @@ public without sharing class GTMPathFinder {
         Id recordTypeProductCategory = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Product Category Allocation').getRecordTypeId();
         System.debug('recordTypeProductCategory '+recordTypeProductCategory);
         List<GTM_Details__c> gtmPotentialProfile = new List<GTM_Details__c>();
-        if(isGTMProfileAndPotentialCreated(year)==false){
+        if(isGTMProfileAndPotentialCreated(year)==false && profileName!='Admin/KeyUser Mexico'){
             createGTMPotentialAndProfile(gtms[0]);
         }
         gtmPotentialProfile = getGTMPotentialProfile(year);
@@ -306,7 +321,7 @@ public without sharing class GTMPathFinder {
             }
         }
         List<GTM_Details__c> gtmPotentialProfile = new List<GTM_Details__c>();
-        if(isGTMProfileAndPotentialCreated(year)==false){
+        if(isGTMProfileAndPotentialCreated(year)==false && profileName!='Admin/KeyUser Mexico'){
             createGTMPotentialAndProfile(gtms[0]);
         }
         gtmPotentialProfile = getGTMPotentialProfile(year);
@@ -380,7 +395,11 @@ public without sharing class GTMPathFinder {
     private static List<GTM_Details__c> getGTMDetailsProduct(String fiscalyear){
         Id recordTypeProductCategory = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Product Category Allocation').getRecordTypeId();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Product_Category__c,Product_Category__r.Name,Product_Category__r.Help_Text__c,Product_Category_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory order by Product_Category__r.Name ASC]; 
+        if(profileName!='Admin/KeyUser Mexico'){
+            gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Product_Category__c,Product_Category__r.Name,Product_Category__r.Help_Text__c,Product_Category_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory order by Product_Category__r.Name ASC]; 
+        }else{
+            gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Product_Category__c,Product_Category__r.Name,Product_Category__r.Help_Text__c,Product_Category_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__r.ManagerId=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory order by Product_Category__r.Name ASC];
+        }
 
         System.debug('gtmDetails '+gtmDetails.size());
         if(gtmDetails.size()>0){
@@ -392,7 +411,11 @@ public without sharing class GTMPathFinder {
     private static List<GTM_Details__c> getGTMDetailsCrop(String fiscalyear){
         Id recordTypeProductCategory = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Crop Allocation').getRecordTypeId();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Crop__c,Crop__r.Name,Crop__r.Help_Text__c,Crop_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory order by Crop__r.Name ASC];
+        if(profileName!='Admin/KeyUser Mexico'){
+            gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Crop__c,Crop__r.Name,Crop__r.Help_Text__c,Crop_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory order by Crop__r.Name ASC];
+        }else{
+            gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Crop__c,Crop__r.Name,Crop__r.Help_Text__c,Crop_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__r.ManagerId=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory order by Crop__r.Name ASC];
+        }
 
         System.debug('gtmDetails '+gtmDetails.size());
         if(gtmDetails.size()>0){

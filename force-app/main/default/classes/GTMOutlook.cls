@@ -1,5 +1,5 @@
 public without sharing class GTMOutlook {
-	
+	private static String profileName = GTMPathFinder.profileName;
       @AuraEnabled
       public static List<GTM_Details__c> getGTMOutlook(String year){
       //Get GTM Details Record Type
@@ -32,7 +32,7 @@ public without sharing class GTMOutlook {
         gtm.Sales_Rep_Name__c = userInfo.getName();
       
    
-        if(Schema.sObjectType.GTM__c.isCreateable()){
+        if(Schema.sObjectType.GTM__c.isCreateable() && profileName!='Admin/KeyUser Mexico'){
             System.debug('insert Details ');
             insert gtm;
         }else{
@@ -44,7 +44,7 @@ public without sharing class GTMOutlook {
        }
 
        List<GTM_Details__c> gtmPotentialProfile = new List<GTM_Details__c>();
-           if(GTMPathFinder.isGTMProfileAndPotentialCreated(fiscalyear)==false){
+           if(GTMPathFinder.isGTMProfileAndPotentialCreated(fiscalyear)==false && profileName!='Admin/KeyUser Mexico'){
                  GTMPathFinder.createGTMPotentialAndProfile(gtm);
            }
            gtmPotentialProfile = GTMPathFinder.getGTMPotentialProfile(fiscalyear);
@@ -76,14 +76,18 @@ public without sharing class GTMOutlook {
 
 
              }
-             if(Schema.sObjectType.GTM_Details__c.isCreateable()){
+             if(Schema.sObjectType.GTM_Details__c.isCreateable() && profileName!='Admin/KeyUser Mexico'){
                 System.debug('insert Details ');
                 insert gtmDetailsList;
             }else{
                 System.debug('Please provide GTM_Details__c');
             }
        }
+       if(profileName!='Admin/KeyUser Mexico'){
         gtmDetailsList = [Select Id, GTM_Customer__r.Name, GTM_Customer__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer__c,Estimated_Growth_NY_to_2NY__c, Estimated_Growth_PY_to_CY__c, Estimated_Growth_PY_to_NY__c, Sales_Org__c,GTM_Customer__r.Path_Finder__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c WHERE GTM__r.Fiscal_Year__c=:fiscalYear AND recordTypeId=:gtmOutlookRecordType AND Sales_Org__r.Sales_Org_Code__c=:salesorg.Sales_Org_Code__c AND GTM__r.Sales_Rep__c=:userInfo.getUserId() order by  GTM_Customer__r.Name ASC];
+       }else{
+        gtmDetailsList = [Select Id, GTM_Customer__r.Name, GTM_Customer__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer__c,Estimated_Growth_NY_to_2NY__c, Estimated_Growth_PY_to_CY__c, Estimated_Growth_PY_to_NY__c, Sales_Org__c,GTM_Customer__r.Path_Finder__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c WHERE GTM__r.Fiscal_Year__c=:fiscalYear AND recordTypeId=:gtmOutlookRecordType AND Sales_Org__r.Sales_Org_Code__c=:salesorg.Sales_Org_Code__c AND GTM__r.Sales_Rep__r.ManagerId=:userInfo.getUserId() order by  GTM_Customer__r.Name ASC];
+       }
         System.debug('List Of GTM Details' +gtmDetailsList.size());
          return gtmDetailsList;
     }
