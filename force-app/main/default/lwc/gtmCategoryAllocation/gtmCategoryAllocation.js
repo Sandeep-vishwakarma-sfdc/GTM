@@ -17,6 +17,7 @@ import Instructions from '@salesforce/label/c.Instructions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getLeadRecordTypeId from '@salesforce/apex/GTMPathFinder.getLeadRecordTypeId';
 import getGTMDetailsToDisable from '@salesforce/apex/GTMPathFinderHelper.getGTMDetailsToDisable';
+import getLowerHierarchyRecordsToDisable from '@salesforce/apex/GTMPathFinder.getLowerHierarchyRecordsToDisable';
 
 export default class GtmCategoryAllocation extends LightningElement {
     filtersOnPage = '';
@@ -121,7 +122,7 @@ export default class GtmCategoryAllocation extends LightningElement {
                     });
                 })
                 this.hasRendered = true;
-            }, 500);
+            }, 1500);
         }
     }
 
@@ -159,7 +160,11 @@ export default class GtmCategoryAllocation extends LightningElement {
                 this.showLoading = false;
             }, 1500);
             getGTMDetailsToDisable({recordTypeName:'Product Category Allocation'}).then(gtmDetailsToDisable=>{
-                this.gtmDetailsToDisable = gtmDetailsToDisable;
+                this.gtmDetailsToDisable = JSON.parse(JSON.stringify(gtmDetailsToDisable));
+                getLowerHierarchyRecordsToDisable({fiscalyear:this.fiscalYear,recordTypeName:'Product Category Allocation'}).then(gtmDetailsOfLowerUser=>{
+                    console.log('gtmDetailsOfLowerUser ',gtmDetailsOfLowerUser);
+                    this.gtmDetailsToDisable.push(...JSON.parse(JSON.stringify(gtmDetailsOfLowerUser)));
+                })
                 console.log('gtmDetailsToDisable ',gtmDetailsToDisable);
             }).catch(err=>console.log('gtmDetailsToDisable ',err));
         }).catch(err=>{

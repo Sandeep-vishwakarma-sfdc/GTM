@@ -160,7 +160,10 @@ export default class GtmCropAllocation extends LightningElement {
         });
       
         getGTMDetailsToDisable({recordTypeName:'Crop Allocation'}).then(gtmDetailsToDisable=>{
-            this.gtmDetailsToDisable = gtmDetailsToDisable;
+            this.gtmDetailsToDisable = JSON.parse(JSON.stringify(gtmDetailsToDisable));
+            getLowerHierarchyRecordsToDisable({fiscalyear:this.fiscalYear,recordTypeName:'Crop Allocation'}).then(gtmDetailsOfLowerUser=>{
+                this.gtmDetailsToDisable.push(...JSON.parse(JSON.stringify(gtmDetailsOfLowerUser)));
+            })
             console.log('gtmDetailsToDisable ',gtmDetailsToDisable);
         }).catch(err=>console.log('gtmDetailsToDisable ',err));
         this.checkDataYear();

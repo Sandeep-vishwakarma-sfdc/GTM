@@ -23,6 +23,7 @@ import The_total_farm_gate_revenues_are_USD from '@salesforce/label/c.The_total_
 import Page from '@salesforce/label/c.Page';
 import getLeadRecordTypeId from '@salesforce/apex/GTMPathFinder.getLeadRecordTypeId';
 import getGTMDetailsToDisable from '@salesforce/apex/GTMPathFinderHelper.getGTMDetailsToDisable';
+import getLowerHierarchyRecordsToDisable from '@salesforce/apex/GTMPathFinder.getLowerHierarchyRecordsToDisable';
 
 export default class GtmPotentialAndProfile extends LightningElement {
     filterOnPage = '';
@@ -216,7 +217,10 @@ export default class GtmPotentialAndProfile extends LightningElement {
             });
         }
         getGTMDetailsToDisable({recordTypeName:'Profile & Potential'}).then(gtmDetailsToDisable=>{
-            this.gtmDetailsToDisable = gtmDetailsToDisable;
+            this.gtmDetailsToDisable = JSON.parse(JSON.stringify(gtmDetailsToDisable));
+            getLowerHierarchyRecordsToDisable({fiscalyear:this.fiscalYear,recordTypeName:'Profile & Potential'}).then(gtmDetailsOfLowerUser=>{
+                this.gtmDetailsToDisable.push(...JSON.parse(JSON.stringify(gtmDetailsOfLowerUser)));
+            })
             console.log('gtmDetailsToDisable ',gtmDetailsToDisable);
         }).catch(err=>console.log('gtmDetailsToDisable ',err));
         this.checkDataYear();
