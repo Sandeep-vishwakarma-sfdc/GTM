@@ -2,8 +2,8 @@ import { LightningElement,track,wire,api } from 'lwc';
 import getCatergoryAllocation from '@salesforce/apex/GTMPathFinder.getCatergoryAllocation'
 import getFiscalYear from '@salesforce/apex/GTMPathFinder.getFiscalYear'
 import updateGTMDetail from '@salesforce/apex/GTMPathFinder.updateGTMDetailProductAllocation';
-import getInstructions from '@salesforce/apex/GTMPathFinder.getInstructions';
-import isWindowPeriodClosed from '@salesforce/apex/GTMPathFinder.isWindowPeriodClosed';
+import getInstructions from '@salesforce/apex/GTMPathFinderHelper.getInstructions';
+import isWindowPeriodClosed from '@salesforce/apex/GTMPathFinderHelper.isWindowPeriodClosed';
 import getUser from '@salesforce/apex/GTMPathFinder.getUser';
 import All_Companies_Purchase_to_Customer from '@salesforce/label/c.All_Companies_Purchase_to_Customer';
 import Customer_Lead_Customer from '@salesforce/label/c.Customer_Lead_Customer';
@@ -16,7 +16,7 @@ import Combined_total_value_more_than_100_is_not_allowed from '@salesforce/label
 import Instructions from '@salesforce/label/c.Instructions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getLeadRecordTypeId from '@salesforce/apex/GTMPathFinder.getLeadRecordTypeId';
-import getGTMDetailsToDisable from '@salesforce/apex/GTMPathFinder.getGTMDetailsToDisable';
+import getGTMDetailsToDisable from '@salesforce/apex/GTMPathFinderHelper.getGTMDetailsToDisable';
 
 export default class GtmCategoryAllocation extends LightningElement {
     filtersOnPage = '';
@@ -26,7 +26,7 @@ export default class GtmCategoryAllocation extends LightningElement {
     copyproductAllocationsVirtual = [];
     showLoading = false;
     disableAll = false;
-    countryLocale = ''
+    countryLocale = 'es-AR'
     @track options = {
         notFilled:'0',
         inProgress:'0',
@@ -146,7 +146,7 @@ export default class GtmCategoryAllocation extends LightningElement {
                 this.copyproductAllocationsVirtual = tempAllProductAllocations;
                 this.paginatedProductCategoryAllocation = this.productAllocations;
                 let copyProductAllocations = this.productAllocations;
-                this.sortData('customerName',true);
+                // this.sortData('customerName',true);
                 this.getTableData(copyProductAllocations);
                 setTimeout(() => {
                     this.paginatedProductCategoryAllocation.forEach(ele=>{
@@ -306,7 +306,7 @@ export default class GtmCategoryAllocation extends LightningElement {
         })
         let other = masterObj.productCategory.filter(ele=>String(ele.pName).toLowerCase().includes('other'));
             let othersIndex = masterObj.productCategory.findIndex(ele=>String(ele.pName).toLowerCase().includes('other'));
-            console.log('other ',other,'index ',othersIndex);
+            // console.log('other ',other,'index ',othersIndex);
             if(othersIndex!=-1 && other.length>0){
                 masterObj.productCategory.splice(othersIndex,1);
                 masterObj.productCategory.push(other[0]);

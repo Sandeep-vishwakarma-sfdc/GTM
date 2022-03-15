@@ -1,7 +1,7 @@
 import { LightningElement, track, wire, api} from "lwc";
 import getGTMOutlook from "@salesforce/apex/GTMOutlook.getGTMOutlook";
 import updateGtmDetails from "@salesforce/apex/GTMOutlook.updateGtmDetails";
-import getInstructions from '@salesforce/apex/GTMOutlook.getInstructions';
+import getInstructions from '@salesforce/apex/GTMPathFinderHelper.getInstructions';
 import Instructions from '@salesforce/label/c.Instructions';
 import GTM_Customer from '@salesforce/label/c.GTM_Customer';
 import Total_Purchase_in_PY from '@salesforce/label/c.Total_Purchase_in_PY';
@@ -11,15 +11,14 @@ import Estimated_Growth_in_NY from '@salesforce/label/c.Estimated_Growth_in_NY';
 import Estimated_Sales_in_NY from '@salesforce/label/c.Estimated_Sales_in_NY';
 import Estimated_Growth_in_NNY from '@salesforce/label/c.Estimated_Growth_in_NNY';
 import Estimated_Sales_in_NNY from '@salesforce/label/c.Estimated_Sales_in_NNY';
-import isWindowPeriodClosed from '@salesforce/apex/GTMPathFinder.isWindowPeriodClosed';
+import isWindowPeriodClosed from '@salesforce/apex/GTMPathFinderHelper.isWindowPeriodClosed';
 import getUser from '@salesforce/apex/GTMPathFinder.getUser';
-import getLeadRecordTypeId from '@salesforce/apex/GTMPathFinder.getLeadRecordTypeId';
+import getGTMDetailsToDisable from '@salesforce/apex/GTMPathFinderHelper.getGTMDetailsToDisable';
 
 export default class GtmOutlook extends LightningElement {
   instrustions = '';
   countryLocale = 'es-Ar';
   hasRendered = false;
-  leadRecordTypeId = '';
   disableAll = false;
   @track GTMOutlookDetails = [];
   GTMOutlookDetailsCopy = [];
@@ -32,6 +31,7 @@ export default class GtmOutlook extends LightningElement {
     completed:'0'
   }
   @track sortDirection = true; 
+  @track gtmDetailsToDisable = [];
   @track currentPage = 1;
     defaultSelectedOption = '';
   fiscalYear='';
@@ -101,13 +101,17 @@ renderedCallback(){
                   })
               }
           })
+          this.gtmDetailsToDisable.forEach(row => {
+            console.log('row ',row);
+            this.template.querySelectorAll('[data-id="' + row.Id + '"]').forEach(cell => {
+                cell.disabled = true;
+            })
+        })
           this.hasRendered = true;
       }, 500);
   }
 }
   connectedCallback() {
-    getLeadRecordTypeId().then(leadRecordType=>{
-      this.leadRecordTypeId = leadRecordType;
     getGTMOutlook({year:this.fiscalYear}
       ).then((result) => {
         let tempData = [];
@@ -118,10 +122,12 @@ renderedCallback(){
           let confirmtotalSalesChannelNYFormula = Number((Number(confirmtotalSalesChannelCYFormula)*Number(ele.Estimated_Growth_PY_to_NY__c)/100)+Number(confirmtotalSalesChannelCYFormula)).toFixed(2)
 
           let confirmtotalSalesChanneN2YFormula =Number((Number(confirmtotalSalesChannelNYFormula)*Number(ele.Estimated_Growth_NY_to_2NY__c)/100)+Number(confirmtotalSalesChannelNYFormula)).toFixed(2)
+
+          let tempCompaniesPY = Number(ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c)?Number(ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c).toLocaleString(this.countryLocale):'';
           let obj = {
             Id: ele.Id,
             customerName: ele.GTM_Customer__r ? ele.GTM_Customer__r.Name : "",
-            totalCompaniesPurches:ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,
+            totalCompaniesPurches:tempCompaniesPY,
             EstimatedGrowthCY: ele.Estimated_Growth_PY_to_CY__c?ele.Estimated_Growth_PY_to_CY__c:'',
             EstimatedGrowthNY: ele.Estimated_Growth_PY_to_NY__c?ele.Estimated_Growth_PY_to_NY__c:'',
             EstimatedGrowth2NY: ele.Estimated_Growth_NY_to_2NY__c?ele.Estimated_Growth_NY_to_2NY__c:'',
@@ -130,7 +136,7 @@ renderedCallback(){
             confirmtotalSalesChanneN2Y:isNaN(confirmtotalSalesChanneN2YFormula)?'':Number(confirmtotalSalesChanneN2YFormula).toLocaleString(this.countryLocale),
             status:'',
             numberOfFieldsFilled:'',
-            isLeadCustomer:ele.GTM_Customer__r.RecordTypeId==this.leadRecordTypeId?true:false,
+            isLeadCustomer:ele.GTM_Customer__r.Lead_Customer__c?true:false,
             pathFinder:ele.GTM_Customer__r.Path_Finder__c,
             isSubmitted__c:ele.isSubmitted__c
           };
@@ -157,8 +163,14 @@ renderedCallback(){
       .finally(() => {
         this.pending = false;
       });
-    })
+
+      getGTMDetailsToDisable({recordTypeName:'Outlook'}).then(gtmDetailsToDisable=>{
+        this.gtmDetailsToDisable = gtmDetailsToDisable;
+        console.log('gtmDetailsToDisable ',gtmDetailsToDisable);
+    }).catch(err=>console.log('gtmDetailsToDisable ',err));
+
     this.checkDataYear();
+
     
     }
 

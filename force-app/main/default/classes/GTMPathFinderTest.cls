@@ -1,5 +1,5 @@
 @isTest
-public with sharing class GTMPathFinderTest {
+public without sharing class GTMPathFinderTest {
     public static Sales_Org__c salesOrg = createSalesOrg();
     public static User argentinaUser = createuser();
     public static Id loggedInUserId = argentinaUser.Id;
@@ -15,6 +15,7 @@ public with sharing class GTMPathFinderTest {
     public static void testGetPotentialAndProfile() {
         System.runAs(argentinaUser) {
             List < GTM_Details__c > gtmPotentialAndProfile = GTMPathFinder.getPotentialAndProfile(fiscalYear);
+            System.debug('gtmPotentialAndProfile size '+gtmPotentialAndProfile.size());
             System.assert(gtmPotentialAndProfile.size() > 0, 'Gtm Potential Profile created');
         }
     }
@@ -22,6 +23,7 @@ public with sharing class GTMPathFinderTest {
     public static void testGetCatergoryAllocation() {
         System.runAs(argentinaUser) {
             Map < string, List < GTM_Details__c >> gtmProductCategory = GTMPathFinder.getCatergoryAllocation(fiscalYear);
+            System.debug('gtmProductCategory size '+gtmProductCategory.size());
             System.assert(gtmProductCategory.size() > 0, 'Gtm Product Category created');
         }
     }
@@ -76,35 +78,7 @@ public with sharing class GTMPathFinderTest {
         }
     }
 
-    @isTest
-    public static void testCreateNewCustomerDetails() {
-        System.runAs(argentinaUser) {
-            Id nonleadcustomerRecordType = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Distributor').getRecordTypeId();
-            Account a = new Account();
-            a.Name = 'Test AccountNew';
-            a.Account_Type__c = 'Sold To Party';
-            a.Sales_Org__c = salesOrg.Id;
-            a.recordTypeId = nonleadcustomerRecordType;
-            a.Country__c = 'Other';
-            a.Lead_Customer_Ownership__c = loggedInUserId;
-            insert a;
-            GTM__c gtm = new GTM__c();
-            gtm.Fiscal_Year__c = fiscalYear;
-            gtm.GTM_Status__c = 'Draft';
-            gtm.Sales_Org__c = salesOrg.Id;
-            gtm.Sales_Rep__c = loggedInUserId;
-            insert gtm;
-            GTM__C g = GTMPathFinder.getGTM(gtm.Id);
-            System.assert(g!= null, 'GTM Found');
-            String newAcc = JSON.serialize(new List<Account>{a});
-            List < Account > newAccounts = GTMPathFinder.getNewGTMCustomers();
-            GTMPathFinder.getUser();
-            System.assert(newAccounts.size() == 0, 'Newly Added Customers on load is zero');
-            GTMPathFinder.createNewCustomerDetails(newAcc);
-            List<Crop__c> newcrops = GTMPathFinder.getNewlyAddedCrop();
-            boolean isSubmitted = GTMPathFinder.submitGTMDetails();
-        }
-    }
+   
 
     /*
     ################### Creating Sales org 

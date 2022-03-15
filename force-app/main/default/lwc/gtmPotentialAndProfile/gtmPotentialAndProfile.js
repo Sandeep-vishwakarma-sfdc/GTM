@@ -3,10 +3,10 @@ import { getPicklistValues, getObjectInfo } from 'lightning/uiObjectInfoApi';
 import ACCOUNT_OBJECT from '@salesforce/schema/Account';
 import LeadCustomerType from '@salesforce/schema/Account.Lead_Customer_Type__c';
 import getPotentialAndProfile from '@salesforce/apex/GTMPathFinder.getPotentialAndProfile'
-import isWindowPeriodClosed from '@salesforce/apex/GTMPathFinder.isWindowPeriodClosed';
+import isWindowPeriodClosed from '@salesforce/apex/GTMPathFinderHelper.isWindowPeriodClosed';
 import updateGTMDetailPotentialProfile from '@salesforce/apex/GTMPathFinder.updateGTMDetailPotentialProfile';
 import getFiscalYear from '@salesforce/apex/GTMPathFinder.getFiscalYear';
-import getInstructions from '@salesforce/apex/GTMPathFinder.getInstructions';
+import getInstructions from '@salesforce/apex/GTMPathFinderHelper.getInstructions';
 import updateClassificationDependent from '@salesforce/apex/GTMPathFinder.updateClassificationDependent';
 import getUser from '@salesforce/apex/GTMPathFinder.getUser';
 import Instructions from '@salesforce/label/c.Instructions';
@@ -22,7 +22,7 @@ import USD_Million from '@salesforce/label/c.USD_Million';
 import The_total_farm_gate_revenues_are_USD from '@salesforce/label/c.The_total_farm_gate_revenues_are_USD';
 import Page from '@salesforce/label/c.Page';
 import getLeadRecordTypeId from '@salesforce/apex/GTMPathFinder.getLeadRecordTypeId';
-import getGTMDetailsToDisable from '@salesforce/apex/GTMPathFinder.getGTMDetailsToDisable';
+import getGTMDetailsToDisable from '@salesforce/apex/GTMPathFinderHelper.getGTMDetailsToDisable';
 
 export default class GtmPotentialAndProfile extends LightningElement {
     filterOnPage = '';
@@ -131,7 +131,7 @@ export default class GtmPotentialAndProfile extends LightningElement {
                     }
                 });
                 this.gtmDetailsToDisable.forEach(row => {
-                    console.log('row ',row);
+                    // console.log('row ',row);
                     this.template.querySelectorAll('[data-id="' + row.Id + '"]').forEach(cell => {
                         cell.disabled = true;
                     })

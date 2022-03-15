@@ -19,9 +19,9 @@ import getCropAllocation from '@salesforce/apex/GTMPathFinder.getCropAllocation'
 import getGTMCompetition from '@salesforce/apex/GTMCompetition.getGTMCompetition';
 import getGTMOutlook from '@salesforce/apex/GTMOutlook.getGTMOutlook';
 import getNewGTMCustomers from '@salesforce/apex/GTMPathFinder.getNewGTMCustomers';
-import createNewCustomerDetails from '@salesforce/apex/GTMPathFinder.createNewCustomerDetails';
+import createNewCustomerDetails from '@salesforce/apex/GTMPathFinderHelper.createNewCustomerDetails';
 import getNewlyAddedCrop from '@salesforce/apex/GTMPathFinder.getNewlyAddedCrop';
-import createGTMAndDetailsCropAllocation from '@salesforce/apex/GTMPathFinder.createGTMAndDetailsCropAllocation';
+import createGTMAndDetailsCropAllocation from '@salesforce/apex/GTMPathFinderHelper.createGTMAndDetailsCropAllocation';
 import submitGTMDetails from '@salesforce/apex/GTMPathFinder.submitGTMDetails';
 import getGTM from '@salesforce/apex/GTMPathFinder.getGTM';
 import setFiscalYear from '@salesforce/apex/GTMPathFinder.setFiscalYear';

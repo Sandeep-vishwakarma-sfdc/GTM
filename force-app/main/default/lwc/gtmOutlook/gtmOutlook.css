@@ -131,7 +131,7 @@
   .fix{
     position: sticky;
     left: 0;
-    z-index: 3!important;
+    z-index: 3;
     background: #f8f8f8;
  }
  .fixHeader{

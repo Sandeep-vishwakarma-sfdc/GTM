@@ -2,8 +2,8 @@ import { LightningElement,track,api,wire } from 'lwc';
 import getCropAllocation from '@salesforce/apex/GTMPathFinder.getCropAllocation'
 import getFiscalYear from '@salesforce/apex/GTMPathFinder.getFiscalYear'
 import updateGTMDetail from '@salesforce/apex/GTMPathFinder.updateGTMDetailCropAllocation';
-import getInstructions from '@salesforce/apex/GTMPathFinder.getInstructions';
-import isWindowPeriodClosed from '@salesforce/apex/GTMPathFinder.isWindowPeriodClosed';
+import getInstructions from '@salesforce/apex/GTMPathFinderHelper.getInstructions';
+import isWindowPeriodClosed from '@salesforce/apex/GTMPathFinderHelper.isWindowPeriodClosed';
 import getUser from '@salesforce/apex/GTMPathFinder.getUser';
 import All_Companies_Purchase_to_Customer from '@salesforce/label/c.All_Companies_Purchase_to_Customer';
 import Customer_Lead_Customer from '@salesforce/label/c.Customer_Lead_Customer';
@@ -16,7 +16,7 @@ import Combined_total_value_more_than_100_is_not_allowed from '@salesforce/label
 import Instructions from '@salesforce/label/c.Instructions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getLeadRecordTypeId from '@salesforce/apex/GTMPathFinder.getLeadRecordTypeId';
-import getGTMDetailsToDisable from '@salesforce/apex/GTMPathFinder.getGTMDetailsToDisable';
+import getGTMDetailsToDisable from '@salesforce/apex/GTMPathFinderHelper.getGTMDetailsToDisable';
 export default class GtmCropAllocation extends LightningElement {
     filtersOnPage = '';
     gtmDetailsToDisable = [];
@@ -145,7 +145,7 @@ export default class GtmCropAllocation extends LightningElement {
                 this.copyCropAllocationsVirtual = tempAllCropAllocations;
                 this.paginatedCropAllocation = this.cropAllocations;
                 let copyCropAllocations = this.cropAllocations;
-                this.sortData('customerName',true);
+                // this.sortData('customerName',true);
                 this.getTableData(copyCropAllocations);
                 setTimeout(() => {
                     this.paginatedCropAllocation.forEach(ele=>{
@@ -286,15 +286,17 @@ export default class GtmCropAllocation extends LightningElement {
             }else if(percentage==100){
                 percentageLabel = 'Not Fill';
             }
+            let tempCompaniesPY = Number(ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c)?Number(ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c).toLocaleString(this.countryLocale):'';
+
             let helptext = ele.Crop__r.Help_Text__c?ele.Crop__r.Help_Text__c:'';
             let obj = {'cId':ele.Crop__r.Id,'cName':ele.Crop__r.Name,'GTMDetail':ele.Id,'allocation':ele.Crop_Allocation__c,isSubmitted__c:ele.isSubmitted__c,helpText:helptext};
             arr.push(obj)
-            masterObj = {customerId:ele.GTM_Customer__c,customerName:ele.GTM_Customer__r.Name,totalCompaniesPurches:ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,crops:arr,'isLeadCustomer':ele.GTM_Customer__r.RecordTypeId == this.leadRecordTypeId?true:false,percentage:percentageLabel,percentageValue:percentage,pathFinder:ele.GTM_Customer__r.Path_Finder__c};
+            masterObj = {customerId:ele.GTM_Customer__c,customerName:ele.GTM_Customer__r.Name,totalCompaniesPurches:tempCompaniesPY,crops:arr,'isLeadCustomer':ele.GTM_Customer__r.RecordTypeId == this.leadRecordTypeId?true:false,percentage:percentageLabel,percentageValue:percentage,pathFinder:ele.GTM_Customer__r.Path_Finder__c};
             }
         });
         let other = masterObj.crops.filter(ele=>String(ele.cName).toLowerCase().includes('other'));
             let othersIndex = masterObj.crops.findIndex(ele=>String(ele.cName).toLowerCase().includes('other'));
-            console.log('other ',other,'index ',othersIndex);
+            // console.log('other ',other,'index ',othersIndex);
             if(othersIndex!=-1 && other.length>0){
                 masterObj.crops.splice(othersIndex,1);
                 masterObj.crops.push(other[0]);
