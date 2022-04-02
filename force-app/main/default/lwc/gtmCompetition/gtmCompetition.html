@@ -28,7 +28,7 @@
       aria-labelledby="element-with-table-label other-element-with-table-label">
       <thead>
         <tr>
-          <th width="235"  class="fix" >{labels.Customer_Lead_Customer}
+          <th width="235"  class="fix fixHeader" >{labels.Customer_Lead_Customer}
             <lightning-icon icon-name="utility:sort" size="xx-small" alternative-text="Warning!"
               class="slds-m-right" title="Warning" name="customer" onclick={handleSort}></lightning-icon>
           </th>
@@ -120,7 +120,7 @@
           <td class="fix" width="235" title={accItem.customer}>{accItem.customer} </td>
         <template if:true={disableAll}>
           <td width="193"   style="text-align:center;">
-            <lightning-input type="Number"  data-account={accItem.customerId} name="UPL_Position__c" step="any" min="9" max="100" style="margin-top:-16px;" disabled={disableAll} value={accItem.uplposition} data-id={accItem.id} data-name="UPL_Position__c" onfocusout={handleInputChange} message-when-range-underflow="1 to 8 values for UPL is not allowed"></lightning-input>
+            <lightning-input type="Number"  data-account={accItem.customerId} name="UPL_Position__c" step="any" min="9" max="100" style="margin-top:-16px;" disabled={disableAll} value={accItem.uplposition} data-id={accItem.id} data-name="UPL_Position__c" onfocusout={handleInputChange} message-when-range-underflow={labels.X1_to_8_values_for_UPL_is_not_allowed}></lightning-input>
           </td>
           <td width="193" style="text-align:center;">
           <lightning-input  data-account={accItem.customerId} name="UPLs_share_of_wallet__c" type="Number" step="0.01" min="0" max="100" style="margin-top:-16px;"  disabled={disableAll} value={accItem.uplshare} data-id={accItem.id} data-name="UPLs_share_of_wallet__c" onfocusout={handleInputChange} formatter="percent-fixed" ></lightning-input>
@@ -128,7 +128,7 @@
         </template>
         <template if:false={disableAll}>
           <td width="193"  style="text-align:center;">
-            <lightning-input data-account={accItem.customerId} name="UPL_Position__c" type="Number" step="any" min="9" max="100.00" style="margin-top:-16px;" disabled={accItem.isUPLSelected} value={accItem.uplposition} data-id={accItem.id} data-name="UPL_Position__c" onfocusout={handleInputChange} message-when-range-underflow="1 to 8 values for UPL is not allowed"></lightning-input>
+            <lightning-input data-account={accItem.customerId} name="UPL_Position__c" type="Number" step="any" min="9" max="100.00" style="margin-top:-16px;" disabled={accItem.isUPLSelected} value={accItem.uplposition} data-id={accItem.id} data-name="UPL_Position__c" onfocusout={handleInputChange} message-when-range-underflow={labels.X1_to_8_values_for_UPL_is_not_allowed}></lightning-input>
           </td>
           <td width="193" style="text-align:center;">
           <lightning-input  data-account={accItem.customerId} name="UPLs_share_of_wallet__c" type="Number" step="0.01" min="0" max="100" style="margin-top:-16px;"  disabled={accItem.isUPLSelected} value={accItem.uplshare} data-id={accItem.id} data-name="UPLs_share_of_wallet__c" onfocusout={handleInputChange} formatter="percent-fixed" ></lightning-input>
@@ -339,6 +339,7 @@
     
     
     </table>
+    
   </div>
 
   <c-pagination-cmp page-size-value="100" tabledata={gtmcompetitor} onaction={handlePaginationAction}>

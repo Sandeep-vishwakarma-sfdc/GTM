@@ -28,8 +28,8 @@ import setFiscalYear from '@salesforce/apex/GTMPathFinder.setFiscalYear';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import Unable_to_Submit_GTM from '@salesforce/label/c.Unable_to_Submit_GTM';
 import GTM_Submitted_Successfully from '@salesforce/label/c.GTM_Submitted_Successfully';
-import SUCCESS from '@salesforce/label/c.SUCCESS'
-import ERROR from '@salesforce/label/c.ERROR';
+import SUCCESS from '@salesforce/label/c.Success'
+import ERROR from '@salesforce/label/c.Error';
 import { NavigationMixin } from 'lightning/navigation';
 
 export default class GtmPathFinder extends NavigationMixin(LightningElement) {

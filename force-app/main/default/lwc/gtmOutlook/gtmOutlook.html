@@ -64,7 +64,7 @@
             <template for:each={paginatedGTMOutlookDetails} for:item="GTM">
               <tr key={GTM.Id}>
               <td key={GTM.Id} class="fix">{GTM.customerName}</td>
-              <td key={GTM.Id}>{GTM.totalCompaniesPurches}</td>
+              <td key={GTM.Id}>{GTM.totalCompaniesPurchesLocale}</td>
               <td>
                 <lightning-input disabled={disableAll} type="Number" style="margin-top:-16px;" onfocusout={handleFieldChange} data-id={GTM.Id} value={GTM.EstimatedGrowthCY} data-name="Estimated_Growth_PY_to_CY__c" formatter="percent-fixed" step=".01" max="100"></lightning-input>
               </td>

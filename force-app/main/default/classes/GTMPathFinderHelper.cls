@@ -1,3 +1,15 @@
+/*******************************************************************************************
+* @Name         GTM Path Finder 
+* @Author       Sandeep Vishwakarma <sandeep.vishwakarma@skinternational.com>
+* @Date         03/08/2022
+* @Group        SKI
+* @Description  This class contains all service methods related to GTM Path Finder used for creating GTM and GTM Details, Accessing GTM Configuration data like intrustion,window period. 
+*******************************************************************************************/
+/* MODIFICATION LOG
+* Version          Developer          Date(MM/DD/YYYY)      Description
+*-------------------------------------------------------------------------------------------
+*  1.0              Sandeep              03/14/2022           Initial Creation                                                      
+*******************************************************************************************/
 public without sharing class GTMPathFinderHelper {
     private static String fiscalyear = GTMPathFinder.fiscalyear;
     private static Sales_Org__c  salesOrg = GTMPathFinder.salesOrg;
@@ -10,7 +22,7 @@ public without sharing class GTMPathFinderHelper {
         List<GTM_Details__c> allGtmDetails = new List<GTM_Details__c>();
         List<GTM_Details__c> allGtmDetailsToDisable = new List<GTM_Details__c>();
         System.debug('isSalesRep '+isSalesRep);
-        if(isSalesRep){
+        if(isSalesRep && Schema.sObjectType.GTM_Details__c.isAccessible()){
             allGtmDetails = [Select Id,recordTypeId,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:detailRecordType];
             List<Account> allCustomers = GTMPathFinder.getGTMCustomers();
             for(Account a:allCustomers){
@@ -34,12 +46,14 @@ public without sharing class GTMPathFinderHelper {
         List<Account> gtmCustomers = new List<Account>();
         List<Account> leadCustomerList = new List<Account>();
         List<Account> nonLeadCustomerList = new List<Account>();
-        leadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c=:salesorgCode and Account_Type__c='Sold To Party' and recordType.Id=:leadcustomerRecordType and Lead_Customer_Ownership__c=:userInfo.getUserId()];
-        System.debug('Lead Customer '+leadCustomerList);
-        nonLeadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c=:salesorgCode and Account_Type__c='Sold To Party' and Lead_Customer__c=null and Lead_Customer_Ownership__c=:userInfo.getUserId() and recordTypeId=:nonleadcustomerRecordType];
-        System.debug('non lead '+nonLeadCustomerList);
-        gtmCustomers.addAll(leadCustomerList);
-        gtmCustomers.addAll(nonLeadCustomerList);
+        if(Schema.sObjectType.Account.isAccessible()){
+            leadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c=:salesorgCode and Account_Type__c='Sold To Party' and recordType.Id=:leadcustomerRecordType and Lead_Customer_Ownership__c=:userInfo.getUserId()];
+            System.debug('Lead Customer '+leadCustomerList);
+            nonLeadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c=:salesorgCode and Account_Type__c='Sold To Party' and Lead_Customer__c=null and Lead_Customer_Ownership__c=:userInfo.getUserId() and recordTypeId=:nonleadcustomerRecordType];
+            System.debug('non lead '+nonLeadCustomerList);
+            gtmCustomers.addAll(leadCustomerList);
+            gtmCustomers.addAll(nonLeadCustomerList);
+        }
         System.debug('GTM Customer size'+gtmCustomers.size());
         return gtmCustomers;
     }
@@ -67,8 +81,11 @@ public without sharing class GTMPathFinderHelper {
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
         Id userId = userInfo.getUserId();
         List<GTM__c> gtms = new  List<GTM__c>();
-        gtms = [SELECT ID,Name,Fiscal_Year__c from GTM__c where Fiscal_Year__c=:year and Sales_Org__c=:salesOrg.Id and Sales_Rep__c=:userId];
-        User userDetails =[SELECT Id, Name, Email, Profile.Name, UserRole.Id,UserRole.Name FROM User where Id=:userId ];
+        User userDetails = new User();
+        if(Schema.sObjectType.GTM__c.isAccessible() && Schema.sObjectType.User.isAccessible()){
+            gtms = [SELECT ID,Name,Fiscal_Year__c from GTM__c where Fiscal_Year__c=:year and Sales_Org__c=:salesOrg.Id and Sales_Rep__c=:userId];
+            userDetails =[SELECT Id, Name, Email, Profile.Name, UserRole.Id,UserRole.Name FROM User where Id=:userId ];
+        }
         GTM__c gtm = new GTM__c();
         if(gtms.size()==0){
             gtm.Fiscal_Year__c = year;
@@ -113,7 +130,6 @@ public without sharing class GTMPathFinderHelper {
             }
         }
         if(Schema.sObjectType.GTM_Details__c.isCreateable() && isSalesRep){
-            System.debug('insert Details ');
             insert gtmDetails;
         }else{
             System.debug('Please provide GTM_Details__c Create Access to the profile');
@@ -123,7 +139,7 @@ public without sharing class GTMPathFinderHelper {
 
     @AuraEnabled
     public static List<GTM_Details__c> createGTMAndDetailsCropAllocation(List<Crop__c> activeCrops,String year){
-        System.debug('createGTMAndDetailsCropAllocation Year '+year);
+        
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
         Id userId = userInfo.getUserId();
         List<GTM__c> gtms = new  List<GTM__c>();
@@ -172,12 +188,7 @@ public without sharing class GTMPathFinderHelper {
             }
         }
         if(Schema.sObjectType.GTM_Details__c.isCreateable() && isSalesRep){
-            System.debug('insert Details '+gtmDetails.size());
-            try {
-                insert gtmDetails;
-            } catch (Exception e) {
-                System.debug('exception '+e);
-            }
+            insert gtmDetails;
         }else{
             System.debug('Please provide GTM_Details__c Create Access to the profile');
         } 
@@ -349,7 +360,7 @@ public without sharing class GTMPathFinderHelper {
     return gtmDetails;
   }
 
-  public static void createOutlookDetails(String fiscalyear,GTM__c gtm,String gtmOutlookRecordType,Sales_Org__c salesorg,List<Account> accList){
+  public static void createOutlookDetails(GTM__c gtm,String gtmOutlookRecordType,List<Account> accList){
     List<GTM_Details__c> gtmPotentialProfile = new List<GTM_Details__c>();
          if(GTMPathFinder.isGTMProfileAndPotentialCreated(fiscalyear)==false && isSalesRep){
           GTMPathFinderHelper.createGTMPotentialAndProfile(gtm);
@@ -389,7 +400,10 @@ public without sharing class GTMPathFinderHelper {
 
   @AuraEnabled
  public static List<GTMCompetition.CompetitorWrapper> getCompetitorDetails(){
-     List<Competitior_Sales_Org_Mapping__c> comp= [Select Id, Competitor__r.Name ,Display_Name__c,Status__c,Competitor__c from Competitior_Sales_Org_Mapping__c where Status__c ='Active' and Sales_Org__r.Sales_Org_Code__c=:salesorg.Sales_Org_Code__c];
+     List<Competitior_Sales_Org_Mapping__c> comp= new List<Competitior_Sales_Org_Mapping__c>();
+     if(Schema.sObjectType.Competitior_Sales_Org_Mapping__c.isAccessible()){
+        comp = [Select Id, Competitor__r.Name ,Display_Name__c,Status__c,Competitor__c from Competitior_Sales_Org_Mapping__c where Status__c ='Active' and Sales_Org__r.Sales_Org_Code__c=:salesorg.Sales_Org_Code__c];
+     }
      List<GTMCompetition.CompetitorWrapper> wrap=new List <GTMCompetition.CompetitorWrapper>();
      for(Competitior_Sales_Org_Mapping__c  a:comp) {
         GTMCompetition.CompetitorWrapper wrapper =new GTMCompetition.CompetitorWrapper();   
@@ -409,7 +423,10 @@ public without sharing class GTMPathFinderHelper {
  @AuraEnabled
     public static boolean isWindowPeriodClosed(){
         List<String>  months = new List<String>{'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'};
-        GTM_Country_Configuration__c gcc = [select Id,Start_Day__c,Start_Month__c,End_Day__c,End_Month__c  from GTM_Country_Configuration__c where Sales_Org__c=:salesOrg.Id  limit 1];
+        GTM_Country_Configuration__c gcc = new GTM_Country_Configuration__c();
+        if(Schema.sObjectType.GTM_Country_Configuration__c.isAccessible()){
+        gcc = [select Id,Start_Day__c,Start_Month__c,End_Day__c,End_Month__c  from GTM_Country_Configuration__c where Sales_Org__c=:salesOrg.Id  limit 1];
+        }
         Date currentDate = Date.today();
         Integer startMonth = months.indexOf(gcc.Start_Month__c)+1;
         Integer endMonth = months.indexOf(gcc.End_Month__c)+1;
@@ -435,4 +452,13 @@ public without sharing class GTMPathFinderHelper {
         }
         return null;
     }
+
+    @AuraEnabled
+    public static GTM_Details__c  updateGTMDetails(GTM_Details__c upgtm)
+    {
+      update upgtm;
+      return upgtm;
+   }
+
+  
 }

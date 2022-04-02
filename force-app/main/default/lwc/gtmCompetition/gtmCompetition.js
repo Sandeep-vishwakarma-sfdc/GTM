@@ -1,8 +1,8 @@
 import { LightningElement, track, api, wire } from 'lwc';
 import getGTMCompetition from '@salesforce/apex/GTMCompetition.getGTMCompetition';
-import updateGTMDetails from '@salesforce/apex/GTMCompetition.updateGTMDetails';
-import getCompetitorDetails from '@salesforce/apex/GTMCompetition.getCompetitorDetails';
-import getInstructions1 from '@salesforce/apex/GTMCompetition.getInstructions1';
+import updateGTMDetails from '@salesforce/apex/GTMPathFinderHelper.updateGTMDetails';
+import getCompetitorDetails from '@salesforce/apex/GTMPathFinderHelper.getCompetitorDetails';
+import getInstructions1 from '@salesforce/apex/GTMPathFinderHelper.getInstructions';
 import Customer_Lead_Customer from '@salesforce/label/c.Customer_Lead_Customer';
 import Write_UPL_POSITION from '@salesforce/label/c.Write_UPL_POSITION';
 import UPL_s_Share_of_Wallet from '@salesforce/label/c.UPL_s_Share_of_Wallet';
@@ -29,13 +29,20 @@ import Please_check_the_values_Not_matching_100 from '@salesforce/label/c.Please
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import updateshare from '@salesforce/apex/GTMCompetition.updateshare';
 import Share_wallet_already_reached_100 from '@salesforce/label/c.Share_wallet_already_reached_100';
-import isWindowPeriodClosed from '@salesforce/apex/GTMPathFinder.isWindowPeriodClosed';
+import isWindowPeriodClosed from '@salesforce/apex/GTMPathFinderHelper.isWindowPeriodClosed';
 import getUser from '@salesforce/apex/GTMPathFinder.getUser';
 import Combined_total_value_more_than_100_is_not_allowed from '@salesforce/label/c.Combined_total_value_more_than_100_is_not_allowed';
 import Please_check_all_distribution from '@salesforce/label/c.Please_check_all_distribution';
+import X1_to_8_values_for_UPL_is_not_allowed from '@salesforce/label/c.X1_to_8_values_for_UPL_is_not_allowed';
 import getLeadRecordTypeId from '@salesforce/apex/GTMPathFinder.getLeadRecordTypeId';
+import getGTMDetailsToDisable from '@salesforce/apex/GTMPathFinderHelper.getGTMDetailsToDisable';
+import getLowerHierarchyRecordsToDisable from '@salesforce/apex/GTMPathFinder.getLowerHierarchyRecordsToDisable';
+
 export default class GtmCompetition extends LightningElement {
     disableAll = false;
+    @track gtmDetailsToDisable=[];
+    
+
     @track labels = {
         Customer_Lead_Customer: Customer_Lead_Customer,
         Write_UPL_POSITION: Write_UPL_POSITION,
@@ -78,6 +85,7 @@ export default class GtmCompetition extends LightningElement {
         Indicate_the_Share_of_Wallet_of_the_8_Company2: Indicate_the_Share_of_Wallet_of_the_8_Company.split('<br/>')[1],
         Combined_total_value_more_than_100_is_not_allowed:Combined_total_value_more_than_100_is_not_allowed,
         Please_check_all_distribution:Please_check_all_distribution,
+        X1_to_8_values_for_UPL_is_not_allowed:X1_to_8_values_for_UPL_is_not_allowed,
     }
     gtmcompetitorVirtual = [];
     @track hasOptionsAdded = false;
@@ -185,14 +193,20 @@ export default class GtmCompetition extends LightningElement {
 
             setTimeout(() => {
                 temp.forEach(row => {
-                    console.log('submitted',row.isSubmitted__c);
+                    //console.log('submitted',row.isSubmitted__c);
                     if (row.isSubmitted__c) {
                         
                         this.template.querySelectorAll('[data-id="' + row.id + '"]').forEach(cell => {
-                            console.log('cell ', cell);
+                           // console.log('cell ', cell);
                             cell.disabled = true;
                         })
                     }
+                })
+                this.gtmDetailsToDisable.forEach(row => {
+                    console.log('row ',row);
+                    this.template.querySelectorAll('[data-id="' + row.Id + '"]').forEach(cell => {
+                        cell.disabled = true;
+                    })
                 })
                 this.hasRendered = true;
             }, 1000);
@@ -201,6 +215,7 @@ export default class GtmCompetition extends LightningElement {
 
 
     connectedCallback() {
+        
         getLeadRecordTypeId().then(leadRecordId=>{
             this.leadRecordTypeId = leadRecordId;
         Promise.all([getCompetitorDetails(), getGTMCompetition({ year: this.fiscalYear })]).then(result => {
@@ -211,6 +226,7 @@ export default class GtmCompetition extends LightningElement {
             }
 
             if (result.length == 2) {
+                console.log('New Comp data',result[0]);
                 result[0] = this.sortCompetitor('competitiorname', 'asc', result[0])
                 result[0].forEach(element => {
                     console.log('element', element);
@@ -297,6 +313,7 @@ export default class GtmCompetition extends LightningElement {
                     this.gtmcompetitorVirtual = tempData;
                     this.gtmcompetitor1 = this.gtmcompetitor;
                     this.updateStatusLabel();
+                    
                 }, 200);
                 console.log('Competitior  data ', this.gtmcompetitor);
                 console.log('Competitior1  data ', this.gtmcompetitor1);
@@ -304,6 +321,15 @@ export default class GtmCompetition extends LightningElement {
             }
         })
     })
+    getGTMDetailsToDisable({recordTypeName:'Competitor'}).then(gtmDetailsToDisable=>{
+        this.gtmDetailsToDisable = JSON.parse(JSON.stringify(gtmDetailsToDisable));
+
+        getLowerHierarchyRecordsToDisable({fiscalyear:this.fiscalYear,recordTypeName:'Competitor'}).then(gtmDetailsOfLowerUser=>{
+            this.gtmDetailsToDisable.push(...JSON.parse(JSON.stringify(gtmDetailsOfLowerUser)));
+        })
+       
+        console.log('gtmDetailsToDisable ',gtmDetailsToDisable);
+    }).catch(err=>console.log('gtmDetailsToDisable ',err));
         this.checkDataYear();
     }
 
@@ -374,8 +400,6 @@ export default class GtmCompetition extends LightningElement {
                  this.gtmcompetitor[gtmIndex].uplshare =this.gtmcompetitor[gtmIndex].Indicate1;
                
                 }
-
-
 
             }else{
                
@@ -779,9 +803,10 @@ export default class GtmCompetition extends LightningElement {
         };
         let isReverse = direction === "asc" ? 1 : -1;
         parseData.sort((x, y) => {
+           
             x = keyValue(x) ? keyValue(x) : "";
             y = keyValue(y) ? keyValue(y) : "";
-            return isReverse * ((x > y) - (y > x));
+            return isReverse * ((x.toLowerCase() > y.toLowerCase()) - (y.toLowerCase() > x.toLowerCase()));
         });
         wrapperdata = parseData;
 

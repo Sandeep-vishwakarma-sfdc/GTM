@@ -1,3 +1,17 @@
+/*******************************************************************************************
+* @Name         GTM Path Finder 
+* @Author       Sandeep Vishwakarma <sandeep.vishwakarma@skinternational.com>
+* @Date         03/08/2022
+* @Group        SKI
+* @Description  Test class for GTMPathFinder and GTMPathFinderHelper class
+*******************************************************************************************/
+/* MODIFICATION LOG
+* Version          Developer         Date(MM/DD/YYYY)      Description
+*-------------------------------------------------------------------------------------------
+*  1.0              Sandeep             03/08/2022           Initial Creation    
+*-------------------------------------------------------------------------------------------
+*  1.1              Sandeep             14/08/2022           update (Adding Helper class)                                         
+*******************************************************************************************/
 @isTest
 public without sharing class GTMPathFinderTest {
     public static Sales_Org__c salesOrg = createSalesOrg();
@@ -5,7 +19,7 @@ public without sharing class GTMPathFinderTest {
     public static Id loggedInUserId = argentinaUser.Id;
     public static Login_Country__c loginCountry = createLoginCountry();
     public static List < Account > gtmCustomers = createGTMCustomers();
-    public static List < Product_Category_Sales_Org_Mapping__c > pcsm = createProductSalesOrgMapping();
+    //public static List < Product_Category_Sales_Org_Mapping__c > pcsm = createProductSalesOrgMapping();
     public static List < Crop__c > crops = createCrops();
     static String fiscalYear = '2021-2022';
 
@@ -15,6 +29,7 @@ public without sharing class GTMPathFinderTest {
     public static void testGetPotentialAndProfile() {
         System.runAs(argentinaUser) {
             List < GTM_Details__c > gtmPotentialAndProfile = GTMPathFinder.getPotentialAndProfile(fiscalYear);
+            GTMPathFinderHelper.createGTMDetail(fiscalYear);
             System.debug('gtmPotentialAndProfile size '+gtmPotentialAndProfile.size());
             System.assert(gtmPotentialAndProfile.size() > 0, 'Gtm Potential Profile created');
         }
@@ -22,9 +37,9 @@ public without sharing class GTMPathFinderTest {
     @isTest
     public static void testGetCatergoryAllocation() {
         System.runAs(argentinaUser) {
+            createProductSalesOrgMapping();
             Map < string, List < GTM_Details__c >> gtmProductCategory = GTMPathFinder.getCatergoryAllocation(fiscalYear);
-            System.debug('gtmProductCategory size '+gtmProductCategory.size());
-            System.assert(gtmProductCategory.size() > 0, 'Gtm Product Category created');
+            System.assert(gtmProductCategory.size() > 0, 'Gtm Potential Profile created');
         }
     }
     @isTest
@@ -48,6 +63,7 @@ public without sharing class GTMPathFinderTest {
             String updateValue7 = GTMPathFinder.updateGTMDetailPotentialProfile(gtmDetail.Id, 'GTM_Customer_Type__c', 'Distributor');
             System.assertEquals('Distributor', updateValue7, 'value Updated');
             boolean isUpdated = GTMPathFinder.updateClassificationDependent(gtmDetail.Id);
+            GTM_Details__c detail = GTMPathFinderHelper.updateGTMDetails(gtmDetail);
             System.assert(isUpdated, 'Classification Field Updated with blank');
         }
     }
@@ -56,11 +72,13 @@ public without sharing class GTMPathFinderTest {
     public static void testGetInstructions() {
         System.runAs(argentinaUser) {
             GTM_Country_Configuration__c gcc = new GTM_Country_Configuration__c();
-            gcc.Instruction_Profile_Potential__c = 'Instruction Profile Potential';
-            gcc.Sales_Org__c = salesOrg.Id;
+            gcc.Instruction_Profile_Potential__c = 'Instruction Profile Potential'; 
+            gcc.Sales_Org__c = salesOrg.Id; 
             insert gcc;
-            GTM_Country_Configuration__c gcc1 = GTMPathFinder.getInstructions();
+            GTM_Country_Configuration__c gcc1 = GTMPathFinderHelper.getInstructions();
             System.assert(gcc1 != null, 'Instructions found');
+            GTMPathFinderHelper.getGTMDetailsToDisable('Profile & Potential');
+            
         }
     }
 
@@ -74,11 +92,43 @@ public without sharing class GTMPathFinderTest {
             gcc.End_Month__c = 'Mar';
             gcc.Sales_Org__c = salesOrg.Id;
             insert gcc;
-            boolean isClosePeriod = GTMPathFinder.isWindowPeriodClosed();
+            boolean isClosePeriod = GTMPathFinderHelper.isWindowPeriodClosed();
+            System.assertNotEquals(isClosePeriod,null,'Window period should not be null');
         }
     }
 
-   
+    @isTest
+    public static void testCreateNewCustomerDetails() {
+        System.runAs(argentinaUser) {
+            Id nonleadcustomerRecordType = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Distributor').getRecordTypeId();
+            String outlookRecordType = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Outlook').getRecordTypeId();
+            Account a = new Account();
+            a.Name = 'Test AccountNew';
+            a.Account_Type__c = 'Sold To Party';
+            a.Sales_Org__c = salesOrg.Id;
+            a.recordTypeId = nonleadcustomerRecordType;
+            a.Country__c = 'Other';
+            a.Lead_Customer_Ownership__c = loggedInUserId;
+            insert a;
+            GTM__c gtm = new GTM__c();
+            gtm.Fiscal_Year__c = fiscalYear;
+            gtm.GTM_Status__c = 'Draft';
+            gtm.Sales_Org__c = salesOrg.Id;
+            gtm.Sales_Rep__c = loggedInUserId;
+            insert gtm;
+            GTM__C g = GTMPathFinder.getGTM(gtm.Id);
+            System.assert(g!= null, 'GTM Found');
+            String newAcc = JSON.serialize(new List<Account>{a});
+            List < Account > newAccounts = GTMPathFinder.getNewGTMCustomers();
+            GTMPathFinder.getUser();
+            System.assert(newAccounts.size() == 0, 'Newly Added Customers on load is zero');
+            GTMPathFinderHelper.createNewCustomerDetails(newAcc);
+            List<Crop__c> newcrops = GTMPathFinder.getNewlyAddedCrop();
+            boolean isSubmitted = GTMPathFinder.submitGTMDetails();
+            GTMPathFinderHelper.createOutlookDetails(gtm,outlookRecordType,new List<Account>{a});
+            GTMPathFinderHelper.getCompetitorDetails();
+        }
+    }
 
     /*
     ################### Creating Sales org 

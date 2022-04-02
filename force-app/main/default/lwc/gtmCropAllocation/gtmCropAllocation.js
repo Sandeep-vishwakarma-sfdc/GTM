@@ -17,6 +17,7 @@ import Instructions from '@salesforce/label/c.Instructions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getLeadRecordTypeId from '@salesforce/apex/GTMPathFinder.getLeadRecordTypeId';
 import getGTMDetailsToDisable from '@salesforce/apex/GTMPathFinderHelper.getGTMDetailsToDisable';
+import getLowerHierarchyRecordsToDisable from '@salesforce/apex/GTMPathFinder.getLowerHierarchyRecordsToDisable';
 export default class GtmCropAllocation extends LightningElement {
     filtersOnPage = '';
     gtmDetailsToDisable = [];

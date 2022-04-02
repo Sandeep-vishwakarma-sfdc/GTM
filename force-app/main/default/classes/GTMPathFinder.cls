@@ -6,9 +6,9 @@
 * @Description  This class contains all service methods related to GTM Path Finder tabs (Potential and Profile,Crop Allocation, Product Category Allocation).
 *******************************************************************************************/
 /* MODIFICATION LOG
-* Version          Developer          Date               Description
+* Version          Developer         Date(MM/DD/YYYY)      Description
 *-------------------------------------------------------------------------------------------
-*  1.0              Sandeep         03/08/2022           Initial Creation                                                      
+*  1.0              Sandeep             03/08/2022           Initial Creation                                                      
 *******************************************************************************************/
 public with sharing class GTMPathFinder {
     
@@ -17,9 +17,14 @@ public with sharing class GTMPathFinder {
     public static boolean isSalesRep = isSalesRepProfile();
 
     private static boolean isSalesRepProfile(){
-        List<Profile> profiles = [SELECT Id, Name FROM Profile WHERE Id=:userinfo.getProfileId() LIMIT 1];
-        String profileName = profiles[0].Name;
-        List<PathFinderProfiles__mdt> pathfinderProfile = [select Id,ProfileName__c from PathFinderProfiles__mdt where Sales_org_code__c=:salesOrg.Sales_Org_Code__c];
+        List<Profile> profiles = new List<Profile>();
+        List<PathFinderProfiles__mdt> pathfinderProfile = new List<PathFinderProfiles__mdt>();
+        String profileName = '';
+        if(Schema.sObjectType.PathFinderProfiles__mdt.isAccessible()){
+        profiles = [SELECT Id, Name FROM Profile WHERE Id=:userinfo.getProfileId() LIMIT 1];
+        profileName = profiles[0].Name;
+        pathfinderProfile = [select Id,ProfileName__c from PathFinderProfiles__mdt where Sales_org_code__c=:salesOrg.Sales_Org_Code__c];
+        }
         Map<String,List<PathFinderProfiles__mdt>> mapPathfinderProfile = new Map<String,List<PathFinderProfiles__mdt>>();
         for(PathFinderProfiles__mdt pfm : pathfinderProfile){
             if(mapPathfinderProfile.containsKey(pfm.ProfileName__c)){
@@ -206,17 +211,7 @@ public with sharing class GTMPathFinder {
     public static List<GTM_Details__c> getGTMPotentialProfile(String fiscalyear){
         Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Profile & Potential').getRecordTypeId();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        if(isSalesRep){
-            List<GTM_Details__c> gtmDetailsForSalesRep = new List<GTM_Details__c>();
-            List<GTM_Details__c> gtmDetailsAvailable = new List<GTM_Details__c>();
-            // gtmDetailsForSalesRep = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.recordTypeId,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer_Type__c ,Total_Purchase_of_Crop_Protection_PY__c,Estimated_Markup_of_Channel__c,Estimated_Number_of_Sales_Rep_on_Role__c,Number_of_Stores_That_the_Channel_Has__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypePotentialProfile ORDER BY GTM_Customer__r.Name ASC];
-
-            System.debug('gtmDetailsForSalesRep :'+gtmDetailsForSalesRep.size());
-            gtmDetailsAvailable = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.recordTypeId,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer_Type__c ,Total_Purchase_of_Crop_Protection_PY__c,Estimated_Markup_of_Channel__c,Estimated_Number_of_Sales_Rep_on_Role__c,Number_of_Stores_That_the_Channel_Has__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c,GTM__r.Sales_Rep__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and recordTypeId=:recordTypePotentialProfile ORDER BY GTM_Customer__r.Name ASC];
-            System.debug('gtmDetailsAvailable :'+gtmDetailsAvailable.size());
-            // gtmDetails.addAll(gtmDetailsForSalesRep);
-            gtmDetails.addAll(gtmDetailsAvailable);
-        }else{
+        if(Schema.sObjectType.GTM_Details__c.isAccessible()){
             gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.recordTypeId,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer_Type__c ,Total_Purchase_of_Crop_Protection_PY__c,Estimated_Markup_of_Channel__c,Estimated_Number_of_Sales_Rep_on_Role__c,Number_of_Stores_That_the_Channel_Has__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and recordTypeId=:recordTypePotentialProfile ORDER BY GTM_Customer__r.Name ASC];
         }
         return gtmDetails;
@@ -282,11 +277,7 @@ public with sharing class GTMPathFinder {
     public static List<GTM_Details__c> getGTMDetailsProduct(String fiscalyear){
         Id recordTypeProductCategory = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Product Category Allocation').getRecordTypeId();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        if(isSalesRep){
-            gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Product_Category__c,Product_Category__r.Name,Product_Category__r.Help_Text__c,Product_Category_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and recordTypeId=:recordTypeProductCategory order by Product_Category__r.Name ASC]; 
-        }else{
-            gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Product_Category__c,Product_Category__r.Name,Product_Category__r.Help_Text__c,Product_Category_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and recordTypeId=:recordTypeProductCategory order by Product_Category__r.Name ASC];
-        }
+        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Product_Category__c,Product_Category__r.Name,Product_Category__r.Help_Text__c,Product_Category_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and recordTypeId=:recordTypeProductCategory order by Product_Category__r.Name ASC];
 
         System.debug('gtmDetails '+gtmDetails.size());
         if(gtmDetails.size()>0){
@@ -298,11 +289,7 @@ public with sharing class GTMPathFinder {
     public static List<GTM_Details__c> getGTMDetailsCrop(String fiscalyear){
         Id recordTypeProductCategory = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Crop Allocation').getRecordTypeId();
         List<GTM_Details__c> gtmDetails = new List<GTM_Details__c>();
-        if(isSalesRep){
-            gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Crop__c,Crop__r.Name,Crop__r.Help_Text__c,Crop_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and GTM__r.Sales_Rep__c=:userInfo.getUserId() and recordTypeId=:recordTypeProductCategory order by Crop__r.Name ASC];
-        }else{
-            gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Crop__c,Crop__r.Name,Crop__r.Help_Text__c,Crop_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and recordTypeId=:recordTypeProductCategory order by Crop__r.Name ASC];
-        }
+        gtmDetails = [Select Id,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,Crop__c,Crop__r.Name,Crop__r.Help_Text__c,Crop_Allocation__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and recordTypeId=:recordTypeProductCategory order by Crop__r.Name ASC];
 
         System.debug('gtmDetails '+gtmDetails.size());
         if(gtmDetails.size()>0){

@@ -14,6 +14,7 @@ import Estimated_Sales_in_NNY from '@salesforce/label/c.Estimated_Sales_in_NNY';
 import isWindowPeriodClosed from '@salesforce/apex/GTMPathFinderHelper.isWindowPeriodClosed';
 import getUser from '@salesforce/apex/GTMPathFinder.getUser';
 import getGTMDetailsToDisable from '@salesforce/apex/GTMPathFinderHelper.getGTMDetailsToDisable';
+import getLowerHierarchyRecordsToDisable from '@salesforce/apex/GTMPathFinder.getLowerHierarchyRecordsToDisable';
 
 export default class GtmOutlook extends LightningElement {
   instrustions = '';
@@ -127,7 +128,8 @@ renderedCallback(){
           let obj = {
             Id: ele.Id,
             customerName: ele.GTM_Customer__r ? ele.GTM_Customer__r.Name : "",
-            totalCompaniesPurches:tempCompaniesPY,
+            totalCompaniesPurchesLocale:tempCompaniesPY,
+            totalCompaniesPurches:ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,
             EstimatedGrowthCY: ele.Estimated_Growth_PY_to_CY__c?ele.Estimated_Growth_PY_to_CY__c:'',
             EstimatedGrowthNY: ele.Estimated_Growth_PY_to_NY__c?ele.Estimated_Growth_PY_to_NY__c:'',
             EstimatedGrowth2NY: ele.Estimated_Growth_NY_to_2NY__c?ele.Estimated_Growth_NY_to_2NY__c:'',
@@ -165,7 +167,10 @@ renderedCallback(){
       });
 
       getGTMDetailsToDisable({recordTypeName:'Outlook'}).then(gtmDetailsToDisable=>{
-        this.gtmDetailsToDisable = gtmDetailsToDisable;
+        this.gtmDetailsToDisable = JSON.parse(JSON.stringify(gtmDetailsToDisable));
+        getLowerHierarchyRecordsToDisable({fiscalyear:this.fiscalYear,recordTypeName:'Outlook'}).then(gtmDetailsOfLowerUser=>{
+          this.gtmDetailsToDisable.push(...JSON.parse(JSON.stringify(gtmDetailsOfLowerUser)));
+      })
         console.log('gtmDetailsToDisable ',gtmDetailsToDisable);
     }).catch(err=>console.log('gtmDetailsToDisable ',err));
 

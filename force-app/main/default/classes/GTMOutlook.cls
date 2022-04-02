@@ -25,35 +25,31 @@ public with sharing class GTMOutlook {
            System.debug('Please provide GTM__c');
        }
        List<GTM_Details__c> gtmDetailsList = new List<GTM_Details__c>();
-       GTMPathFinderHelper.createOutlookDetails(fiscalyear,gtm,gtmOutlookRecordType,salesorg,accList);
-       if(isSalesRep){
-        gtmDetailsList = [Select Id, GTM_Customer__r.Name, GTM_Customer__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer__c,Estimated_Growth_NY_to_2NY__c, Estimated_Growth_PY_to_CY__c, Estimated_Growth_PY_to_NY__c, Sales_Org__c,GTM_Customer__r.Path_Finder__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c WHERE GTM__r.Fiscal_Year__c=:fiscalYear AND recordTypeId=:gtmOutlookRecordType AND Sales_Org__r.Sales_Org_Code__c=:salesorg.Sales_Org_Code__c AND GTM__r.Sales_Rep__c=:userInfo.getUserId() order by  GTM_Customer__r.Name ASC];
-       }else{
+       GTMPathFinderHelper.createOutlookDetails(gtm,gtmOutlookRecordType,accList);
+       
         gtmDetailsList = [Select Id, GTM_Customer__r.Name, GTM_Customer__c,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,GTM_Customer__r.Lead_Customer__c,Estimated_Growth_NY_to_2NY__c, Estimated_Growth_PY_to_CY__c, Estimated_Growth_PY_to_NY__c, Sales_Org__c,GTM_Customer__r.Path_Finder__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c WHERE GTM__r.Fiscal_Year__c=:fiscalYear AND recordTypeId=:gtmOutlookRecordType AND Sales_Org__r.Sales_Org_Code__c=:salesorg.Sales_Org_Code__c order by  GTM_Customer__r.Name ASC];
-       }
          return gtmDetailsList;
     }
 
     @AuraEnabled
     public static GTM_Details__c updateGtmDetails(String apiName, String value, String recordId){
-
+      System.debug('apiName :'+apiName+' value:'+value+' recordId '+recordId);
     GTM_Details__c updateGtmDetails = [Select Id,GTM_Customer__c,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Name,GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c,Estimated_Growth_NY_to_2NY__c,Estimated_Growth_PY_to_CY__c,Estimated_Growth_PY_to_NY__c, Sales_Org__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c WHERE Id=:recordId];
 
       if(apiName=='Estimated_Growth_PY_to_CY__c')
       {
-       updateGtmDetails.Estimated_Growth_PY_to_CY__c = value==null?decimal.valueof(value):null;
-
+       updateGtmDetails.Estimated_Growth_PY_to_CY__c = value!=null?decimal.valueof(value):null;
       }
       else if(apiName=='Estimated_Growth_PY_to_NY__c')
       {
-        updateGtmDetails.Estimated_Growth_PY_to_NY__c = value==null?decimal.valueof(value):null;
+        updateGtmDetails.Estimated_Growth_PY_to_NY__c = value!=null?decimal.valueof(value):null;
       }
       else if(apiName=='Estimated_Growth_NY_to_2NY__c')
       {
-        updateGtmDetails.Estimated_Growth_NY_to_2NY__c = value==null?decimal.valueof(value):null;
+        updateGtmDetails.Estimated_Growth_NY_to_2NY__c = value!=null?decimal.valueof(value):null;
       }
        update updateGtmDetails;
-       
+       System.debug('updateGtmDetails :'+updateGtmDetails);
        return updateGtmDetails;
 
     }
