@@ -454,8 +454,7 @@ public without sharing class GTMPathFinderHelper {
     }
 
     @AuraEnabled
-    public static GTM_Details__c  updateGTMDetails(GTM_Details__c upgtm)
-    {
+    public static GTM_Details__c  updateGTMDetails(GTM_Details__c upgtm){
       update upgtm;
       return upgtm;
    }

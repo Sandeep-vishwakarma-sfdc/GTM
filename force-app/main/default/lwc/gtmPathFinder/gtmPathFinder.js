@@ -199,7 +199,7 @@ export default class GtmPathFinder extends NavigationMixin(LightningElement) {
         if(this.fiscalyear){
             let year = (monthName=='Jan' || monthName=='Feb' || monthName=='Mar')?this.fiscalyear.split('-')[1]:this.fiscalyear.split('-')[0];
             if(currentYear!=year){
-                this.disableSubmit = true; 
+                // this.disableSubmit = true; 
             }
         }
     }

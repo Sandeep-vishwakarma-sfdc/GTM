@@ -256,7 +256,7 @@ public with sharing class GTMPathFinder {
         Login_Country__c loginCountry = null;
         User usr;
         if(Schema.sObjectType.User.isAccessible()){
-          usr = [Select Id,Name,Country from User where id=:userInfo.getUserId()];
+          usr = [Select Id,Name,Country,profile.name from User where id=:userInfo.getUserId()];
         }
          if(usr!=null){
             country =  usr.Country;
@@ -267,10 +267,18 @@ public with sharing class GTMPathFinder {
          if(Schema.sObjectType.Login_Country__c.isAccessible()){
             loginCountry = [Select id,Name,Sales_Org_Code__c from Login_Country__c where Name=:country];
          }
+         String salesOrgCode;
+         if(usr.profile.name=='System Administrator'){
+            salesOrgCode = '';
+         }else{
+            salesOrgCode = loginCountry.Sales_Org_Code__c;
+         }
          if(loginCountry!=null && Schema.sObjectType.Sales_Org__c.isAccessible()){
-             System.debug('getSalesOrg '+loginCountry.Sales_Org_Code__c);
-            salesorg = [Select id,Name,Sales_Org_Code__c from Sales_Org__c where Sales_Org_Code__c=:loginCountry.Sales_Org_Code__c];
+            System.debug('getSalesOrg '+loginCountry.Sales_Org_Code__c);
+            salesorg = [Select id,Name,Sales_Org_Code__c from Sales_Org__c where Sales_Org_Code__c=:salesOrgCode];
         }
+        // Sales org = from custom setting where profile id pathfinder 
+        
         return salesorg;
     }
 
