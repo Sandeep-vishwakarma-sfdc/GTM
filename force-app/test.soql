@@ -1,0 +1,3 @@
+delete [select Id,Name from GTM_Details__c where GTM__c='a8G5D0000000KC6'];
+
+
