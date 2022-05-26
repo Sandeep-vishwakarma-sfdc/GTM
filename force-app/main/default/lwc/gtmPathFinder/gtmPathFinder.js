@@ -1,4 +1,4 @@
-import { LightningElement, track,api } from 'lwc';
+import { LightningElement, track,api, wire } from 'lwc';
 import getFiscalYear from '@salesforce/apex/GTMPathFinder.getFiscalYear'
 import Submit from '@salesforce/label/c.Submit'
 import Cancel from '@salesforce/label/c.Cancel'
@@ -30,13 +30,49 @@ import Unable_to_Submit_GTM from '@salesforce/label/c.Unable_to_Submit_GTM';
 import GTM_Submitted_Successfully from '@salesforce/label/c.GTM_Submitted_Successfully';
 import SUCCESS from '@salesforce/label/c.Success'
 import ERROR from '@salesforce/label/c.Error';
+import PROFILE_NAME_FIELD from '@salesforce/schema/User.Profile.Name';
+import updateSelectedSalesOrgName from '@salesforce/apex/GTMPathFinder.updateSelectedSalesOrgName';
+import { getRecord } from 'lightning/uiRecordApi';
+import Id from '@salesforce/user/Id';
 import { NavigationMixin } from 'lightning/navigation';
 
 export default class GtmPathFinder extends NavigationMixin(LightningElement) {
+    country = '';
+    instrustions = '';
     @track isShowModal = false;
     @track title = '';
     gtmRecordId = '';
     disableSubmit = false;
+   @track isPathFinder = false;
+    error = '';
+    country = '';
+    instrustions = '';
+    @track prfName = '';
+    selectedCountry = '';
+    @api recordId;
+    
+   // @track areDetailsVisible = false;
+
+
+
+    
+
+   @wire(getRecord, { recordId: Id, fields: [PROFILE_NAME_FIELD]})
+        userDetails({error, data}) {
+            if (data) {
+                this.prfName = data.fields.Profile.value.fields.Name.value;
+                console.log('this.prfName>>>>>>>>>>>>>>>>>' +this.prfName);
+                if(this.prfName == 'Pathfinder'){
+                this.isPathFinder=true;
+               // this.areDetailsVisible=true;
+                } else {
+                this.isPathFinder=false;
+               // this.areDetailsVisible=false;
+                }
+            } else if (error) {
+                this.error = error ;
+            }
+	    }
 
     set gtmid(value){
         this.gtmRecordId = value;
@@ -45,6 +81,8 @@ export default class GtmPathFinder extends NavigationMixin(LightningElement) {
     @api get gtmid(){
         return this.gtmRecordId;
     }
+    
+
 
     fiscalyear = '';
     loadedPerviousData = false;
@@ -75,6 +113,8 @@ export default class GtmPathFinder extends NavigationMixin(LightningElement) {
     }
 
     connectedCallback(){
+        console.log('Profile Name>>>>>>>>>>>' +PROFILE_NAME_FIELD);
+        
         if(!this.loadedPerviousData){
             console.log('connectedCallback 2',this.gtmRecordId,'this.gtmid ',this.gtmid);
             if(this.gtmid){
@@ -221,5 +261,31 @@ export default class GtmPathFinder extends NavigationMixin(LightningElement) {
             }
         });
     }
+
+  get getcountries() {
+    return [
+        { label: 'Mexico', value: '5100' },
+        { label: 'Argentina', value: '5631' },
+        { label: 'Italy', value: '2410' },
+    ];
+  }
+
+handleCountries(event) {
+   this.selectedCountry = event.target.value;
+   console.log('this.selectedCountry >>>>>>>>>>' + this.selectedCountry);
+   updateSelectedSalesOrgName({selectedCountryCode:this.selectedCountry}).then(data=>{
+    console.log('updated',data);
+}).catch(err=>console.log(err));
+    /*if(this.isPathFinder==true) {
+        let selectedAccId = this.selectedCountry;
+        //custom event
+        const passEvent = new CustomEvent('dropdownclick', {
+            detail:{recordId:selectedAccId}
+        });
+        this.dispatchEvent(passEvent);
+        //this.getinstructionsNew();
+    }*/
+
+}  
 
 }

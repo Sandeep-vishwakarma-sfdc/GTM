@@ -100,6 +100,7 @@ export default class GtmCompetition extends LightningElement {
     }
 
     leadRecordTypeId = '';
+    @api getCountryValueFromParent;
     
 
     gtmDetail = {

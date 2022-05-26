@@ -48,6 +48,8 @@ export default class GtmCategoryAllocation extends LightningElement {
         return this.fiscalYear;
     }
 
+    @api getCountryValueFromParent;
+
     labels = {
         All_Companies_Purchase_to_Customer1:All_Companies_Purchase_to_Customer.split('<br />')[0],
         All_Companies_Purchase_to_Customer2:All_Companies_Purchase_to_Customer.split('<br />')[1]+` ${this.fiscalYear.replace('-20','/')}`,
@@ -128,7 +130,7 @@ export default class GtmCategoryAllocation extends LightningElement {
 
     connectedCallback(){
         this.showLoading = true;
-        Promise.all([getCatergoryAllocation({year:this.fiscalYear})]).then(result=>{
+        Promise.all([getCatergoryAllocation({year:this.fiscalYear, selectedCountry: this.getCountryValueFromParent})]).then(result=>{
             let data = [];
             let tempProductAllocation=[];
             let tempAllProductAllocations = [];
@@ -335,12 +337,15 @@ export default class GtmCategoryAllocation extends LightningElement {
     }
    
     handleFilterPanelAction(event){
+        console.log('inside handleFilterPanelAction >>>>');
         this.filtersOnPage = JSON.parse(JSON.stringify(event.detail));
         let filtersValue = JSON.parse(JSON.stringify(event.detail));
         this.applyFiltersOnCustomer(filtersValue);
+        console.log('exiting handleFilterPanelAction >>>>');
     }
 //searchStr,isLead,percentage
     applyFiltersOnCustomer(filtersValue){
+        console.log('inside applyFiltersOnCustomer>>>>>');
         if(filtersValue){
         this.template.querySelector('c-pagination-cmp').pagevalue = 1;
         let search = filtersValue.search.length!=0;
@@ -357,9 +362,12 @@ export default class GtmCategoryAllocation extends LightningElement {
         }
         let filter2Value = filtersValue.filter2;
         let filter3Value = filtersValue.filter3;
+        console.log('Before getCalculatedPercentage function');
         this.getCalculatedPercentage();
+        console.log('After getCalculatedPercentage function');
         this.productAllocations = [];
         this.paginatedProductCategoryAllocation =[];
+        console.log('this.copyproductAllocationsVirtual>>>>>>>' +JSON.parse(JSON.stringify(this.copyproductAllocationsVirtual)));
         this.productAllocations = this.copyproductAllocationsVirtual.filter(ele=>{
             let custName = String(ele.customerName).toLowerCase();
             if (search && filter1 && filter2 && filter3) {
@@ -384,6 +392,9 @@ export default class GtmCategoryAllocation extends LightningElement {
                 return custName.includes(searchValue) && String(ele.pathFinder) == String(filter3Value);
             }
             else if (search && !filter1 && !filter2 && !filter3) {
+                console.log('searchValue>>>>>>>>>'+searchValue);
+                console.log('custName>>>>>>>>>'+custName);
+                console.log('custName.includes(searchValue)>>>>>>>>>'+custName.includes(searchValue));
                 return custName.includes(searchValue);
             }
             else if (!search && filter1 && filter2 && filter3) {
@@ -417,6 +428,9 @@ export default class GtmCategoryAllocation extends LightningElement {
     //    console.log('search ', this.productAllocations.length);
        this.paginatedProductCategoryAllocation = JSON.parse(JSON.stringify(this.productAllocations));
         }
+        console.log('productAllocations >>>>'+this.productAllocations);
+        console.log('paginatedProductCategoryAllocation >>>>'+this.paginatedProductCategoryAllocation);
+        console.log('exiting applyFiltersOnCustomer >>>>'+this.productAllocations);
     }
 
     getCalculatedPercentage(){

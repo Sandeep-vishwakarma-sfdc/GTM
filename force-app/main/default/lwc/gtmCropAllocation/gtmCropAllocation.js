@@ -19,6 +19,7 @@ import getLeadRecordTypeId from '@salesforce/apex/GTMPathFinder.getLeadRecordTyp
 import getGTMDetailsToDisable from '@salesforce/apex/GTMPathFinderHelper.getGTMDetailsToDisable';
 import getLowerHierarchyRecordsToDisable from '@salesforce/apex/GTMPathFinder.getLowerHierarchyRecordsToDisable';
 export default class GtmCropAllocation extends LightningElement {
+    @api selectedCountry1;
     filtersOnPage = '';
     gtmDetailsToDisable = [];
     instrustions = '';
@@ -46,6 +47,8 @@ export default class GtmCropAllocation extends LightningElement {
     @api get gtmFiscalYear() {
         return this.fiscalYear;
     }
+
+    @api getCountryValueFromParent;
 
     @wire(getInstructions) getInstrustion({error,data}){
         if(data){
@@ -126,6 +129,7 @@ export default class GtmCropAllocation extends LightningElement {
     }
 
     connectedCallback(){
+        //alert('hi divya11' +this.selectedCountry1);
         Promise.all([getCropAllocation({year:this.fiscalYear})]).then(result=>{
             let data = [];
             let tempCropAllocation=[];

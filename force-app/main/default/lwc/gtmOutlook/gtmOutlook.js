@@ -17,6 +17,7 @@ import getGTMDetailsToDisable from '@salesforce/apex/GTMPathFinderHelper.getGTMD
 import getLowerHierarchyRecordsToDisable from '@salesforce/apex/GTMPathFinder.getLowerHierarchyRecordsToDisable';
 
 export default class GtmOutlook extends LightningElement {
+  @api selectedCountry1;
   instrustions = '';
   countryLocale = 'es-Ar';
   hasRendered = false;
@@ -44,7 +45,7 @@ export default class GtmOutlook extends LightningElement {
   @api get gtmFiscalYear() {
       return this.fiscalYear;
   }
-
+  @api getCountryValueFromParent;
    label = {
       Instructions:Instructions,
       GTM_Customer:GTM_Customer,
@@ -113,6 +114,7 @@ renderedCallback(){
   }
 }
   connectedCallback() {
+    //alert('hi divya11' +this.selectedCountry1);
     getGTMOutlook({year:this.fiscalYear}
       ).then((result) => {
         let tempData = [];

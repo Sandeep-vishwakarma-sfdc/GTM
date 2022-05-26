@@ -58,6 +58,8 @@ export default class GtmPotentialAndProfile extends LightningElement {
         return this.fiscalYear;
     }
 
+    @api getCountryValueFromParent;
+
     labels = {
         Instructions: Instructions,
         Customer_Lead_Customer: Customer_Lead_Customer,
@@ -162,11 +164,12 @@ export default class GtmPotentialAndProfile extends LightningElement {
     }
 
     connectedCallback() {
+        console.log('hi divya >>>>>>>>>>' +this.getCountryValueFromParent);
         console.log('GTM fiscal year', this.fiscalYear);
         this.showLoading = true;
         getLeadRecordTypeId().then(leadRecordType=>{
             this.leadRecordTypeId = leadRecordType;
-        getPotentialAndProfile({ year: this.fiscalYear }).then(data => {
+        getPotentialAndProfile({ year: this.fiscalYear, selectedCountry: this.getCountryValueFromParent }).then(data => {
             console.log('Data ', data);
             let tempData = [];
             if (data) {

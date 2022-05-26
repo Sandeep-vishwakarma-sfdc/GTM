@@ -13,8 +13,15 @@ import Please_fill_in_the_information_below_and_click_Next_to_start from '@sales
 export default class GtmIdentification extends LightningElement {
 
     country = '';
+    selectedCountry = '';
     instrustions = '';
     @track fiscalYear = '';
+    @api getCountryValueFromParent;
+    @api onTabRefresh() {
+        setTimeout(() => {
+            this.connectedCallback();
+        }, 500);
+    }
     @track labels = {
         Name: Name,
         Role: Role,
@@ -24,12 +31,13 @@ export default class GtmIdentification extends LightningElement {
 
     }
 
-    @wire(getInstructions2) getInstruction({ error, data }) {
-        if (data) {
-            this.instrustions = data.Instruction_Identification__c;
-        }
-    }
+  // @wire(getInstructions2) getInstruction({ error, data }) {
+   //    if (data) {
+       //   this.instrustions = data.Instruction_Identification__c;
+     //   }
+     //}
 
+     
 
     @track gtm = [];
     @api recordId;
@@ -47,12 +55,21 @@ export default class GtmIdentification extends LightningElement {
 
     connectedCallback() {
         console.log('The fiscal year', this.fiscalYear);
+        
         getSalesOrg().then(Name => {
             console.log('The name is', Name.Name)
             this.country = Name.Name;
+        });
+
+        getInstructions2().then(data=>{
+            if(data){
+                this.instrustions = data.Instruction_Identification__c;
+                console.log('this.instrustions ',this.instrustions)
+            }
+        }).catch(err=>{
+            console.log('Err ',err);
         })
-
-
+        
     }
 
 
@@ -85,9 +102,5 @@ export default class GtmIdentification extends LightningElement {
 
 
         });
-
-
-
-
-    }
+    }           
 }

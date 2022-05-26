@@ -10,6 +10,7 @@ import Last_Modified_By from '@salesforce/label/c.Last_Modified_By';
 import Last_Modified_By_Date from '@salesforce/label/c.Last_Modified_By_Date';
 import updateCompetitorMapStatus from '@salesforce/apex/GtmProductCompetition.updateCompetitorMapStatus';
 export default class GtmCompetitor extends LightningElement { queryTerm;
+@api selectedCountry1;
 @track competitorSalesorgMapping= [];
 @track paginatedCompetitorSalesorgMapping = [];
 @track mapDataSave = [];

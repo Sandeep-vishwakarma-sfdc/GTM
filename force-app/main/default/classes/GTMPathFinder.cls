@@ -256,7 +256,7 @@ public with sharing class GTMPathFinder {
         Login_Country__c loginCountry = null;
         User usr;
         if(Schema.sObjectType.User.isAccessible()){
-          usr = [Select Id,Name,Country from User where id=:userInfo.getUserId()];
+          usr = [Select Id,Name,Country,profile.Name from User where id=:userInfo.getUserId()];
         }
          if(usr!=null){
             country =  usr.Country;
@@ -267,9 +267,17 @@ public with sharing class GTMPathFinder {
          if(Schema.sObjectType.Login_Country__c.isAccessible()){
             loginCountry = [Select id,Name,Sales_Org_Code__c from Login_Country__c where Name=:country];
          }
+         String salesOrgCode;
+         if(usr.profile.name=='Pathfinder'){
+         GTMPathFinderUser__c gtmPathFinderUser = [select Id,Name,Profile_Name__c,Sales_Org_Code__c from GTMPathFinderUser__c where Profile_Name__c='Pathfinder' limit 1];
+
+            salesOrgCode = gtmPathFinderUser.Sales_Org_Code__c;
+         }else{
+            salesOrgCode = loginCountry.Sales_Org_Code__c;
+         }
          if(loginCountry!=null && Schema.sObjectType.Sales_Org__c.isAccessible()){
-             System.debug('getSalesOrg '+loginCountry.Sales_Org_Code__c);
-            salesorg = [Select id,Name,Sales_Org_Code__c from Sales_Org__c where Sales_Org_Code__c=:loginCountry.Sales_Org_Code__c];
+            System.debug('getSalesOrg '+loginCountry.Sales_Org_Code__c);
+            salesorg = [Select id,Name,Sales_Org_Code__c from Sales_Org__c where Sales_Org_Code__c=:salesOrgCode];
         }
         return salesorg;
     }
@@ -489,5 +497,22 @@ public with sharing class GTMPathFinder {
         allGtmDetails = [Select Id,recordTypeId,Name,GTM_Customer__c,GTM_Customer__r.Name,GTM_Customer__r.Path_Finder__c,GTM_Customer__r.Lead_Customer__c,GTM_Customer__r.Lead_Customer_Type__c,isSubmitted__c,GTM_Customer__r.recordTypeId from GTM_Details__c where GTM__r.Fiscal_Year__c=:fiscalyear and GTM__r.Sales_Org__c=:salesOrg.Id and recordTypeId=:detailRecordType];
         return allGtmDetails;
     }
+     @AuraEnabled
+     public static string updateSelectedSalesOrgName(String selectedCountryCode){
 
+        User u = [Select Id,Name,Profile.Name from User where id=:userInfo.getUserId() ];
+        if(u.profile.name== 'Pathfinder'){
+            GTMPathFinderUser__c gtmPathFinderUser = [select Id,Name,Profile_Name__c,Sales_Org_Code__c from GTMPathFinderUser__c where Profile_Name__c='Pathfinder' limit 1];
+            gtmPathFinderUser.Sales_Org_Code__c = selectedCountryCode;
+            update gtmPathFinderUser;
+            GTM__c gtm = [select Id,Name,Sales_Rep__c from GTM__c where Sales_Rep__c=:userInfo.getUserId() limit 1];
+
+            gtm.Sales_Org__c = SalesOrg.Id;
+
+            update gtm;
+
+        }
+         return selectedCountryCode;
+     }
+    
 }
