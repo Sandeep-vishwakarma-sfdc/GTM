@@ -527,7 +527,7 @@ export default class GtmPotentialAndProfile extends LightningElement {
         let currentYear = d.getFullYear();
         let year = (monthName=='Jan' || monthName=='Feb' || monthName=='Mar')?this.fiscalYear.split('-')[1]:this.fiscalYear.split('-')[0];
         if(currentYear!=year){
-            // this.disableAll = true; 
+            this.disableAll = true; 
         }else{
             isWindowPeriodClosed().then(isDisable=>{
                 this.disableAll = isDisable
