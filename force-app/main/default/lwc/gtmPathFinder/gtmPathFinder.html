@@ -34,6 +34,10 @@
                <template if:false={isPathFinder}> <h1 style="font-size:36px; font-weight:700; color:orange;">{country}</h1></template>
             </div>
 
+            <div if:true={showLoading} class="slds-spinner_inline spinner-padding" style="margin-top: 40px;margin-left: 107px;">
+              <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </div>
+
           </div>
           
            
@@ -76,6 +80,6 @@
        <c-generic-model-popup onclose={hideModalBox} onmodelsubmit={handleModelSubmit}></c-generic-model-popup>
       </template>
       <!-- modal end -->
-  
+     
     </div>
   </template>

@@ -18,6 +18,7 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getLeadRecordTypeId from '@salesforce/apex/GTMPathFinder.getLeadRecordTypeId';
 import getGTMDetailsToDisable from '@salesforce/apex/GTMPathFinderHelper.getGTMDetailsToDisable';
 import getLowerHierarchyRecordsToDisable from '@salesforce/apex/GTMPathFinder.getLowerHierarchyRecordsToDisable';
+import SystemModstamp from '@salesforce/schema/Account.SystemModstamp';
 
 export default class GtmCategoryAllocation extends LightningElement {
     filtersOnPage = '';
@@ -184,6 +185,7 @@ export default class GtmCategoryAllocation extends LightningElement {
                 this.countryLocale = 'it-IT';
             }
         });
+        console.log('checkDataYearSatrted');
         this.checkDataYear();
     }
 
@@ -546,12 +548,19 @@ export default class GtmCategoryAllocation extends LightningElement {
         let month = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
         let d = new Date();
         let monthName = month[d.getMonth()];
+        console.log('monthName'+monthName);
         let currentYear = d.getFullYear();
         let year = (monthName=='Jan' || monthName=='Feb' || monthName=='Mar')?this.fiscalYear.split('-')[1]:this.fiscalYear.split('-')[0];
+        console.log(this.fiscalYear.split('-')[1]);
+        console.log('fiscal year'+this.fiscalYear);
+        console.log(year);
+        console.log(currentYear);
         if(currentYear!=year){
-            // this.disableAll = true; 
+            this.disableAll = true; 
         }else{
+            console.log('----------********move to else***********');
             isWindowPeriodClosed().then(isDisable=>{
+                console.log('isDisable'+isDisable);
                 this.disableAll = isDisable
             })
         }

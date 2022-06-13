@@ -50,6 +50,7 @@ export default class GtmPathFinder extends NavigationMixin(LightningElement) {
     @track prfName = '';
     selectedCountry = '';
     @api recordId;
+    showLoading = false;
     
    // @track areDetailsVisible = false;
 
@@ -239,7 +240,7 @@ export default class GtmPathFinder extends NavigationMixin(LightningElement) {
         if(this.fiscalyear){
             let year = (monthName=='Jan' || monthName=='Feb' || monthName=='Mar')?this.fiscalyear.split('-')[1]:this.fiscalyear.split('-')[0];
             if(currentYear!=year){
-                // this.disableSubmit = true; 
+                this.disableSubmit = true; 
             }
         }
     }
@@ -271,10 +272,14 @@ export default class GtmPathFinder extends NavigationMixin(LightningElement) {
   }
 
 handleCountries(event) {
+    this.showLoading = true;
    this.selectedCountry = event.target.value;
    console.log('this.selectedCountry >>>>>>>>>>' + this.selectedCountry);
    updateSelectedSalesOrgName({selectedCountryCode:this.selectedCountry}).then(data=>{
     console.log('updated',data);
+    setTimeout(() => {
+        this.showLoading = false;
+    }, 3000);
 }).catch(err=>console.log(err));
     /*if(this.isPathFinder==true) {
         let selectedAccId = this.selectedCountry;
