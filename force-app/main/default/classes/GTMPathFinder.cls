@@ -459,13 +459,15 @@ public with sharing class GTMPathFinder {
     public static boolean submitGTMDetails(){
         try {
             GTM__c gtm = [SELECT ID,Name,Fiscal_Year__c from GTM__c where Fiscal_Year__c=:fiscalyear and Sales_Org__c=:salesOrg.Id and Sales_Rep__c=:userInfo.getUserId() limit 1];
-
+System.debug('gtm'+gtm);
             List<GTM_Details__c> gtmdetails = [Select id,Name,isSubmitted__c,GTM__c from GTM_Details__c where isSubmitted__c=false and GTM__c=:gtm.Id];
 
             for(GTM_Details__c gtmd:gtmdetails){
                 gtmd.isSubmitted__c = true;
+                
             }
             update gtmdetails;
+            System.debug('gtmdetails'+gtmdetails);
             return true;
         } catch (Exception e) {
             System.debug('Exception while submitting records '+e);
@@ -514,5 +516,26 @@ public with sharing class GTMPathFinder {
         }
          return selectedCountryCode;
      }
-    
+
+     @AuraEnabled
+     public static string getSelectedCountry(){
+        GTMPathFinderUser__c gtmPathFinderUser = [select Id,Name,Profile_Name__c,Sales_Org_Code__c from GTMPathFinderUser__c where Profile_Name__c='Pathfinder' limit 1];
+        if(gtmPathFinderUser!=null){
+            return gtmPathFinderUser.Sales_Org_Code__c;
+        }
+        return '';
+     }
+
+     @AuraEnabled
+     public static void getAllGTMDetails(String year){
+        try {
+            getPotentialAndProfile(year);
+            getCatergoryAllocation(year);
+            GTMCompetition.getGTMCompetition(year);
+            GTMOutlook.getGTMOutlook(year);
+            getCropAllocation(year);
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
+     }
 }

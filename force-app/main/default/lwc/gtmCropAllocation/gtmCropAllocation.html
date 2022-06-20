@@ -68,6 +68,10 @@
           </tbody>
         </table>
 
+        <div if:true={showLoading} class="slds-spinner_inline spinner-padding">
+          <lightning-spinner alternative-text="Loading" size="medium" class="spinnerClass" style="position: fixed;top: 60px;"></lightning-spinner>
+        </div>
+
       </div>
 
       <c-pagination-cmp 

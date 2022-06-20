@@ -198,6 +198,7 @@ public without sharing class GTMPathFinderHelper {
    @AuraEnabled
    public static string createNewCustomerDetails(String newAccounts){
        Id userId = userInfo.getUserId();
+       System.debug('SOQL Query>>>>' +[SELECT ID,Name,Fiscal_Year__c from GTM__c where Fiscal_Year__c=:fiscalyear and Sales_Org__c=:salesOrg.Id and Sales_Rep__c=:userId limit 1]);
        GTM__c gtm = [SELECT ID,Name,Fiscal_Year__c from GTM__c where Fiscal_Year__c=:fiscalyear and Sales_Org__c=:salesOrg.Id and Sales_Rep__c=:userId limit 1];
        
 
@@ -427,6 +428,7 @@ public without sharing class GTMPathFinderHelper {
         if(Schema.sObjectType.GTM_Country_Configuration__c.isAccessible()){
         gcc = [select Id,Start_Day__c,Start_Month__c,End_Day__c,End_Month__c  from GTM_Country_Configuration__c where Sales_Org__c=:salesOrg.Id  limit 1];
         }
+        System.debug('gcc'+gcc);
         Date currentDate = Date.today();
         Integer startMonth = months.indexOf(gcc.Start_Month__c)+1;
         Integer endMonth = months.indexOf(gcc.End_Month__c)+1;
@@ -434,6 +436,12 @@ public without sharing class GTMPathFinderHelper {
         Integer endDay = Integer.valueOf(gcc.End_Day__c);
         Integer currentMonth = currentDate.month();
         Integer currentDay = currentDate.day();
+        System.debug('startMonth'+startMonth);
+        System.debug('endMonth'+endMonth);
+        System.debug('startDay'+startDay);
+        System.debug('endDay'+endDay);
+        System.debug('currentMonth'+currentMonth);
+        System.debug('currentDay'+currentDay);
         if(currentDay>=startDay && currentDay<=endDay && currentMonth>=startMonth && currentMonth<=endMonth){//Users are allowed to edit records
             return false;
         }else{// Disable editing records
@@ -441,11 +449,11 @@ public without sharing class GTMPathFinderHelper {
         }
     }
     
-    @AuraEnabled(cacheable=true)
+    @AuraEnabled
     public static GTM_Country_Configuration__c getInstructions(){
         List<GTM_Country_Configuration__c> gcc = null; 
         if(Schema.sObjectType.GTM_Country_Configuration__c.isAccessible()){
-            gcc = [select Id,Name ,Instruction_Profile_Potential__c,Instruction_Product_Category_Allocatio__c,Instruction_Crop_Allocation__c,Instruction_Competitor__c,Instruction_Identification__c,Instruction_FAQ__c,Instruction_Outlook__c from GTM_Country_Configuration__c where Sales_Org__c=:salesOrg.Id];
+            gcc = [select Id,Name ,Instruction_Profile_Potential__c,Instruction_Product_Category_Allocatio__c,Instruction_Crop_Allocation__c,Instruction_Competitor__c,Instruction_Identification__c,Instruction_FAQ__c,Instruction_Outlook__c,Countries__c from GTM_Country_Configuration__c where Sales_Org__c=:salesOrg.Id];
         }
         if(gcc.size()>0){
             return gcc[0];
@@ -460,5 +468,17 @@ public without sharing class GTMPathFinderHelper {
       return upgtm;
    }
 
+   @AuraEnabled(cacheable=true)
+   public static string getHigherAuthoritiesProfiles(){
+        PathFinderProfiles__mdt higherAuthoritiesProfiles = PathFinderProfiles__mdt.getInstance('HigherAuthoritiesProfiles');
+        // System.debug('higherAuthoritiesProfiles '+higherAuthoritiesProfiles);
+        return String.valueOf(higherAuthoritiesProfiles.ProfileName__c);
+   }
+
+   @AuraEnabled(cacheable=true)
+   public static string getMyProfile(){
+        User userDetails =[SELECT Id, Name, Email, Profile.Name, UserRole.Id,UserRole.Name FROM User where Id=:UserInfo.getUserId() ];
+        return userDetails.Profile.Name;
+   }
   
 }

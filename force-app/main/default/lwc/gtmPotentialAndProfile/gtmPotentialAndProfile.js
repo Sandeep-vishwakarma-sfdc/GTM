@@ -24,6 +24,8 @@ import Page from '@salesforce/label/c.Page';
 import getLeadRecordTypeId from '@salesforce/apex/GTMPathFinder.getLeadRecordTypeId';
 import getGTMDetailsToDisable from '@salesforce/apex/GTMPathFinderHelper.getGTMDetailsToDisable';
 import getLowerHierarchyRecordsToDisable from '@salesforce/apex/GTMPathFinder.getLowerHierarchyRecordsToDisable';
+import getHigherAuthoritiesProfiles from '@salesforce/apex/GTMPathFinderHelper.getHigherAuthoritiesProfiles';
+import getMyProfile from '@salesforce/apex/GTMPathFinderHelper.getMyProfile';
 
 export default class GtmPotentialAndProfile extends LightningElement {
     filterOnPage = '';
@@ -40,6 +42,8 @@ export default class GtmPotentialAndProfile extends LightningElement {
     disableAll = false;
     leadRecordTypeId = '';
     gtmDetailsToDisable = [];
+    higherAuthoritiesProfiles = [];
+    myProfile = '';
     @track recordTypeId;
     @track panelStatus = {
         notFilled: '0',
@@ -117,14 +121,14 @@ export default class GtmPotentialAndProfile extends LightningElement {
     }
 
     @api onTabRefresh() {
-
         setTimeout(() => {
+            this.gtmPotentialProfile = [];
             this.connectedCallback();
         }, 500);
     }
 
     renderedCallback() {
-        if (!this.hasRendered && this.gtmPotentialProfileVirtual.length > 0) {
+        if (!this.hasRendered && this.gtmPotentialProfileVirtual.length > 0 && !this.higherAuthoritiesProfiles.includes(this.myProfile)) {
             setTimeout(() => {
                 this.gtmPotentialProfileVirtual.forEach(row => {
                     if (row.isSubmitted__c) {
@@ -169,11 +173,11 @@ export default class GtmPotentialAndProfile extends LightningElement {
         this.showLoading = true;
         getLeadRecordTypeId().then(leadRecordType=>{
             this.leadRecordTypeId = leadRecordType;
-        getPotentialAndProfile({ year: this.fiscalYear, selectedCountry: this.getCountryValueFromParent }).then(data => {
+            getPotentialAndProfile({ year: this.fiscalYear, selectedCountry: this.getCountryValueFromParent }).then(data => {
             console.log('Data ', data);
             let tempData = [];
             if (data) {
-                data.forEach(ele => {
+                tempData = data.map(ele => {
                     
                     let calculation = String(ele.Total_Purchase_of_Crop_Protection_PY__c) && String(ele.Estimated_Markup_of_Channel__c) ? ((Number(ele.Total_Purchase_of_Crop_Protection_PY__c) * Number(ele.Estimated_Markup_of_Channel__c)) / 100) + ele.Total_Purchase_of_Crop_Protection_PY__c : 0;
                     let tempValue = calculation ? calculation : 0;
@@ -197,20 +201,37 @@ export default class GtmPotentialAndProfile extends LightningElement {
                         disableFields: this.optionsToDisable.includes(ele.GTM_Customer_Type__c) || (this.optionsToDisable.includes(ele.confirmCustomerType)),
                         isSubmitted__c: ele.isSubmitted__c
                     }
-                    tempData.push(obj);
+                    return obj;
                 });
+
+                getHigherAuthoritiesProfiles().then(higherAuthorities=>{
+                    this.higherAuthoritiesProfiles = higherAuthorities;
+                    getMyProfile().then(myProfile=>{
+                        this.myProfile = myProfile;
+                        if(!this.higherAuthoritiesProfiles.includes(this.myProfile)){
+                            getGTMDetailsToDisable({recordTypeName:'Profile & Potential'}).then(gtmDetailsToDisable=>{
+                                this.gtmDetailsToDisable = JSON.parse(JSON.stringify(gtmDetailsToDisable));
+                                getLowerHierarchyRecordsToDisable({fiscalyear:this.fiscalYear,recordTypeName:'Profile & Potential'}).then(gtmDetailsOfLowerUser=>{
+                                    this.gtmDetailsToDisable.push(...JSON.parse(JSON.stringify(gtmDetailsOfLowerUser)));
+                                })
+                                console.log('gtmDetailsToDisable ',gtmDetailsToDisable);
+                                
+                            }).catch(err=>console.log('gtmDetailsToDisable ',err));
+                            }else{
+                                this.disableAll = true;
+                            }
+                    })
+                })
+                
                 setTimeout(() => {
                     console.log('tempData ',tempData);
                     this.gtmPotentialProfile = tempData;
                     this.gtmPotentialProfileVirtual = tempData;
                     this.paginatedGtmPotentialProfile = this.gtmPotentialProfile;
-                    this.gtmPotentialProfile.forEach(ele => {
-                        ele.disableFields = this.optionsToDisable.includes(ele.customerType) || (this.optionsToDisable.includes(ele.confirmCustomerType));
-                        this.handleChangeStatusOnLoad(ele.id);
-                        this.updateStatusLabel();
-                    })
+                    this.calculateStatus();
                     this.showLoading = false;
                 }, 200);
+                
             }
         });
     });
@@ -219,15 +240,16 @@ export default class GtmPotentialAndProfile extends LightningElement {
                 this.fiscalYear = fiscalyear.replace('-20', '/');
             });
         }
-        getGTMDetailsToDisable({recordTypeName:'Profile & Potential'}).then(gtmDetailsToDisable=>{
-            this.gtmDetailsToDisable = JSON.parse(JSON.stringify(gtmDetailsToDisable));
-            getLowerHierarchyRecordsToDisable({fiscalyear:this.fiscalYear,recordTypeName:'Profile & Potential'}).then(gtmDetailsOfLowerUser=>{
-                this.gtmDetailsToDisable.push(...JSON.parse(JSON.stringify(gtmDetailsOfLowerUser)));
-            })
-            console.log('gtmDetailsToDisable ',gtmDetailsToDisable);
-        }).catch(err=>console.log('gtmDetailsToDisable ',err));
         this.checkDataYear();
     }
+
+    async calculateStatus(){
+        this.handleChangeStatusOnLoad();
+        this.updateStatusLabel();
+    }
+
+
+
 
     countDecimals(value) {// TODO:
         if(Math.floor(value) === value) return 0;
@@ -307,6 +329,7 @@ export default class GtmPotentialAndProfile extends LightningElement {
             this.handleChangeStatusOnLoad(detailId);
             this.updateStatusLabel();
             this.applyFiltersOnCustomer(this.filterOnPage);
+            this.showLoading = false;
         }, 200);
         
     }
@@ -377,6 +400,50 @@ export default class GtmPotentialAndProfile extends LightningElement {
         }
     }
 
+    handleChangeStatusOnLoad() {
+        this.gtmPotentialProfile.forEach(ele => {
+            ele.disableFields = this.optionsToDisable.includes(ele.customerType) || (this.optionsToDisable.includes(ele.confirmCustomerType));
+
+            if (ele) {
+                let NumberOfFilled = 0;
+                if (ele.confirmCustomerType) {
+                    if (this.optionsToDisable.includes(ele.confirmCustomerType)) {
+                        NumberOfFilled = NumberOfFilled + 4;
+                    } else {
+                        NumberOfFilled++;
+                    }
+                } else if (this.optionsToDisable.includes(ele.customerType)) {
+                    NumberOfFilled = NumberOfFilled + 4;
+                } else if (ele.customerType) {
+                    NumberOfFilled++;
+                }
+
+                if (ele.totalPurcahseCrop && Number(ele.totalPurcahseCrop) != 0) {
+                    NumberOfFilled++;
+                }
+                if (ele.estimateChannel && Number(ele.estimateChannel) != 0) {
+                    NumberOfFilled++;
+                }
+                if (ele.estimateSalesRepRole && Number(ele.estimateSalesRepRole) != 0) {
+                    NumberOfFilled++;
+                }
+                if (ele.storiesChannelHas && Number(ele.storiesChannelHas) != 0) {
+                    NumberOfFilled++;
+                }
+                ele.numberOfFieldsFilled = NumberOfFilled;
+                if (NumberOfFilled == 5) {
+                    ele.status = 'Completed';
+                }
+                if (NumberOfFilled < 5 && NumberOfFilled > 0) {
+                    ele.status = 'INProgress';
+                }
+                if (NumberOfFilled == 0) {
+                    ele.status = 'NotFilled';
+                }
+            }
+        })
+    }
+
     handleChangeCustomerTypeOptions(event) {
         let filedName = event.target.dataset.name;
         let id = event.target.dataset.id;
@@ -404,6 +471,7 @@ export default class GtmPotentialAndProfile extends LightningElement {
     }
 
     applyFiltersOnCustomer(filtersValue) {
+        this.showLoading = true;
         if(filtersValue){
         this.template.querySelector('c-pagination-cmp').pagevalue = 1;
         console.log('filtersValue -------------->', filtersValue);
@@ -482,9 +550,10 @@ export default class GtmPotentialAndProfile extends LightningElement {
         this.gtmPotentialProfileVirtual.forEach(ele => {
             this.handleChangeStatusOnLoad(ele.id);
         })
-        this.paginatedGtmPotentialProfile = JSON.parse(JSON.stringify(this.gtmPotentialProfile));
         setTimeout(() => {
+            this.paginatedGtmPotentialProfile = JSON.parse(JSON.stringify(this.gtmPotentialProfile));
             this.updateStatusLabel();
+            this.showLoading = false;
         }, 200);
     }
     }

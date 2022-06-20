@@ -83,6 +83,8 @@ export default class GtmCategoryAllocation extends LightningElement {
 
     @api onTabRefresh(){
         setTimeout(() => {
+            this.productAllocations = [];
+            this.paginatedProductCategoryAllocation = [];
             this.connectedCallback();
         }, 500);
     }
@@ -158,18 +160,17 @@ export default class GtmCategoryAllocation extends LightningElement {
                     })
                 }, 200);
                 this.updateStatusLabel();
+                getGTMDetailsToDisable({recordTypeName:'Product Category Allocation'}).then(gtmDetailsToDisable=>{
+                    this.gtmDetailsToDisable = JSON.parse(JSON.stringify(gtmDetailsToDisable));
+                    getLowerHierarchyRecordsToDisable({fiscalyear:this.fiscalYear,recordTypeName:'Product Category Allocation'}).then(gtmDetailsOfLowerUser=>{
+                        console.log('gtmDetailsOfLowerUser ',gtmDetailsOfLowerUser);
+                        this.gtmDetailsToDisable.push(...JSON.parse(JSON.stringify(gtmDetailsOfLowerUser)));
+                    })
+                    console.log('gtmDetailsToDisable ',gtmDetailsToDisable);
+                    this.showLoading = false;
+                }).catch(err=>console.log('gtmDetailsToDisable ',err));
             }, 200);
-            setTimeout(() => {
-                this.showLoading = false;
-            }, 1500);
-            getGTMDetailsToDisable({recordTypeName:'Product Category Allocation'}).then(gtmDetailsToDisable=>{
-                this.gtmDetailsToDisable = JSON.parse(JSON.stringify(gtmDetailsToDisable));
-                getLowerHierarchyRecordsToDisable({fiscalyear:this.fiscalYear,recordTypeName:'Product Category Allocation'}).then(gtmDetailsOfLowerUser=>{
-                    console.log('gtmDetailsOfLowerUser ',gtmDetailsOfLowerUser);
-                    this.gtmDetailsToDisable.push(...JSON.parse(JSON.stringify(gtmDetailsOfLowerUser)));
-                })
-                console.log('gtmDetailsToDisable ',gtmDetailsToDisable);
-            }).catch(err=>console.log('gtmDetailsToDisable ',err));
+            
         }).catch(err=>{
             this.showLoading = false;
             console.log(err)
@@ -223,6 +224,7 @@ export default class GtmCategoryAllocation extends LightningElement {
             }
             this.productAllocations = JSON.parse(JSON.stringify(this.copyproductAllocationsVirtual));
             this.applyFiltersOnCustomer(this.filtersOnPage);
+            this.showLoading = false;
         }
         if(!value || (Number(value)<0 && Number(value)>=100)){// when inputs are Invalid
             this.template.querySelector('[data-detail="' + detailId + '"]').value = '';
@@ -343,10 +345,11 @@ export default class GtmCategoryAllocation extends LightningElement {
         this.filtersOnPage = JSON.parse(JSON.stringify(event.detail));
         let filtersValue = JSON.parse(JSON.stringify(event.detail));
         this.applyFiltersOnCustomer(filtersValue);
-        console.log('exiting handleFilterPanelAction >>>>');
+        // console.log('exiting handleFilterPanelAction >>>>');
     }
 //searchStr,isLead,percentage
     applyFiltersOnCustomer(filtersValue){
+        this.showLoading = true;
         console.log('inside applyFiltersOnCustomer>>>>>');
         if(filtersValue){
         this.template.querySelector('c-pagination-cmp').pagevalue = 1;
@@ -427,8 +430,10 @@ export default class GtmCategoryAllocation extends LightningElement {
         this.copyproductAllocationsVirtual.forEach(ele=>{
             this.updateStatus(ele.customerId);
         })
-    //    console.log('search ', this.productAllocations.length);
-       this.paginatedProductCategoryAllocation = JSON.parse(JSON.stringify(this.productAllocations));
+        setTimeout(() => {
+            this.paginatedProductCategoryAllocation = JSON.parse(JSON.stringify(this.productAllocations));
+            this.showLoading = false;
+        }, 200);
         }
         console.log('productAllocations >>>>'+this.productAllocations);
         console.log('paginatedProductCategoryAllocation >>>>'+this.paginatedProductCategoryAllocation);

@@ -118,7 +118,7 @@ export default class GtmCropAllocation extends LightningElement {
                     })
                 })
                 this.gtmDetailsToDisable.forEach(row => {
-                    console.log('row ',row);
+                    // console.log('row ',row);
                     this.template.querySelectorAll('[data-detail="' + row.Id + '"]').forEach(cell => {
                         cell.disabled = true;
                     })
@@ -130,6 +130,7 @@ export default class GtmCropAllocation extends LightningElement {
 
     connectedCallback(){
         //alert('hi divya11' +this.selectedCountry1);
+        this.showLoading = true;
         Promise.all([getCropAllocation({year:this.fiscalYear})]).then(result=>{
             let data = [];
             let tempCropAllocation=[];
@@ -156,6 +157,7 @@ export default class GtmCropAllocation extends LightningElement {
                     this.paginatedCropAllocation.forEach(ele=>{
                         this.updateStatus(ele.customerId);
                     })
+                    this.showLoading = false;
                 }, 200);
                 this.updateStatusLabel();
             }, 200);
@@ -381,6 +383,7 @@ export default class GtmCropAllocation extends LightningElement {
     }
 
     applyFiltersOnCustomer(filtersValue){
+        this.showLoading = true;
         if(filtersValue){
         this.template.querySelector('c-pagination-cmp').pagevalue = 1;
         let search = filtersValue.search.length!=0;
@@ -454,7 +457,10 @@ export default class GtmCropAllocation extends LightningElement {
         this.copyCropAllocationsVirtual.forEach(ele=>{
             this.updateStatus(ele.customerId);
         })
-        this.paginatedCropAllocation = JSON.parse(JSON.stringify(this.cropAllocations));
+        setTimeout(() => {
+            this.paginatedCropAllocation = JSON.parse(JSON.stringify(this.cropAllocations));
+            this.showLoading = false;
+        }, 200);
         }
     }
 

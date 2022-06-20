@@ -1,4 +1,4 @@
-import { LightningElement, track,api, wire } from 'lwc';
+import { LightningElement, track, api, wire } from 'lwc';
 import getFiscalYear from '@salesforce/apex/GTMPathFinder.getFiscalYear'
 import Submit from '@salesforce/label/c.Submit'
 import Cancel from '@salesforce/label/c.Cancel'
@@ -35,6 +35,7 @@ import updateSelectedSalesOrgName from '@salesforce/apex/GTMPathFinder.updateSel
 import { getRecord } from 'lightning/uiRecordApi';
 import Id from '@salesforce/user/Id';
 import { NavigationMixin } from 'lightning/navigation';
+import getSelectedCountry from '@salesforce/apex/GTMPathFinder.getSelectedCountry'
 
 export default class GtmPathFinder extends NavigationMixin(LightningElement) {
     country = '';
@@ -43,7 +44,7 @@ export default class GtmPathFinder extends NavigationMixin(LightningElement) {
     @track title = '';
     gtmRecordId = '';
     disableSubmit = false;
-   @track isPathFinder = false;
+    @track isPathFinder = false;
     error = '';
     country = '';
     instrustions = '';
@@ -51,43 +52,43 @@ export default class GtmPathFinder extends NavigationMixin(LightningElement) {
     selectedCountry = '';
     @api recordId;
     showLoading = false;
-    
-   // @track areDetailsVisible = false;
+
+    // @track areDetailsVisible = false;
 
 
 
-    
 
-   @wire(getRecord, { recordId: Id, fields: [PROFILE_NAME_FIELD]})
-        userDetails({error, data}) {
-            if (data) {
-                this.prfName = data.fields.Profile.value.fields.Name.value;
-                console.log('this.prfName>>>>>>>>>>>>>>>>>' +this.prfName);
-                if(this.prfName == 'Pathfinder'){
-                this.isPathFinder=true;
-               // this.areDetailsVisible=true;
-                } else {
-                this.isPathFinder=false;
-               // this.areDetailsVisible=false;
-                }
-            } else if (error) {
-                this.error = error ;
+
+    @wire(getRecord, { recordId: Id, fields: [PROFILE_NAME_FIELD] })
+    userDetails({ error, data }) {
+        if (data) {
+            this.prfName = data.fields.Profile.value.fields.Name.value;
+            console.log('this.prfName>>>>>>>>>>>>>>>>>' + this.prfName);
+            if (this.prfName == 'Pathfinder') {
+                this.isPathFinder = true;
+                // this.areDetailsVisible=true;
+            } else {
+                this.isPathFinder = false;
+                // this.areDetailsVisible=false;
             }
-	    }
+        } else if (error) {
+            this.error = error;
+        }
+    }
 
-    set gtmid(value){
+    set gtmid(value) {
         this.gtmRecordId = value;
     }
 
-    @api get gtmid(){
+    @api get gtmid() {
         return this.gtmRecordId;
     }
-    
+
 
 
     fiscalyear = '';
     loadedPerviousData = false;
-
+    
     labels = {
         Submit,
         Cancel,
@@ -108,63 +109,85 @@ export default class GtmPathFinder extends NavigationMixin(LightningElement) {
         ERROR
     }
 
-    @api getFiredFromAura(){
-        console.log('connectedCallback 1',this.gtmid);
+    @api getFiredFromAura() {
+        console.log('connectedCallback 1', this.gtmid);
         // this.connectedCallback();
     }
+    onTabChange(event) {
+        let cmpName = event.target.name;
+        let cmp = this.template.querySelector(`${cmpName}`);
+        if (cmp) {
+            cmp.onTabRefresh();
+            cmp = undefined;
+        }
+    }
 
-    connectedCallback(){
-        console.log('Profile Name>>>>>>>>>>>' +PROFILE_NAME_FIELD);
-        
-        if(!this.loadedPerviousData){
-            console.log('connectedCallback 2',this.gtmRecordId,'this.gtmid ',this.gtmid);
-            if(this.gtmid){
-                getGTM({id:this.gtmid}).then(gtm=>{
-                    if(gtm){
-                        console.log('financialYear ',gtm.Fiscal_Year__c);
-                        setFiscalYear({financialYear:gtm.Fiscal_Year__c}).then(fiscalyear=>{
+    connectedCallback() {
+        console.log('Profile Name>>>>>>>>>>>' + PROFILE_NAME_FIELD);
+
+        if (!this.loadedPerviousData) {
+            console.log('connectedCallback 2', this.gtmRecordId, 'this.gtmid ', this.gtmid);
+            if (this.gtmid) {
+                getGTM({ id: this.gtmid }).then(gtm => {
+                    if (gtm) {
+                        console.log('financialYear ', gtm.Fiscal_Year__c);
+                        setFiscalYear({ financialYear: gtm.Fiscal_Year__c }).then(fiscalyear => {
                             this.fiscalyear = fiscalyear;
                             this.title = `${this.labels.GTM_FY} ${fiscalyear}`;
                             this.checkDataYear();
-                            console.log('GTM Title ',this.title);
-                        }).catch(err=>{
-                            console.log('setFiscalYear ',err);
+                            console.log('GTM Title ', this.title);
+                        }).catch(err => {
+                            console.log('setFiscalYear ', err);
                         });
                     }
                 })
-            }else{
+            } else {
                 this.loadCurrentYearGTM();
             }
             this.loadedPerviousData = true;
         }
+        this.getSelectedCountry();
     }
 
-    loadCurrentYearGTM(){
-        getFiscalYear().then(year=>{
-            let title = year.replace('/','-');
+    getSelectedCountry() {
+        getSelectedCountry().then(countryCode => {
+            this.selectedCountry = countryCode;
+        })
+    }
+
+    loadCurrentYearGTM() {
+        getFiscalYear().then(year => {
+            let title = year.replace('/', '-');
             this.fiscalyear = title;
             this.title = `${this.labels.GTM_FY} ${title}`;
-            if(this.fiscalyear){
+            if (this.fiscalyear) {
                 console.log('init');
                 this.init();
             }
         })
-        getNewGTMCustomers().then(newAccounts=>{
-            if(newAccounts.length>0){
-                console.log('new Accounts',newAccounts);
-                createNewCustomerDetails({newAccounts:JSON.stringify(newAccounts)}).then(data=>{
+        getNewGTMCustomers().then(newAccounts => {
+            if (newAccounts.length > 0) {
+                console.log('new Accounts', newAccounts);
+                createNewCustomerDetails({ newAccounts: JSON.stringify(newAccounts) }).then(data => {
                 });
             }
         });
-        getNewlyAddedCrop().then(listCrop=>{
-            console.log('New Crops ',listCrop);
-            if(listCrop.length>0 && this.fiscalyear){
-                createGTMAndDetailsCropAllocation({activeCrops:listCrop,year:this.fiscalyear}).then(data=>{}).catch(err=>{console.log('createGTMAndDetailsCropAllocation ',err)})
+        getNewlyAddedCrop().then(listCrop => {
+            console.log('New Crops ', listCrop);
+            if (listCrop.length > 0 && this.fiscalyear) {
+                createGTMAndDetailsCropAllocation({ activeCrops: listCrop, year: this.fiscalyear }).then(data => { }).catch(err => { console.log('createGTMAndDetailsCropAllocation ', err) })
             }
-        }).catch(err=>console.log('getNewlyAddedCrop ',getNewlyAddedCrop));
+        }).catch(err => console.log('getNewlyAddedCrop ', getNewlyAddedCrop));
     }
 
     async init() {
+        // try {
+        //     await getAllGTMDetails({ year: this.fiscalyear }).catch(err => console.log(err));
+        // } catch (error) {
+        //     console.log('error ', error);
+        // } finally {
+        //     console.log('init completed')
+        // }
         try {
             await getPotentialAndProfile({year:this.fiscalyear}).catch(err=>console.log(err));
             await getCatergoryAllocation({year:this.fiscalyear}).catch(err=>console.log(err));
@@ -178,20 +201,11 @@ export default class GtmPathFinder extends NavigationMixin(LightningElement) {
         }
     }
 
-    onTabChange(event){
-        let cmpName = event.target.name;
-        let cmp = this.template.querySelector(`${cmpName}`);
-        if(cmp){
-            cmp.onTabRefresh();
-            cmp = undefined;
-        }
-    }
-    
     handleclick() {
         let ml = this.template.querySelector(".sidebar");
         ml.toggleClass("active");
     }
-    handleCancel(){
+    handleCancel() {
         this.handleListViewNavigation();
     }
     showModalBox() {
@@ -201,28 +215,28 @@ export default class GtmPathFinder extends NavigationMixin(LightningElement) {
     hideModalBox() {
         this.isShowModal = false;
     }
-    
 
-    handleModelSubmit(){
+
+    handleModelSubmit() {
         console.log('Submit model');
         this.isShowModal = false;
         this.submitDetails();
     }
 
-    submitDetails(){
-        submitGTMDetails().then(isSubmitted=>{
-            this.showToast(this.labels.SUCCESS,this.labels.GTM_Submitted_Successfully,'success');
-            if(isSubmitted){
+    submitDetails() {
+        submitGTMDetails().then(isSubmitted => {
+            this.showToast(this.labels.SUCCESS, this.labels.GTM_Submitted_Successfully, 'success');
+            if (isSubmitted) {
                 setTimeout(() => {
                     location.reload();
                 }, 200);
             }
-        }).catch(err=>{
-            this.showToast(this.labels.ERROR,this.labels.Unable_to_Submit_GTM,'error');
+        }).catch(err => {
+            this.showToast(this.labels.ERROR, this.labels.Unable_to_Submit_GTM, 'error');
         })
     }
 
-    showToast(title,message,variant) {
+    showToast(title, message, variant) {
         const event = new ShowToastEvent({
             title: title,
             message: message,
@@ -232,15 +246,15 @@ export default class GtmPathFinder extends NavigationMixin(LightningElement) {
         this.dispatchEvent(event);
     }
 
-    checkDataYear(){
-        let month = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    checkDataYear() {
+        let month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         let d = new Date();
         let monthName = month[d.getMonth()];
         let currentYear = d.getFullYear();
-        if(this.fiscalyear){
-            let year = (monthName=='Jan' || monthName=='Feb' || monthName=='Mar')?this.fiscalyear.split('-')[1]:this.fiscalyear.split('-')[0];
-            if(currentYear!=year){
-                this.disableSubmit = true; 
+        if (this.fiscalyear) {
+            let year = (monthName == 'Jan' || monthName == 'Feb' || monthName == 'Mar') ? this.fiscalyear.split('-')[1] : this.fiscalyear.split('-')[0];
+            if (currentYear != year) {
+                this.disableSubmit = true;
             }
         }
     }
@@ -258,39 +272,30 @@ export default class GtmPathFinder extends NavigationMixin(LightningElement) {
                 // and identifies the target list view.
                 // It may also be an 18 character list view id.
                 // or by 18 char '00BT0000002TONQMA4'
-                filterName: 'Recent' 
+                filterName: 'Recent'
             }
         });
     }
 
-  get getcountries() {
-    return [
-        { label: 'Mexico', value: '5100' },
-        { label: 'Argentina', value: '5631' },
-        { label: 'Italy', value: '2410' },
-    ];
-  }
+    get getcountries() {
+        return [
+            { label: 'Mexico', value: '5100' },
+            { label: 'Argentina', value: '5631' },
+            { label: 'Italy', value: '2410' },
+        ];
+    }
 
-handleCountries(event) {
-    this.showLoading = true;
-   this.selectedCountry = event.target.value;
-   console.log('this.selectedCountry >>>>>>>>>>' + this.selectedCountry);
-   updateSelectedSalesOrgName({selectedCountryCode:this.selectedCountry}).then(data=>{
-    console.log('updated',data);
-    setTimeout(() => {
-        this.showLoading = false;
-    }, 3000);
-}).catch(err=>console.log(err));
-    /*if(this.isPathFinder==true) {
-        let selectedAccId = this.selectedCountry;
-        //custom event
-        const passEvent = new CustomEvent('dropdownclick', {
-            detail:{recordId:selectedAccId}
-        });
-        this.dispatchEvent(passEvent);
-        //this.getinstructionsNew();
-    }*/
+    handleCountries(event) {
+        this.showLoading = true;
+        this.selectedCountry = event.target.value;
+        console.log('this.selectedCountry >>>>>>>>>>' + this.selectedCountry);
+        updateSelectedSalesOrgName({ selectedCountryCode: this.selectedCountry }).then(data => {
+            console.log('updated', data);
+            setTimeout(() => {
+                this.showLoading = false;
+            }, 3000);
+        }).catch(err => console.log(err));
 
-}  
+    }
 
 }

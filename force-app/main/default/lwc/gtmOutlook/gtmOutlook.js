@@ -24,6 +24,7 @@ export default class GtmOutlook extends LightningElement {
   disableAll = false;
   @track GTMOutlookDetails = [];
   GTMOutlookDetailsCopy = [];
+  showLoading = false;
   @track paginatedGTMOutlookDetails;
   @track error;
   @track pending = true;
@@ -114,11 +115,12 @@ renderedCallback(){
   }
 }
   connectedCallback() {
+    this.showLoading = true;
     //alert('hi divya11' +this.selectedCountry1);
     getGTMOutlook({year:this.fiscalYear}
       ).then((result) => {
         let tempData = [];
-        result.forEach((ele) => {
+        tempData = result.map((ele) => {
           let confirmtotalSalesChannelCYFormula = Number((Number(ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c)*Number(ele.Estimated_Growth_PY_to_CY__c)/100)+Number(ele.GTM_Details__r.Total_Purchase_of_Crop_Protection_PY__c)).toFixed(2)
           console.log('Calculated Value-->',ele.Estimated_Growth_PY_to_CY__c);
 
@@ -144,19 +146,21 @@ renderedCallback(){
             pathFinder:ele.GTM_Customer__r.Path_Finder__c,
             isSubmitted__c:ele.isSubmitted__c
           };
-          tempData.push(obj);
+          // tempData.push(obj);
+          return obj;
         });
 
         setTimeout(() => {
 
           this.GTMOutlookDetails = tempData;
-          console.log('GTMOutlook String', JSON.stringify(this.GTMOutlookDetails));
+          // console.log('GTMOutlook String', JSON.stringify(this.GTMOutlookDetails));
           this.GTMOutlookDetailsCopy = tempData;
           this.paginatedGTMOutlookDetails = this.GTMOutlookDetails;
-                  this.GTMOutlookDetails.forEach(ele=>{
-                  this.handleChangeStatusOnLoad(ele.Id);
-                  this.updateStatusLabel();
-           })
+                  // this.GTMOutlookDetails.forEach(ele=>{
+                  this.handleChangeStatusOnLoad('');
+                // })
+                this.updateStatusLabel();
+                this.showLoading = false;
         }, 200);
         console.log("Data", result);
       })
@@ -370,6 +374,7 @@ renderedCallback(){
 
 applyFiltersOnCustomer(filtersValue){
   console.log('filtersValue -------------->',filtersValue);
+  this.showLoading = true;
   this.template.querySelector('c-pagination-cmp').pagevalue = 1;
   let mapStatus = new Map([
       ["Not Fill", 'NotFilled'],
@@ -444,12 +449,13 @@ applyFiltersOnCustomer(filtersValue){
         return true;
     }
   })
-  this.GTMOutlookDetailsCopy.forEach(ele=>{
-      this.handleChangeStatusOnLoad(ele.Id);
-  })
- this.paginatedGTMOutlookDetails = JSON.parse(JSON.stringify(this.GTMOutlookDetails));
- setTimeout(() => {
+  // this.GTMOutlookDetailsCopy.forEach(ele=>{
+      this.handleChangeStatusOnLoad('');
+  // })
+  setTimeout(() => {
+   this.paginatedGTMOutlookDetails = JSON.parse(JSON.stringify(this.GTMOutlookDetails));
      this.updateStatusLabel();
+     this.showLoading = false;
  }, 200);
 }
 handlePaginationAction(event){

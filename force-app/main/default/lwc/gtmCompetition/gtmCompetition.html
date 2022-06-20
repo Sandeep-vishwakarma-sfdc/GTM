@@ -20,7 +20,7 @@
       </div>
     </div>
    
-    <c-gtm-filter-panel panel-status={panelStatus} onaction={handleFiltersAction} onback={handleFiltersAction}>
+    <c-gtm-filter-panel panel-status={panelStatus} onaction={handleFiltersAction}>
     </c-gtm-filter-panel>
 
   <div class="slds-scrollable_x slds-scrollable_y" style="height:300px; overflow-y:scroll; margin-top:15px;">
@@ -340,10 +340,12 @@
     
     
     </table>
-    
+    <div if:true={showLoading} class="slds-spinner_inline spinner-padding">
+      <lightning-spinner alternative-text="Loading" size="medium" class="spinnerClass" style="position:fixed;top: 60px;"></lightning-spinner>
+    </div>
   </div>
 
-  <c-pagination-cmp page-size-value="100" tabledata={gtmcompetitor} onaction={handlePaginationAction}>
+  <c-pagination-cmp page-size-value="50" tabledata={gtmcompetitor} onaction={handlePaginationAction}>
     <div class="slds-float_right" style="margin-right: 20rem;" slot="pageNumber"><b class="pagenumber">Page:</b></div>
   </c-pagination-cmp>
   

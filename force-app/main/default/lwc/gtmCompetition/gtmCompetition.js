@@ -37,11 +37,13 @@ import X1_to_8_values_for_UPL_is_not_allowed from '@salesforce/label/c.X1_to_8_v
 import getLeadRecordTypeId from '@salesforce/apex/GTMPathFinder.getLeadRecordTypeId';
 import getGTMDetailsToDisable from '@salesforce/apex/GTMPathFinderHelper.getGTMDetailsToDisable';
 import getLowerHierarchyRecordsToDisable from '@salesforce/apex/GTMPathFinder.getLowerHierarchyRecordsToDisable';
+import getHigherAuthoritiesProfiles from '@salesforce/apex/GTMPathFinderHelper.getHigherAuthoritiesProfiles';
+import getMyProfile from '@salesforce/apex/GTMPathFinderHelper.getMyProfile';
 
 export default class GtmCompetition extends LightningElement {
     disableAll = false;
     @track gtmDetailsToDisable=[];
-    
+    showLoading = false;
 
     @track labels = {
         Customer_Lead_Customer: Customer_Lead_Customer,
@@ -100,6 +102,8 @@ export default class GtmCompetition extends LightningElement {
     }
 
     leadRecordTypeId = '';
+    higherAuthoritiesProfiles = [];
+    myProfile = '';
     @api getCountryValueFromParent;
     
 
@@ -140,6 +144,8 @@ export default class GtmCompetition extends LightningElement {
             this.instrustions = data.Instruction_Competitor__c;
         }
     }
+
+   
     countryLocale = 'es-AR'
     constructor() {
         super()
@@ -167,6 +173,8 @@ export default class GtmCompetition extends LightningElement {
 
     @api onTabRefresh() {
         setTimeout(() => {
+            this.gtmcompetitor = [];
+            this.gtmcompetitor1 = [];
             this.hasOptionsAdded = true;
             this.connectedCallback();
         }, 500);
@@ -188,9 +196,11 @@ export default class GtmCompetition extends LightningElement {
     }
 
     renderedCallback() {
-        let temp=JSON.parse(JSON.stringify(this.gtmcompetitor))
-        console.log('length temp',temp.length);
-        if (!this.hasRendered && temp.length> 0) {
+//!this.higherAuthoritiesProfiles.includes(this.myProfile)
+        if (!this.hasRendered && this.gtmcompetitor.length> 0 && !this.higherAuthoritiesProfiles.includes(this.myProfile)) {
+            this.showLoading = true;
+            let temp=JSON.parse(JSON.stringify(this.gtmcompetitor))
+            console.log('length temp',temp.length);
 
             setTimeout(() => {
                 temp.forEach(row => {
@@ -204,33 +214,37 @@ export default class GtmCompetition extends LightningElement {
                     }
                 })
                 this.gtmDetailsToDisable.forEach(row => {
-                    console.log('row ',row);
+                    // console.log('row ',row);
                     this.template.querySelectorAll('[data-id="' + row.Id + '"]').forEach(cell => {
                         cell.disabled = true;
                     })
                 })
                 this.hasRendered = true;
-            }, 1000);
+                this.showLoading = false;
+            }, 500);
         }
     }
 
 
     connectedCallback() {
-        
+        this.showLoading = true;
+        this.hasRendered = true;
         getLeadRecordTypeId().then(leadRecordId=>{
             this.leadRecordTypeId = leadRecordId;
+            // ,getHigherAuthoritiesProfiles(),getMyProfile()]
         Promise.all([getCompetitorDetails(), getGTMCompetition({ year: this.fiscalYear })]).then(result => {
+            console.log('result ',result);
             let data = [];
             if (!this.hasOptionsAdded) {
                 let objNone = { label: 'None', value: "none" };
                 this.statusOptions.push(objNone);
             }
 
-            if (result.length == 2) {
+            if (result.length >= 2) {
                 console.log('New Comp data',result[0]);
                 result[0] = this.sortCompetitor('competitiorname', 'asc', result[0])
                 result[0].forEach(element => {
-                    console.log('element', element);
+                    // console.log('element', element);
                     let obj = { label: element.competitiorname, value: element.competitiorId };
                     if (!this.hasOptionsAdded) {
                         this.statusOptions.push(obj);
@@ -240,7 +254,7 @@ export default class GtmCompetition extends LightningElement {
             }
             let tempData = [];
             if (data) {
-                data.forEach(ele => {
+                tempData = data.map(ele => {
                     let obj = {
                         id: ele.Id,
                         customer: ele.GTM_Customer__r.Name,
@@ -301,11 +315,9 @@ export default class GtmCompetition extends LightningElement {
                         validateIndicator9:false,
 
                     }
-                    
-
-                    tempData.push(obj);
-
+                    return obj;
                 });
+                console.log('update all records picklist value for each competitor');
                 tempData.forEach(obj => {
                     this.updatePicklistOptions(obj,'');
                 })
@@ -314,26 +326,46 @@ export default class GtmCompetition extends LightningElement {
                     this.gtmcompetitorVirtual = tempData;
                     this.gtmcompetitor1 = this.gtmcompetitor;
                     this.updateStatusLabel();
-                    
+                    this.disableInputs();
+                    this.showLoading = false;
                 }, 200);
                 console.log('Competitior  data ', this.gtmcompetitor);
                 console.log('Competitior1  data ', this.gtmcompetitor1);
                 
             }
+          
         })
     })
-    getGTMDetailsToDisable({recordTypeName:'Competitor'}).then(gtmDetailsToDisable=>{
-        this.gtmDetailsToDisable = JSON.parse(JSON.stringify(gtmDetailsToDisable));
 
-        getLowerHierarchyRecordsToDisable({fiscalyear:this.fiscalYear,recordTypeName:'Competitor'}).then(gtmDetailsOfLowerUser=>{
-            this.gtmDetailsToDisable.push(...JSON.parse(JSON.stringify(gtmDetailsOfLowerUser)));
+    
+
+}
+    
+disableInputs(){
+    getHigherAuthoritiesProfiles().then(higherAuthoritiesProfiles=>{
+        this.higherAuthoritiesProfiles = String(higherAuthoritiesProfiles).split(',');
+        getMyProfile().then(myProfile=>{
+            this.myProfile = myProfile;
+            this.hasRendered = false;
+            console.log('higherAuthoritiesProfiles ',this.higherAuthoritiesProfiles, 'my Profile ',this.myProfile);
+            //!this.higherAuthoritiesProfiles.includes(this.myProfile)
+            if(!this.higherAuthoritiesProfiles.includes(this.myProfile)){
+                getGTMDetailsToDisable({recordTypeName:'Competitor'}).then(gtmDetailsToDisable=>{
+                    this.gtmDetailsToDisable = JSON.parse(JSON.stringify(gtmDetailsToDisable));
+    
+                    getLowerHierarchyRecordsToDisable({fiscalyear:this.fiscalYear,recordTypeName:'Competitor'}).then(gtmDetailsOfLowerUser=>{
+                        this.gtmDetailsToDisable.push(...JSON.parse(JSON.stringify(gtmDetailsOfLowerUser)));
+                    })
+                
+                    console.log('gtmDetailsToDisable ',gtmDetailsToDisable);
+                }).catch(err=>console.log('gtmDetailsToDisable ',err));
+                    this.checkDataYear();
+                }else{
+                    this.disableAll = true;
+                }
         })
-       
-        console.log('gtmDetailsToDisable ',gtmDetailsToDisable);
-    }).catch(err=>console.log('gtmDetailsToDisable ',err));
-        this.checkDataYear();
-    }
-
+    });
+}
 
     handleInputChange(event) {
         
@@ -661,7 +693,7 @@ export default class GtmCompetition extends LightningElement {
         this.updatePicklistOptions(this.gtmcompetitor[gtmIndex],name);
         setTimeout(() => {
             let tempData = JSON.parse(JSON.stringify(this.gtmcompetitor));
-            this.gtmcompetitor = tempData;
+            // this.gtmcompetitor = tempData; // Edited on 13-06-2022
             this.gtmcompetitorVirtual = tempData;
             this.gtmcompetitor1 = this.gtmcompetitor;
             this.updateStatusLabel();
@@ -683,8 +715,6 @@ export default class GtmCompetition extends LightningElement {
 
 
     updateStatusLabel() {
-
-
         let completeField = 0;
         let inProgressField = 0;
         let NotFilled = 0;
@@ -820,8 +850,8 @@ export default class GtmCompetition extends LightningElement {
         setTimeout(() => {
             console.log('curret Page ', event.detail.currentPage);
             this.gtmcompetitor1 = event.detail.values;
+            this.hasRendered = false;
         }, 200);
-
     }
 
 
@@ -832,7 +862,9 @@ export default class GtmCompetition extends LightningElement {
 
 
     applyFiltersOnCustomer(filtersValue) {
+        this.showLoading = true;
         this.template.querySelector('c-pagination-cmp').pagevalue = 1;
+       
         console.log('filtersValue -------------->', filtersValue);
         let mapStatus = new Map([
             ["Not Fill", 'NotFilled'],
@@ -850,10 +882,13 @@ export default class GtmCompetition extends LightningElement {
         filter1Value = filter1Value == 'Lead Customer' ? true : false;
 
 
-        this.gtmcompetitor = [];
-        this.gtmcompetitor1 = [];
-
-        this.gtmcompetitor = this.gtmcompetitorVirtual.filter(ele => {
+        // this.gtmcompetitor = [];
+        let tempCompetitor = [];
+        console.log('filter starts ',performance.now());
+        if(!search && !filter1 && !filter2 && !filter3){
+            tempCompetitor = this.gtmcompetitorVirtual;
+        }else{
+        tempCompetitor = this.gtmcompetitorVirtual.filter(ele => {
             let custName = String(ele.customer).toLowerCase();
             if (search && filter1 && filter2 && filter3) {
                 return custName.includes(searchValue) && String(ele.isLeadCustomer) == String(filter1Value) && ele.status == mapStatus.get(filter2Value) && String(ele.pathFinder) == String(filter3Value);
@@ -901,14 +936,14 @@ export default class GtmCompetition extends LightningElement {
             else if (!search && !filter1 && !filter2 && filter3) {
                 return String(ele.pathFinder) == String(filter3Value);
             }
-            else if (!search && !filter1 && !filter2 && !filter3) {
-                return true;
-            }
-        })
-
-        this.gtmcompetitor1 = JSON.parse(JSON.stringify(this.gtmcompetitor));
+        });
+        }
+        console.log('filter ends ',performance.now());
         setTimeout(() => {
+            this.gtmcompetitor = JSON.parse(JSON.stringify(tempCompetitor));
+            this.gtmcompetitor1 = this.gtmcompetitor; 
             this.updateStatusLabel();
+            this.showLoading = false;
         }, 200);
     }
 
@@ -1002,7 +1037,7 @@ export default class GtmCompetition extends LightningElement {
              
          }
         
-        console.log('Name ',name);
+        // console.log('Name ',name);
         let gtmDetail = {
             Id:obj.id,
             Indicate_share_wallet_of_competitor_1__c:this.isBlank(obj.Indicate1)?undefined:obj.Indicate1,
@@ -1035,18 +1070,16 @@ export default class GtmCompetition extends LightningElement {
             })
             this.showToast('', this.labels.Combined_total_value_more_than_100_is_not_allowed, 'error', 'dismissable');
         }
-        console.log('initialPercentage',initialPercentage);
+        // console.log('initialPercentage',initialPercentage);
         initialPercentage = 100 - initialPercentage;
         obj.remainingPercentage = Number(Number(initialPercentage).toFixed(2)).toLocaleString(this.countryLocale);
-        console.log('initialPercentage obj :', obj);
-        console.log('initialPercentage :', initialPercentage);
+        // console.log('initialPercentage obj :', obj);
+        // console.log('initialPercentage :', initialPercentage);
         if (obj.remainingPercentage > 0) {
             obj.isDistributionCompleted = false;
         } else if (obj.remainingPercentage == 0) {
             obj.isDistributionCompleted = true;
         }
-
-
     }
     showToast(title, message, variant, mode) {
         const event = new ShowToastEvent({

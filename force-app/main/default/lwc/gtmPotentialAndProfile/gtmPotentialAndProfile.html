@@ -55,7 +55,7 @@
         </tr>
       </thead>
       <tbody>
-        <template for:each={paginatedGtmPotentialProfile} for:item="gtm" for:index="index">
+        <template  for:each={paginatedGtmPotentialProfile} for:item="gtm" for:index="index">
           <tr  key={gtm.id}>
             <td class="slds-truncate fix" style="width: 150px;" title={gtm.client}>{gtm.client}</td>
             <td >{gtm.customerType}</td>
@@ -103,7 +103,7 @@
       </tbody>
     </table>
     <div if:true={showLoading} class="slds-spinner_inline spinner-padding">
-      <lightning-spinner alternative-text="Loading" size="medium" class="spinnerClass"></lightning-spinner>
+      <lightning-spinner alternative-text="Loading" size="medium" class="spinnerClass" style="position:fixed;top: 60px;"></lightning-spinner>
     </div>
   </div>
 
