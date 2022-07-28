@@ -238,6 +238,7 @@ export default class GtmCropAllocation extends LightningElement {
                 // this.cropAllocations = JSON.parse(JSON.stringify(this.copyCropAllocationsVirtual));//Added in 1-31-2022
             }, 200);
         }
+        this.showLoading = false;
         // this.copyCropAllocationsVirtual.forEach(ele=>{
         //     ele.crops.forEach(e=>{
         //         if(e.GTMDetail==event.currentTarget.dataset.detail){

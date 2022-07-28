@@ -228,7 +228,7 @@ renderedCallback(){
         this.handleChangeStatusOnLoad(recordId);
         this.updateStatusLabel();
     }, 200);
-  
+   this.showLoading = false;
   }
 
   refreshValue(objIndex,value,apiName){

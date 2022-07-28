@@ -173,6 +173,7 @@ public without sharing class GtmLeadCustomer {
                   FolderId=:UserInfo.getUserId() 
                   AND Name=:documentName];
         if(docList.size()>0){
+            System.debug('@176'+docList.size());
             delete docList;
         }
         
@@ -454,7 +455,7 @@ acc.Lead_Customer_Type__c = csvRowData[4];
     public static void updateAccountMethod(String accountObjList){
         try {
             //insert accountObjList;
-            //System.debug('accountObjList after save '+accountObjList); 
+            System.debug('accountObjList after save '+accountObjList); 
             Sales_Org__c saOrg = new Sales_Org__c();
             saOrg = getSalesOrg();
             List<User> userList = new List<User>();
@@ -491,23 +492,23 @@ acc.Lead_Customer_Type__c = csvRowData[4];
                 }
                 
                 if(userMap.containskey(owneName)){
-                    //System.debug('in true part of ownership');
+                    System.debug('in true part of ownership');
                     accObj.Lead_Customer_Ownership__c = userMap.get(owneName);    
                 }else{
-                   // System.debug('Else Part of blank');
+                    System.debug('Else Part of blank');
                     accObj.Lead_Customer_Ownership__c = null;    
                     
                 }
-                //System.debug('wrpObj.customerType '+wrpObj.customerType);
+                System.debug('wrpObj.customerType '+wrpObj.customerType);
                 accObj.Lead_Customer_Type__c = wrpObj.customerType;
-               // System.debug('wrpObj.pathFinder '+wrpObj.pathFinder);
+                System.debug('wrpObj.pathFinder '+wrpObj.pathFinder);
                 accObj.Path_Finder__c = wrpObj.pathFinder ;
                 accObj.Phone ='0000000000';
                 accList.add(accObj);
                 
             }
             
-           // System.debug('accList in update '+accList);
+            System.debug('accList in update '+accList);
             update accList;
             
             

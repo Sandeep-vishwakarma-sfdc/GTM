@@ -703,6 +703,7 @@ disableInputs(){
             this.clearCell(accountId,name)
             }
         }, 200);
+        this.showLoading = false;
     }
 
     isBlank(str){
