@@ -52,6 +52,7 @@ export default class GtmPathFinder extends NavigationMixin(LightningElement) {
     selectedCountry = '';
     @api recordId;
     showLoading = false;
+    fixedFiscalYear = '';
 
     // @track areDetailsVisible = false;
 
@@ -122,6 +123,12 @@ export default class GtmPathFinder extends NavigationMixin(LightningElement) {
         }
     }
 
+
+    renderedCallback(){
+        console.log('this.fiscalyear',this.fiscalyear);
+        console.log('this.fixedFiscalYear',this.fixedFiscalYear);
+    }
+
     connectedCallback() {
         console.log('Profile Name>>>>>>>>>>>' + PROFILE_NAME_FIELD);
 
@@ -157,6 +164,8 @@ export default class GtmPathFinder extends NavigationMixin(LightningElement) {
 
     loadCurrentYearGTM() {
         getFiscalYear().then(year => {
+            this.fixedFiscalYear = year;
+            console.log('TOCHECK Year ',year);
             let title = year.replace('/', '-');
             this.fiscalyear = title;
             this.title = `${this.labels.GTM_FY} ${title}`;
@@ -175,7 +184,7 @@ export default class GtmPathFinder extends NavigationMixin(LightningElement) {
         getNewlyAddedCrop().then(listCrop => {
             console.log('New Crops ', listCrop);
             if (listCrop.length > 0 && this.fiscalyear) {
-                createGTMAndDetailsCropAllocation({ activeCrops: listCrop, year: this.fiscalyear }).then(data => { }).catch(err => { console.log('createGTMAndDetailsCropAllocation ', err) })
+                createGTMAndDetailsCropAllocation({ activeCrops: listCrop, year: this.fixedFiscalYear }).then(data => { }).catch(err => { console.log('createGTMAndDetailsCropAllocation ', err) })
             }
         }).catch(err => console.log('getNewlyAddedCrop ', getNewlyAddedCrop));
     }
@@ -189,11 +198,11 @@ export default class GtmPathFinder extends NavigationMixin(LightningElement) {
         //     console.log('init completed')
         // }
         try {
-            await getPotentialAndProfile({year:this.fiscalyear}).catch(err=>console.log(err));
-            await getCatergoryAllocation({year:this.fiscalyear}).catch(err=>console.log(err));
-            await getCropAllocation({year:this.fiscalyear}).catch(err=>console.log(err));
-            await getGTMCompetition({year:this.fiscalyear}).catch(err=>console.log(err));
-            await getGTMOutlook({year:this.fiscalyear}).catch(err=>console.log(err));
+            await getPotentialAndProfile({year:this.fixedFiscalYear}).catch(err=>console.log(err));
+            await getCatergoryAllocation({year:this.fixedFiscalYear}).catch(err=>console.log(err));
+            await getCropAllocation({year:this.fixedFiscalYear}).catch(err=>console.log(err));
+            await getGTMCompetition({year:this.fixedFiscalYear}).catch(err=>console.log(err));
+            await getGTMOutlook({year:this.fixedFiscalYear}).catch(err=>console.log(err));
         } catch (error) {
                 console.log('error ',error);
         } finally {
@@ -251,8 +260,8 @@ export default class GtmPathFinder extends NavigationMixin(LightningElement) {
         let d = new Date();
         let monthName = month[d.getMonth()];
         let currentYear = d.getFullYear();
-        if (this.fiscalyear) {
-            let year = (monthName == 'Jan' || monthName == 'Feb' || monthName == 'Mar') ? this.fiscalyear.split('-')[1] : this.fiscalyear.split('-')[0];
+        if (this.fixedFiscalYear) {
+            let year = (monthName == 'Jan' || monthName == 'Feb' || monthName == 'Mar') ? this.fixedFiscalYear.split('-')[1] : this.fixedFiscalYear.split('-')[0];
             if (currentYear != year) {
                 this.disableSubmit = true;
             }

@@ -47,9 +47,9 @@ public without sharing class GTMPathFinderHelper {
         List<Account> leadCustomerList = new List<Account>();
         List<Account> nonLeadCustomerList = new List<Account>();
         if(Schema.sObjectType.Account.isAccessible()){
-            leadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c=:salesorgCode and Account_Type__c='Sold To Party' and recordType.Id=:leadcustomerRecordType and Lead_Customer_Ownership__c=:userInfo.getUserId()];
+            leadCustomerList = [select Id,Name,Lead_Customer_Type__c,SAP_Code__c from Account where Sales_Org_Code__c=:salesorgCode and Account_Type__c='Sold To Party' and recordType.Id=:leadcustomerRecordType and Lead_Customer_Ownership__c=:userInfo.getUserId()];
             System.debug('Lead Customer '+leadCustomerList);
-            nonLeadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c=:salesorgCode and Account_Type__c='Sold To Party' and Lead_Customer__c=null and Lead_Customer_Ownership__c=:userInfo.getUserId() and recordTypeId=:nonleadcustomerRecordType];
+            nonLeadCustomerList = [select Id,Name,Lead_Customer_Type__c,SAP_Code__c from Account where Sales_Org_Code__c=:salesorgCode and Account_Type__c='Sold To Party' and Lead_Customer__c=null and Lead_Customer_Ownership__c=:userInfo.getUserId() and recordTypeId=:nonleadcustomerRecordType];
             System.debug('non lead '+nonLeadCustomerList);
             gtmCustomers.addAll(leadCustomerList);
             gtmCustomers.addAll(nonLeadCustomerList);
@@ -69,6 +69,7 @@ public without sharing class GTMPathFinderHelper {
             gtmd.GTM_Customer_Type__c = acc.Lead_Customer_Type__c;
             gtmd.GTM__c = gtm.Id;
             gtmd.Sales_Org__c = salesorg.Id;
+            gtmd.Combination_key__c = acc.SAP_Code__c+'PotentialProfile'+gtm.Fiscal_Year__c;
             gtmDetails.add(gtmd);
         }
         System.debug('PotentialProfile '+gtmDetails.size());
@@ -84,16 +85,17 @@ public without sharing class GTMPathFinderHelper {
         User userDetails = new User();
         if(Schema.sObjectType.GTM__c.isAccessible() && Schema.sObjectType.User.isAccessible()){
             gtms = [SELECT ID,Name,Fiscal_Year__c from GTM__c where Fiscal_Year__c=:year and Sales_Org__c=:salesOrg.Id and Sales_Rep__c=:userId];
-            userDetails =[SELECT Id, Name, Email, Profile.Name, UserRole.Id,UserRole.Name FROM User where Id=:userId ];
+            userDetails =[SELECT Id, Name, Email, Profile.Name, UserRole.Id,UserRole.Name,UGDN_Number__c FROM User where Id=:userId ];
         }
         GTM__c gtm = new GTM__c();
-        if(gtms.size()==0){
+        if(gtms.size()==0 && validateYear(year)){
             gtm.Fiscal_Year__c = year;
             gtm.GTM_Status__c = 'Draft';
             gtm.Sales_Org__c = salesOrg.Id;
             gtm.Sales_Rep__c = userInfo.getUserId();
             gtm.Sales_Rep_Name__c = userInfo.getName();
             gtm.Role__c = userDetails.UserRole.Name;
+            gtm.Combination_key__c = userDetails.UGDN_Number__c+year+salesOrg.Sales_Org_Code__c;
             if(Schema.sObjectType.GTM__c.isCreateable()){
                 System.debug('Create GTM');
                 insert gtm;
@@ -126,6 +128,7 @@ public without sharing class GTMPathFinderHelper {
                 gtmDetail.Sales_Org__c = salesOrg.Id;
                 gtmDetail.GTM__c = gtms[0].Id;
                 gtmDetail.GTM_Details__c = mapPotentialProfile.get(acc.Id).Id;
+                gtmDetail.Combination_key__c = acc.SAP_Code__c+'ProductCategoryAllocation'+pc.Product_Category_Code__c+gtms[0].Fiscal_Year__c;
                 gtmDetails.add(gtmDetail);
             }
         }
@@ -144,15 +147,16 @@ public without sharing class GTMPathFinderHelper {
         Id userId = userInfo.getUserId();
         List<GTM__c> gtms = new  List<GTM__c>();
         gtms = [SELECT ID,Name,Fiscal_Year__c from GTM__c where Fiscal_Year__c=:year and Sales_Org__c=:salesOrg.Id and Sales_Rep__c=:userId];
-        User userDetails =[SELECT Id, Name, Email, Profile.Name, UserRole.Id,UserRole.Name FROM User where Id=:userId ];
+        User userDetails =[SELECT Id, Name, Email, Profile.Name, UserRole.Id,UserRole.Name,UGDN_Number__c FROM User where Id=:userId ];
         GTM__c gtm = new GTM__c();
-        if(gtms.size()==0){
+        if(gtms.size()==0 && validateYear(year)){
             gtm.Fiscal_Year__c = year;
             gtm.GTM_Status__c = 'Draft';
             gtm.Sales_Org__c = salesOrg.Id;
             gtm.Sales_Rep__c = userInfo.getUserId();
             gtm.Sales_Rep_Name__c = userInfo.getName();
             gtm.Role__c = userDetails.UserRole.Name; //TODO: Need to set user role using Query
+            gtm.Combination_key__c = userDetails.UGDN_Number__c+year+salesOrg.Sales_Org_Code__c;
             if(Schema.sObjectType.GTM__c.isCreateable() && !String.isEmpty(year)){
                 System.debug('Create GTM');//TODO
                 insert gtm;
@@ -184,6 +188,7 @@ public without sharing class GTMPathFinderHelper {
                 gtmDetail.Sales_Org__c = salesOrg.Id;
                 gtmDetail.GTM__c = gtms[0].Id;
                 gtmDetail.GTM_Details__c = mapPotentialProfile.get(acc.Id).Id;
+                gtmDetail.Combination_key__c = acc.SAP_Code__c+'CropAllocation'+crop.Crop_Code__c+gtms[0].Fiscal_Year__c;
                 gtmDetails.add(gtmDetail);
             }
         }
@@ -220,6 +225,7 @@ public without sharing class GTMPathFinderHelper {
            gtmd.GTM_Customer_Type__c = acc.Lead_Customer_Type__c;
            gtmd.GTM__c = gtm.Id;
            gtmd.Sales_Org__c = salesorg.Id;
+           gtmd.Combination_key__c = acc.SAP_Code__c+'PotentialProfile'+gtm.Fiscal_Year__c;
            gtmDetails.add(gtmd);
        }
        if(isSalesRep){
@@ -242,6 +248,7 @@ public without sharing class GTMPathFinderHelper {
                gtmDetail.Sales_Org__c = salesOrg.Id;
                gtmDetail.GTM__c = gtm.Id;
                gtmDetail.GTM_Details__c = mapPotentialProfile.get(acc.Id).Id;
+               gtmDetail.Combination_key__c = acc.SAP_Code__c+'CropAllocation'+crop.Crop_Code__c+gtm.Fiscal_Year__c;
                gtmDetails.add(gtmDetail);
            }
        }
@@ -262,6 +269,7 @@ public without sharing class GTMPathFinderHelper {
                gtmDetail.Sales_Org__c = salesOrg.Id;
                gtmDetail.GTM__c = gtm.Id;
                gtmDetail.GTM_Details__c = mapPotentialProfile.get(acc.Id).Id;
+               gtmDetail.Combination_key__c = acc.SAP_Code__c+'ProductCategoryAllocation'+pc.Product_Category_Code__c+gtm.Fiscal_Year__c;
                gtmDetails.add(gtmDetail);
            }
        }
@@ -278,6 +286,7 @@ public without sharing class GTMPathFinderHelper {
            gtmd.GTM__c=gtm.Id;
            gtmd.Sales_Org__c=salesOrg.Id;
            gtmd.GTM_Details__c = mapPotentialProfile.get(acc.Id).Id;
+           gtmd.Combination_key__c = acc.SAP_Code__c+'Competition'+gtm.Fiscal_Year__c;
            gtmDetails.add(gtmd);
        }
        if(isSalesRep){
@@ -293,6 +302,7 @@ public without sharing class GTMPathFinderHelper {
            gtmDetailsTemp.Sales_Org__c = salesorg.Id;
            gtmDetailsTemp.GTM__c = gtm.Id;
            gtmDetailsTemp.GTM_Details__c = mapPotentialProfile.get(acc.Id).Id;
+           gtmDetailsTemp.Combination_key__c = acc.SAP_Code__c+'Outlook'+gtm.Fiscal_Year__c;
            gtmDetails.add(gtmDetailsTemp);
         }
         if(isSalesRep){
@@ -309,9 +319,9 @@ public without sharing class GTMPathFinderHelper {
     List<GTM__c> gtms = new  List<GTM__c>();
     Id userId = userInfo.getUserId();
         gtms = [SELECT ID,Name,Fiscal_Year__c,Email__c from GTM__c where Fiscal_Year__c=:year and Sales_Org__c=:salesOrg.Id and Sales_Rep__c=:userId];
-        User userDetails =[SELECT Id, Name, Email, Profile.Name, UserRole.Id,UserRole.Name FROM User where Id=:userId ];
+        User userDetails =[SELECT Id, Name, Email, Profile.Name, UserRole.Id,UserRole.Name,UGDN_Number__c FROM User where Id=:userId ];
         GTM__c gtm = new GTM__c();
-        if(gtms.size()==0){
+        if(gtms.size()==0 && validateYear(year)){
             gtm.Fiscal_Year__c = year;
             gtm.GTM_Status__c = 'Draft';
             gtm.Sales_Org__c = salesOrg.Id;
@@ -319,6 +329,7 @@ public without sharing class GTMPathFinderHelper {
             gtm.Sales_Rep_Name__c = userInfo.getName();
             gtm.Role__c = userDetails.UserRole.Name;
             gtm.Email__c=userDetails.Email;
+            gtm.Combination_key__c = userDetails.UGDN_Number__c+year+salesOrg.Sales_Org_Code__c;
             if(Schema.sObjectType.GTM__c.isCreateable() && isSalesRep){
                 System.debug('Create GTM');
                 insert gtm;
@@ -348,6 +359,7 @@ public without sharing class GTMPathFinderHelper {
             gtmd.GTM__c=gtms[0].Id;
             gtmd.Sales_Org__c=salesorg.Id;
             gtmd.GTM_Details__c = mapPotentialProfile.get(acc.Id).Id;
+            gtmd.Combination_key__c = acc.SAP_Code__c+'Competition'+gtms[0].Fiscal_Year__c;
             gtmDetailstToInsert.add(gtmd);
 
         }
@@ -391,6 +403,7 @@ public without sharing class GTMPathFinderHelper {
                    gtmDetailsTemp.Sales_Org__c = salesorg.Id;
                    gtmDetailsTemp.GTM__c = gtm.Id;
                    gtmDetailsTemp.GTM_Details__c = mapPotentialProfile.get(acc.Id).Id;
+                   gtmDetailsTemp.Combination_key__c = acc.SAP_Code__c+'Outlook'+gtm.Fiscal_Year__c;
                    gtmDetailsList.add(gtmDetailsTemp);
           }
           insert gtmDetailsList;
@@ -477,8 +490,11 @@ public without sharing class GTMPathFinderHelper {
 
    @AuraEnabled(cacheable=true)
    public static string getMyProfile(){
-        User userDetails =[SELECT Id, Name, Email, Profile.Name, UserRole.Id,UserRole.Name FROM User where Id=:UserInfo.getUserId() ];
+        User userDetails =[SELECT Id, Name, Email, Profile.Name, UserRole.Id,UserRole.Name,UGDN_Number__c FROM User where Id=:UserInfo.getUserId() ];
         return userDetails.Profile.Name;
    }
   
+   public static boolean validateYear(String year){
+        return year.contains('-');
+   }
 }

@@ -62,10 +62,10 @@ public with sharing class GTMPathFinder {
             User userDetails = null;
             if(Schema.sObjectType.GTM__c.isAccessible() && Schema.sObjectType.User.isAccessible()){
              gtms = [SELECT ID,Name,Fiscal_Year__c from GTM__c where Fiscal_Year__c=:year and Sales_Org__c=:salesOrg.Id and Sales_Rep__c=:userId];
-             userDetails =[SELECT Id, Name, Email, Profile.Name, UserRole.Id,UserRole.Name FROM User where Id=:userId ];
+             userDetails =[SELECT Id, Name, Email,UGDN_Number__c, Profile.Name, UserRole.Id,UserRole.Name FROM User where Id=:userId ];
             }
              GTM__c gtm = new GTM__c();
-           if(gtms.size()==0){
+           if(gtms.size()==0 && GTMPathFinderHelper.validateYear(year)){
                 gtm.Fiscal_Year__c = year;
                 gtm.GTM_Status__c = 'Draft';
                 gtm.Sales_Org__c = salesOrg.Id;
@@ -73,7 +73,8 @@ public with sharing class GTMPathFinder {
                 gtm.Sales_Rep_Name__c = userInfo.getName();
                 gtm.Role__c = userDetails.UserRole.Name;
                 gtm.Email__c = userDetails.Email;
-                if(Schema.sObjectType.GTM__c.isCreateable() && isSalesRep){
+                gtm.Combination_key__c = userDetails.UGDN_Number__c+year+salesOrg.Sales_Org_Code__c;
+                if(Schema.sObjectType.GTM__c.isCreateable() && isSalesRep && !String.isEmpty(year)){
                     System.debug('Create GTM');
                     insert gtm;
                     gtms.add(gtm);
@@ -175,10 +176,14 @@ public with sharing class GTMPathFinder {
             if(isSalesRep){
                 gtmCustomers = GTMPathFinderHelper.getGTMSalesRepCustomer(leadcustomerRecordType,nonleadcustomerRecordType,salesOrg.Sales_Org_Code__c);
             }else{
-            leadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c and Account_Type__c='Sold To Party' and recordType.Id=:leadcustomerRecordType and Lead_Customer_Ownership__c!=null];
+            leadCustomerList = [select Id,Name,Lead_Customer_Type__c,SAP_Code__c from Account where Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c and Account_Type__c='Sold To Party' and recordType.Id=:leadcustomerRecordType and Lead_Customer_Ownership__c!=null];
             System.debug('Lead Customer '+leadCustomerList);
             // Getting non-lead customer when lead customer field is empty
-            nonLeadCustomerList = [select Id,Name,Lead_Customer_Type__c from Account where Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c and Account_Type__c='Sold To Party' and Lead_Customer__c=null and recordTypeId=:nonleadcustomerRecordType  and Lead_Customer_Ownership__c!=null];
+            if(salesOrg.Sales_Org_Code__c!='5191'){
+            nonLeadCustomerList = [select Id,Name,Lead_Customer_Type__c,SAP_Code__c from Account where Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c and Account_Type__c='Sold To Party' and Lead_Customer__c=null and recordTypeId=:nonleadcustomerRecordType  and Lead_Customer_Ownership__c!=null];
+            }else{
+                nonLeadCustomerList = [select Id,Name,Lead_Customer_Type__c,SAP_Code__c from Account where Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c and Account_Type__c='Sold To Party' and Lead_Customer__c='001' and recordTypeId=:nonleadcustomerRecordType  and Lead_Customer_Ownership__c!=null];
+            }
             System.debug('non lead '+nonLeadCustomerList);
             gtmCustomers.addAll(leadCustomerList);
             gtmCustomers.addAll(nonLeadCustomerList);
@@ -194,13 +199,14 @@ public with sharing class GTMPathFinder {
         List<Product_Category_Sales_Org_Mapping__c> productCategoryMapping = new List<Product_Category_Sales_Org_Mapping__c>();
         List<Product_Category__c> productCategories = new List<Product_Category__c>();
         if(Schema.sObjectType.Product_Category_Sales_Org_Mapping__c.isAccessible() && Schema.sObjectType.Product_Category__c.isAccessible()){
-            productCategoryMapping = [select id,Name,Product_Category__c,Product_Category__r.Name,Product_Category__r.Help_Text__c from Product_Category_Sales_Org_Mapping__c where Status__c='Active' and Sales_Org__r.Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c];
+            productCategoryMapping = [select id,Name,Product_Category__c,Product_Category__r.Product_Category_Code__c,Product_Category__r.Name,Product_Category__r.Help_Text__c from Product_Category_Sales_Org_Mapping__c where Status__c='Active' and Sales_Org__r.Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c];
             List<String> productCategoriesId = new List<String>(); 
             for(Product_Category_Sales_Org_Mapping__c pcm:productCategoryMapping){
                 Product_Category__c productCategory = new Product_Category__c();
                 productCategory.Id = pcm.Product_Category__r.Id;
                 productCategory.Name = pcm.Product_Category__r.Name;
                 productCategory.Help_Text__c = pcm.Product_Category__r.Help_Text__c;
+                productCategory.Product_Category_Code__c = pcm.Product_Category__r.Product_Category_Code__c;
                 productCategories.add(productCategory);
             }
         }
@@ -244,8 +250,9 @@ public with sharing class GTMPathFinder {
     public static List<Crop__c> getActiveCrop(){
     List<Crop__c> listCrop = new List<Crop__c>();
         if(Schema.sObjectType.Crop__c.isAccessible()){
-            listCrop = [select Id,Name,Help_Text__c from Crop__c where GTM_Status__c='Active' and Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c];
+            listCrop = [select Id,Name,Help_Text__c,Crop_Code__c from Crop__c where GTM_Status__c='Active' and Sales_Org_Code__c=:salesOrg.Sales_Org_Code__c];
         }
+        System.debug('All Active Crop '+listCrop[0]);
         return listCrop;
     }
 
@@ -256,7 +263,7 @@ public with sharing class GTMPathFinder {
         Login_Country__c loginCountry = null;
         User usr;
         if(Schema.sObjectType.User.isAccessible()){
-          usr = [Select Id,Name,Country,profile.Name from User where id=:userInfo.getUserId()];
+          usr = [Select Id,Name,Country,profile.Name,UGDN_Number__c from User where id=:userInfo.getUserId()];
         }
          if(usr!=null){
             country =  usr.Country;
@@ -483,7 +490,7 @@ System.debug('gtm'+gtm);
 
     @AuraEnabled(cacheable=true)
     public static User getUser(){
-        User usr = [select Id,Name,Country from User where id=:userInfo.getUserId()];
+        User usr = [select Id,Name,Country,UGDN_Number__c from User where id=:userInfo.getUserId()];
         return usr;
     }
 
@@ -502,7 +509,7 @@ System.debug('gtm'+gtm);
      @AuraEnabled
      public static string updateSelectedSalesOrgName(String selectedCountryCode){
 
-        User u = [Select Id,Name,Profile.Name from User where id=:userInfo.getUserId() ];
+        User u = [Select Id,Name,Profile.Name,UGDN_Number__c from User where id=:userInfo.getUserId() ];
         if(u.profile.name== 'Pathfinder'){
             GTMPathFinderUser__c gtmPathFinderUser = [select Id,Name,Profile_Name__c,Sales_Org_Code__c from GTMPathFinderUser__c where Profile_Name__c='Pathfinder' limit 1];
             gtmPathFinderUser.Sales_Org_Code__c = selectedCountryCode;

@@ -8,6 +8,8 @@ public with sharing class GTMOutlook {
        String fiscalYear = year;
        List<GTM__c> gtmList = [Select Id, Sales_Org__c, Fiscal_Year__c, Sales_Rep__c From GTM__c 
                                WHERE Sales_Org__r.Sales_Org_Code__c=:salesorg.Sales_Org_Code__c AND Fiscal_Year__c=:fiscalYear AND Sales_Rep__c=:userInfo.getUserId()];
+      
+       User userDetails =[SELECT Id, Name, Email, Profile.Name, UserRole.Id,UserRole.Name,UGDN_Number__c FROM User where Id=:userInfo.getUserId()];
 
        System.debug('List Of gtm--->' +gtmList); 
        GTM__c gtm;
@@ -18,6 +20,7 @@ public with sharing class GTMOutlook {
         gtm.Sales_Org__c = salesorg.Id;
         gtm.Sales_Rep__c = userInfo.getUserId();
         gtm.Sales_Rep_Name__c = userInfo.getName();
+        gtm.Combination_key__c = userDetails.UGDN_Number__c+fiscalYear+salesOrg.Sales_Org_Code__c;
         System.debug('insert Details ');
         insert gtm;
        }else{
