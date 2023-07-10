@@ -10,6 +10,7 @@
 *-------------------------------------------------------------------------------------------
 *  1.0              Sandeep             03/08/2022           Initial Creation                                                      
 *******************************************************************************************/
+// Test Comment
 public with sharing class GTMPathFinder {
     
     public static String fiscalyear = setFiscalYear('');
@@ -53,6 +54,7 @@ public with sharing class GTMPathFinder {
         return fiscalyear;
     }
 
+    // Test Comment
     @AuraEnabled
     public static List<GTM_Details__c> getPotentialAndProfile(String year){ // PotentialAndProfile Data used in GTMComponents
         List<GTM_Details__c> gtmPotentialProfile = new List<GTM_Details__c>();
@@ -124,7 +126,7 @@ public with sharing class GTMPathFinder {
         System.debug('----------> '+gtmProductAllocation);
         return gtmProductAllocation;
     }
-
+// Test Comment
     @AuraEnabled
     public static Map<string,List<GTM_Details__c>> getCropAllocation(String year){ // Crop Allocation Data used in GTMComponents
         System.debug('getCropAllocation Year '+year);
@@ -206,7 +208,7 @@ public with sharing class GTMPathFinder {
         }
         return productCategories;
     }
-
+// Test Comment
 
     public static List<GTM_Details__c> getGTMPotentialProfile(String fiscalyear){
         Id recordTypePotentialProfile = Schema.SObjectType.GTM_Details__c.getRecordTypeInfosByName().get('Profile & Potential').getRecordTypeId();
@@ -464,7 +466,7 @@ public with sharing class GTMPathFinder {
             return false;
         }
     }
-
+// Test Comment
     @AuraEnabled
     public static GTM__c getGTM(String id){
         GTM__c gtm = [SELECT ID,Name,Fiscal_Year__c from GTM__c where Id=:id];
